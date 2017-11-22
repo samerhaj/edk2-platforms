@@ -1,0 +1,70 @@
+#  @file
+#
+#  Copyright (c) 2016, Freescale Semiconductor, Inc. All rights reserved.
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = PlatformLib
+  FILE_GUID                      = 736343a0-1d96-11e0-aaaa-0002a5d5c51b
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = ArmPlatformLib
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  ArmPlatformPkg/ArmPlatformPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdePkg/MdePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[LibraryClasses]
+  ArmLib
+  SocLib
+
+[Sources.common]
+  NxpQoriqLsHelper.S    | GCC
+  NxpQoriqLsMem.c
+  ArmPlatformLib.c
+
+[Ppis]
+  gArmMpCoreInfoPpiGuid
+
+[FeaturePcd]
+  gEmbeddedTokenSpaceGuid.PcdCacheEnable
+
+[FixedPcd]
+  gArmTokenSpaceGuid.PcdArmPrimaryCore
+  gNxpQoriqLsTokenSpaceGuid.PcdCcsrBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdCcsrSize
+  gNxpQoriqLsTokenSpaceGuid.PcdIfcRegion1BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdIfcRegion1Size
+  gNxpQoriqLsTokenSpaceGuid.PcdIfcRegion2BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdIfcRegion2Size
+  gNxpQoriqLsTokenSpaceGuid.PcdQmanSwpBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdQmanSwpSize
+  gNxpQoriqLsTokenSpaceGuid.PcdBmanSwpBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdBmanSwpSize
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp1BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp1BaseSize
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp2BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp2BaseSize
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp3BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp3BaseSize
+  gNxpQoriqLsTokenSpaceGuid.PcdDram1BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdDram1Size
+  gNxpQoriqLsTokenSpaceGuid.PcdDram2BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdDram2Size
+  gNxpQoriqLsTokenSpaceGuid.PcdDram3BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdDram3Size
+  gNxpQoriqLsTokenSpaceGuid.PcdQspiRegionBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdQspiRegionSize
