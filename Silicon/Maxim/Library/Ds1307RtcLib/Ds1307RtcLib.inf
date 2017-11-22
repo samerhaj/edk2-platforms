@@ -1,0 +1,45 @@
+#  @Ds1307RtcLib.inf
+#
+#  Copyright (c) 2016, Freescale Semiconductor, Inc. All rights reserved.
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = Ds1307RtcLib
+  FILE_GUID                      = 7112fb46-8dda-4a41-ac40-bf212fedfc08
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = RealTimeClockLib
+
+[Sources.common]
+  Ds1307RtcLib.c
+
+[Packages]
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdePkg/MdePkg.dec
+  Silicon/Maxim/Library/Ds1307RtcLib/Ds1307RtcLib.dec
+
+[LibraryClasses]
+  DebugLib
+  UefiBootServicesTableLib
+  UefiLib
+
+[Protocols]
+  gEfiDriverBindingProtocolGuid        ## CONSUMES
+  gEfiI2cMasterProtocolGuid            ## CONSUMES
+
+[FixedPcd]
+  gDs1307RtcLibTokenSpaceGuid.PcdI2cSlaveAddress
+  gDs1307RtcLibTokenSpaceGuid.PcdI2cBusFrequency
+
+[Depex]
+  gEfiI2cMasterProtocolGuid
