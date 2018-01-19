@@ -1,0 +1,47 @@
+#  WatchDog.inf
+#
+#  Component description file for  WatchDog module
+#
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = WatchDogDxe
+  FILE_GUID                      = 0358b544-ec65-4339-89cd-cad60a3dd787
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = WdogInitialize
+
+[Sources.common]
+  WatchDog.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[LibraryClasses]
+  BaseLib
+  BeIoLib
+  PcdLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+
+[Pcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdWdog1BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdWdogBigEndian
+
+[Protocols]
+  gEfiWatchdogTimerArchProtocolGuid
+
+[Depex]
+  TRUE
