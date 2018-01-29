@@ -1,0 +1,66 @@
+#  @file
+#
+#  Component description file for NorFlashDxe module
+#
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = NorFlashDxe
+  FILE_GUID                      = 616fe8d8-f4aa-42e0-a393-b332bdb2d3c1
+  MODULE_TYPE                    = DXE_RUNTIME_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = NorFlashInitialise
+
+[Sources.common]
+  NorFlashDxe.c
+  NorFlashFvbDxe.c
+  NorFlashBlockIoDxe.c
+
+[Packages]
+  ArmPlatformPkg/ArmPlatformPkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  MdePkg/MdePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[LibraryClasses]
+  DxeServicesTableLib
+  HobLib
+  NorFlashLib
+  UefiDriverEntryPoint
+  UefiRuntimeLib
+
+[Guids]
+  gEfiSystemNvDataFvGuid
+  gEfiVariableGuid
+  gEfiAuthenticatedVariableGuid
+  gEfiEventVirtualAddressChangeGuid
+
+[Protocols]
+  gEfiBlockIoProtocolGuid
+  gEfiFirmwareVolumeBlockProtocolGuid
+
+[Pcd.common]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase64
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableSize
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase64
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingSize
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase64
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareSize
+  gNxpQoriqLsTokenSpaceGuid.PcdIfcNandReservedSize
+
+[Depex]
+  #
+  # NorFlashDxe must be loaded before VariableRuntimeDxe in case empty flash needs populating with default values
+  #
+  BEFORE gVariableRuntimeDxeFileGuid
