@@ -18,12 +18,15 @@
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib/MemLibInternals.h>
 #include <Library/DebugLib.h>
+#include <Library/IfcLib.h>
 #include <Library/IoLib.h>
 #include <Library/PcdLib.h>
 #include <Library/PrintLib.h>
 #include <Library/SerialPortLib.h>
 
 #include "Soc.h"
+
+extern VOID PrintBoardPersonality (VOID);
 
 /**
   Calculate the frequency of various controllers and
@@ -167,6 +170,8 @@ SocInit (
   //
   PrintRCW ();
   PrintSoc ();
+  IfcInit();
+  PrintBoardPersonality ();
 
   return;
 }

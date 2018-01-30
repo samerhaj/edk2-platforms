@@ -63,5 +63,6 @@
   gNxpQoriqLsTokenSpaceGuid.PcdNumI2cController|4
   gNxpQoriqLsTokenSpaceGuid.PcdQspiRegionBaseAddr|0x40000000
   gNxpQoriqLsTokenSpaceGuid.PcdQspiRegionSize|0x20000000
+  gNxpQoriqLsTokenSpaceGuid.PcdIfcBaseAddr|0x1530000
 
 ##

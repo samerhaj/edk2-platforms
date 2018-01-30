@@ -31,6 +31,8 @@
   BaseLib
   BeIoLib
   DebugLib
+  FpgaLib
+  IfcLib
   SerialPortLib
 
 [Sources.common]
