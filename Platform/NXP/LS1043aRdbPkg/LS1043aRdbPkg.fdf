@@ -55,6 +55,7 @@ gArmTokenSpaceGuid.PcdFvBaseAddress|gArmTokenSpaceGuid.PcdFvSize
 FV = FVMAIN_COMPACT
 
 !include ../FVRules.fdf.inc
+!include ../VarStore.fdf.inc
 ################################################################################
 #
 # FV Section
@@ -103,7 +104,8 @@ READ_LOCK_STATUS   = TRUE
   INF MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf
   INF MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
   INF EmbeddedPkg/EmbeddedMonotonicCounter/EmbeddedMonotonicCounter.inf
-  INF MdeModulePkg/Universal/Variable/EmuRuntimeDxe/EmuVariableRuntimeDxe.inf
+  INF MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
+  INF MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
   INF MdeModulePkg/Universal/ResetSystemRuntimeDxe/ResetSystemRuntimeDxe.inf
 
   INF Silicon/NXP/Drivers/I2cDxe/I2cDxe.inf
@@ -121,6 +123,11 @@ READ_LOCK_STATUS   = TRUE
 
   INF EmbeddedPkg/MetronomeDxe/MetronomeDxe.inf
   INF EmbeddedPkg/SimpleTextInOutSerial/SimpleTextInOutSerial.inf
+
+  #
+  # NOR Driver
+  #
+  INF Silicon/NXP/Drivers/NorFlashDxe/NorFlashDxe.inf
 
   #
   # Network modules

@@ -41,6 +41,7 @@
   IfcLib|Silicon/NXP/Library/IfcLib/IfcLib.inf
   BoardLib|Platform/NXP/LS1043aRdbPkg/Library/BoardLib/BoardLib.inf
   FpgaLib|Platform/NXP/LS1043aRdbPkg/Library/FpgaLib/FpgaLib.inf
+  NorFlashLib|Silicon/NXP/Library/NorFlashLib/NorFlashLib.inf
 
 [PcdsFixedAtBuild.common]
 
@@ -77,6 +78,13 @@
   gDs1307RtcLibTokenSpaceGuid.PcdI2cSlaveAddress|0x68
   gDs1307RtcLibTokenSpaceGuid.PcdI2cBusFrequency|100000
 
+  #
+  # NV Storage PCDs.
+  #
+  gArmTokenSpaceGuid.PcdVFPEnabled|1
+  gNxpQoriqLsTokenSpaceGuid.PcdFlashDeviceBase64|0x060000000
+  gNxpQoriqLsTokenSpaceGuid.PcdFlashReservedRegionBase64|0x60300000
+
 ################################################################################
 #
 # Components Section - list of all EDK II Modules needed by this Platform
@@ -86,9 +94,15 @@
   #
   # Architectural Protocols
   #
-  MdeModulePkg/Universal/Variable/EmuRuntimeDxe/EmuVariableRuntimeDxe.inf
+
+  MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf{
+     <LibraryClasses>
+     NULL|MdeModulePkg/Library/VarCheckUefiLib/VarCheckUefiLib.inf
+  }
+  MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
 
   Silicon/NXP/Drivers/WatchDog/WatchDogDxe.inf
   Silicon/NXP/Drivers/I2cDxe/I2cDxe.inf
+  Silicon/NXP/Drivers/NorFlashDxe/NorFlashDxe.inf
 
  ##
