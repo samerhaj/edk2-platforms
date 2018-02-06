@@ -494,7 +494,11 @@ PciHostBridgeGetRootBridges (
     break;
   }
 
-  return &mPciRootBridges[Idx];
+  if (*Count == 0) {
+     return NULL;
+  } else {
+     return &mPciRootBridges[Idx];
+  }
 }
 
 /**
