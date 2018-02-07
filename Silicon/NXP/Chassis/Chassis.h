@@ -57,6 +57,7 @@ CpuMaskNext (
 #define SVR_WO_E                    0xFFFFFE
 #define SVR_LS1043A                 0x879200
 #define SVR_LS1046A                 0x870700
+#define SVR_LS2088A                 0x870901
 
 #define SVR_MAJOR(svr)              (((svr) >> 4) & 0xf)
 #define SVR_MINOR(svr)              (((svr) >> 0) & 0xf)
@@ -140,6 +141,22 @@ CpuMask (
 UINTN
 CpuNumCores (
   VOID
+  );
+
+/*
+ * Return the type of initiator for core/hardware accelerator for given core index.
+ */
+UINT32
+QoriqCoreToType (
+  IN UINTN Core
+  );
+
+/*
+ *  Return the cluster of initiator for core/hardware accelerator for given core index.
+ */
+UINT32
+QoriqCoreToCluster (
+  IN UINTN Core
   );
 
 #endif /* __CHASSIS_H__ */

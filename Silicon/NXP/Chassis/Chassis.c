@@ -45,6 +45,7 @@ GurRead (
 STATIC CPU_TYPE CpuTypeList[] = {
   CPU_TYPE_ENTRY (LS1043A, LS1043A, 4),
   CPU_TYPE_ENTRY (LS1046A, LS1046A, 4),
+  CPU_TYPE_ENTRY (LS2088A, LS2088A, 8),
 };
 
 /*
@@ -139,6 +140,40 @@ CpuNumCores (
   )
 {
     return CountSetBits (CpuMask ());
+}
+
+/*
+ *  Return core's cluster
+ */
+UINT32
+QoriqCoreToCluster (
+  IN UINTN Core
+  )
+{
+  CCSR_GUR  *GurBase;
+  UINTN     ClusterIndex;
+  UINTN     Count;
+  UINT32    Cluster;
+  UINT32    Type;
+  UINTN     InitiatorIndex;
+
+  GurBase = (VOID *)PcdGet64 (PcdGutsBaseAddr);
+  ClusterIndex = 0;
+  Count = 0;
+  do {
+    Cluster = GurRead ((UINTN)&GurBase->TpCluster[ClusterIndex].Lower);
+    for (InitiatorIndex = 0; InitiatorIndex < TP_INIT_PER_CLUSTER; InitiatorIndex++) {
+      Type = InitiatorType (Cluster, InitiatorIndex);
+      if (Type) {
+        if (Count == Core)
+          return ClusterIndex;
+        Count++;
+      }
+    }
+    ClusterIndex++;
+  } while (CHECK_CLUSTER (Cluster));
+
+  return -1;      // cannot identify the cluster
 }
 
 /*

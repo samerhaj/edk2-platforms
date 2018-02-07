@@ -1,0 +1,48 @@
+#  @file
+#
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = SocLib
+  FILE_GUID                      = 3b233a6a-0ee1-42a3-a7f7-c285b5ba80dc
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SocLib
+
+[Packages]
+  MdeModulePkg/MdeModulePkg.dec
+  MdePkg/MdePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+  Silicon/NXP/Chassis/Chassis3/Chassis3.dec
+  Silicon/NXP/LS2088A/LS2088A.dec
+
+[LibraryClasses]
+  BaseLib
+  BeIoLib
+  DebugLib
+  SerialPortLib
+
+[Sources.common]
+  Chassis.c
+  Chassis3/Soc.c
+  SerDes.c
+
+[FixedPcd]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString
+  gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPlatformFreqDiv
+  gNxpQoriqLsTokenSpaceGuid.PcdSerdes2Enabled
+  gNxpQoriqLsTokenSpaceGuid.PcdGurBigEndian
+  gNxpQoriqLsTokenSpaceGuid.PcdClkBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdDdrClk
