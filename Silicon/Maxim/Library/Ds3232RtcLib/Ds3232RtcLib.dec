@@ -1,0 +1,31 @@
+#/** @file
+#
+# Copyright 2017 NXP
+#
+# This program and the accompanying materials
+# are licensed and made available under the terms and conditions of the BSD License
+# which accompanies this distribution.  The full text of the license may be found at
+# http://opensource.org/licenses/bsd-license.php
+#
+# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#**/
+
+[Defines]
+  DEC_SPECIFICATION              = 0x0001001A
+  PACKAGE_NAME                   = Ds3232RtcLib
+  PACKAGE_GUID                   = 0b4192f7-e404-4019-b2e5-1e6004da3313
+  PACKAGE_VERSION                = 0.1
+
+[Guids]
+  gDs3232RtcLibTokenSpaceGuid = { 0x7960fc51, 0x0832, 0x4f0b, { 0xb4, 0x22, 0x53, 0x87, 0x03, 0xaa, 0x85, 0xda }}
+
+[PcdsFixedAtBuild]
+  gDs3232RtcLibTokenSpaceGuid.PcdI2cSlaveAddress|0|UINT8|0x00000001
+  gDs3232RtcLibTokenSpaceGuid.PcdI2cBusFrequency|0|UINT32|0x00000002
+  gDs3232RtcLibTokenSpaceGuid.PcdIsRtcDeviceMuxed|FALSE|BOOLEAN|0x00000003
+  gDs3232RtcLibTokenSpaceGuid.PcdMuxDeviceAddress|0|UINT8|0x00000004
+  gDs3232RtcLibTokenSpaceGuid.PcdMuxControlRegOffset|0|UINT8|0x00000005
+  gDs3232RtcLibTokenSpaceGuid.PcdMuxRtcChannelValue|0|UINT8|0x00000006
+  gDs3232RtcLibTokenSpaceGuid.PcdMuxDefaultChannelValue|0|UINT8|0x00000007

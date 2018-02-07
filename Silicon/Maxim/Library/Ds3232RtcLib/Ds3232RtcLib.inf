@@ -1,0 +1,49 @@
+#  @Ds3232RtcLib.inf
+#
+#  Copyright (c) 2016, Freescale Semiconductor, Inc. All rights reserved.
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = Ds3232RtcLib
+  FILE_GUID                      = 97f1f2c2-51e1-47ad-9660-70b33da1fe71
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = RealTimeClockLib
+
+[Sources.common]
+  Ds3232RtcLib.c
+
+[Packages]
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdePkg/MdePkg.dec
+  Silicon/Maxim/Library/Ds3232RtcLib/Ds3232RtcLib.dec
+
+[LibraryClasses]
+  DebugLib
+  UefiBootServicesTableLib
+  UefiLib
+
+[Protocols]
+  gEfiI2cMasterProtocolGuid            ## CONSUMES
+
+[FixedPcd]
+  gDs3232RtcLibTokenSpaceGuid.PcdI2cSlaveAddress
+  gDs3232RtcLibTokenSpaceGuid.PcdI2cBusFrequency
+  gDs3232RtcLibTokenSpaceGuid.PcdIsRtcDeviceMuxed
+  gDs3232RtcLibTokenSpaceGuid.PcdMuxDeviceAddress
+  gDs3232RtcLibTokenSpaceGuid.PcdMuxControlRegOffset
+  gDs3232RtcLibTokenSpaceGuid.PcdMuxRtcChannelValue
+  gDs3232RtcLibTokenSpaceGuid.PcdMuxDefaultChannelValue
+
+[Depex]
+  gEfiI2cMasterProtocolGuid
