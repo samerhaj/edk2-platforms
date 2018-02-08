@@ -1,0 +1,31 @@
+#  @FpgaLib.inf
+#
+#  Copyright 2017-2018 NXP
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+
+[Defines]
+  INF_VERSION                    = 0x0001000A
+  BASE_NAME                      = FpgaLib
+  FILE_GUID                      = dd2ce2f3-f219-4b57-82fd-f1ff8ae8bf5a
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = FpgaLib
+
+[Sources.common]
+  FpgaLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  Platform/NXP/LS2088aRdbPkg/LS2088aRdbPkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[LibraryClasses]
+  BaseLib
+  IoLib
