@@ -22,7 +22,7 @@
 #define IFC_NAND_BUF_BASE    0x7E800000
 
 // On board Inegrated flash Controller chip select configuration
-#define IFC_NOR_CS    -1
+#define IFC_NOR_CS    IFC_CS_MAX+IFC_CS_MAX
 #define IFC_NAND_CS   IFC_CS0
 #define IFC_FPGA_CS   IFC_CS2
 

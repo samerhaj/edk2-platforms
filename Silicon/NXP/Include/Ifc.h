@@ -405,6 +405,7 @@ typedef enum {
   IFC_CS5,
   IFC_CS6,
   IFC_CS7,
+  IFC_CS_MAX,
 } IFC_CHIP_SEL;
 
 typedef struct {
