@@ -59,6 +59,7 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase|0x021c0500
   gNxpQoriqLsTokenSpaceGuid.PcdSerdes2Enabled|FALSE
   gNxpQoriqLsTokenSpaceGuid.PcdPlatformFreqDiv|0x1
+  gNxpQoriqLsTokenSpaceGuid.PcdMuxToUsb3|TRUE
 
   #
   # Big Endian IPs

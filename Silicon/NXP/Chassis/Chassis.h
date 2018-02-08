@@ -56,6 +56,7 @@ CpuMaskNext (
 
 #define SVR_WO_E                    0xFFFFFE
 #define SVR_LS1043A                 0x879200
+#define SVR_LS1046A                 0x870700
 
 #define SVR_MAJOR(svr)              (((svr) >> 4) & 0xf)
 #define SVR_MINOR(svr)              (((svr) >> 0) & 0xf)

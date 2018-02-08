@@ -17,6 +17,7 @@
 #include <Chassis.h>
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib/MemLibInternals.h>
+#include <Library/BeIoLib.h>
 #include <Library/DebugLib.h>
 #include <Library/IfcLib.h>
 #include <Library/IoLib.h>
@@ -139,6 +140,44 @@ GetSysInfo (
 }
 
 /**
+   Function to select pins depending upon pcd using supplemental
+   configuration unit(SCFG) extended RCW controlled pinmux control
+   register which contains the bits to provide pin multiplexing control.
+   This register is reset on HRESET.
+ **/
+VOID
+ConfigScfgMux (VOID)
+{
+  CCSR_SCFG *Scfg;
+  UINT32 UsbPwrFault;
+
+  Scfg = (VOID *)PcdGet64 (PcdScfgBaseAddr);
+  // Configures functionality of the IIC3_SCL to USB2_DRVVBUS
+  // Configures functionality of the IIC3_SDA to USB2_PWRFAULT
+
+  // LS1043A
+  // Configures functionality of the IIC4_SCL to USB3_DRVVBUS
+  // Configures functionality of the IIC4_SDA to USB3_PWRFAULT
+
+  // LS1046A
+  // USB3 is not used, configure mux to IIC4_SCL/IIC4_SDA
+  if (PcdGetBool (PcdMuxToUsb3)) {
+    BeMmioWrite32 ((UINTN)&Scfg->RcwPMuxCr0, CCSR_SCFG_RCWPMUXCRO_SELCR_USB);
+  } else {
+    BeMmioWrite32 ((UINTN)&Scfg->RcwPMuxCr0, CCSR_SCFG_RCWPMUXCRO_NOT_SELCR_USB);
+  }
+  BeMmioWrite32 ((UINTN)&Scfg->UsbDrvVBusSelCr, CCSR_SCFG_USBDRVVBUS_SELCR_USB1);
+  UsbPwrFault = (CCSR_SCFG_USBPWRFAULT_DEDICATED <<
+                CCSR_SCFG_USBPWRFAULT_USB3_SHIFT) |
+                (CCSR_SCFG_USBPWRFAULT_DEDICATED <<
+                CCSR_SCFG_USBPWRFAULT_USB2_SHIFT) |
+                (CCSR_SCFG_USBPWRFAULT_SHARED <<
+                CCSR_SCFG_USBPWRFAULT_USB1_SHIFT);
+  BeMmioWrite32 ((UINTN)&Scfg->UsbPwrFaultSelCr, UsbPwrFault);
+  BeMmioWrite32 ((UINTN)&Scfg->UsbPwrFaultSelCr, UsbPwrFault);
+}
+
+/**
   Function to initialize SoC specific constructs
   CPU Info
   SoC Personality
@@ -170,8 +209,18 @@ SocInit (
   //
   PrintRCW ();
   PrintSoc ();
-  IfcInit();
+  IfcInit ();
   PrintBoardPersonality ();
+  //
+  // Due to the extensive functionality present on the chip and the limited number of external
+  // signals available, several functional blocks share signal resources through multiplexing.
+  // In this case when there is alternate functionality between multiple functional blocks,
+  // the signal's function is determined at the chip level (rather than at the block level)
+  // typically by a reset configuration word (RCW) option. Some of the signals' function are
+  // determined externel to RCW at Power-on Reset Sequence.
+  //
+  ConfigScfgMux ();
+
 
   return;
 }

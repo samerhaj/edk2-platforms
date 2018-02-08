@@ -30,6 +30,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdI2cBus|0|UINT32|0x00000001
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSpeed|0|UINT32|0x00000002
   gNxpQoriqLsTokenSpaceGuid.PcdNumI2cController|0|UINT32|0x00000003
+  gNxpQoriqLsTokenSpaceGuid.PcdI2cSlaveAddress|0|UINT32|0x00000004
 
   #
   # Pcds for base address and size
@@ -101,6 +102,7 @@
   #
   gNxpQoriqLsTokenSpaceGuid.PcdPlatformFreqDiv|0x0|UINT32|0x00000250
   gNxpQoriqLsTokenSpaceGuid.PcdSerdes2Enabled|FALSE|BOOLEAN|0x00000251
+  gNxpQoriqLsTokenSpaceGuid.PcdMuxToUsb3|FALSE|BOOLEAN|0x00000253
 
   #
   # Clock PCDs

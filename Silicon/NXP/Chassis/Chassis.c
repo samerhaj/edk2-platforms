@@ -44,6 +44,7 @@ GurRead (
  */
 STATIC CPU_TYPE CpuTypeList[] = {
   CPU_TYPE_ENTRY (LS1043A, LS1043A, 4),
+  CPU_TYPE_ENTRY (LS1046A, LS1046A, 4),
 };
 
 /*
