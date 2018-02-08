@@ -125,9 +125,11 @@ NorInit (
   // Get NOR Flash Timings
   GetIfcNorFlashTimings (&NorIfcTimings);
 
-  mNorCS = NorIfcTimings.CS;
-
-  SetTimings (mNorCS, NorIfcTimings);
+  // Validate chip select
+  if (NorIfcTimings.CS >= IFC_CS0) {
+    mNorCS = NorIfcTimings.CS;
+    SetTimings (mNorCS, NorIfcTimings);
+  }
 
   return;
 }

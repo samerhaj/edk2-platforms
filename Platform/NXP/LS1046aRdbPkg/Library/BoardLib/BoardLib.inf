@@ -1,0 +1,31 @@
+#  @file
+#
+#  Copyright 2018 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = BoardLib
+  FILE_GUID                      = 66041dab-97b4-4b45-b9b4-1209a2d55d7a
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = BoardLib
+
+[Sources.common]
+  BoardLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  Platform/NXP/LS1046aRdbPkg/LS1046aRdbPkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[FixedPcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdIfcRegion1BaseAddr
