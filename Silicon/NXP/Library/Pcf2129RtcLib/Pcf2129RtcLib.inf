@@ -1,0 +1,47 @@
+#/** @Pcf2129RtcLib.inf
+#
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = Pcf2129RtcLib
+  FILE_GUID                      = B661E02D-A90B-42AB-A5F9-CF841AAA43D9
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = RealTimeClockLib
+
+
+[Sources.common]
+  Pcf2129RtcLib.c
+
+[Packages]
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdePkg/MdePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[LibraryClasses]
+  DebugLib
+  UefiBootServicesTableLib
+  UefiLib
+
+[Protocols]
+  gEfiDriverBindingProtocolGuid        ## CONSUMES
+  gEfiI2cMasterProtocolGuid            ## CONSUMES
+
+[Pcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdI2cBus
+  gNxpQoriqLsTokenSpaceGuid.PcdI2cSpeed
+  gNxpQoriqLsTokenSpaceGuid.PcdI2cSlaveAddress
+
+[Depex]
+  gEfiI2cMasterProtocolGuid
