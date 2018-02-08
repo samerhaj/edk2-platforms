@@ -175,7 +175,7 @@ SerDesInstanceProbeLanes (
   IN  UINT32                      Srds,
   IN  UINT32                      SerdesProtocolMask,
   IN  UINT32                      SerdesProtocolShift,
-  IN  SERDES_PROBE_LANES_CALLBACK *SerDesLaneProbeCallback,
+  IN  SERDES_PROBE_LANES_CALLBACK SerDesLaneProbeCallback,
   IN  VOID                        *Arg
   )
 {
@@ -212,7 +212,7 @@ SerDesInstanceProbeLanes (
 **/
 VOID
 SerDesProbeLanes (
-  IN SERDES_PROBE_LANES_CALLBACK *SerDesLaneProbeCallback,
+  IN SERDES_PROBE_LANES_CALLBACK SerDesLaneProbeCallback,
   IN VOID                        *Arg
   )
 {

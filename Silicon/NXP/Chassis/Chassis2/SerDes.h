@@ -53,16 +53,15 @@ typedef struct {
   UINT8  SrdsLane[SRDS_MAX_LANES];
 } SERDES_CONFIG;
 
-typedef
-VOID
-SERDES_PROBE_LANES_CALLBACK (
+typedef VOID
+(*SERDES_PROBE_LANES_CALLBACK) (
   IN SERDES_PROTOCOL LaneProtocol,
   IN VOID *Arg
   );
 
 VOID
 SerDesProbeLanes(
-  IN SERDES_PROBE_LANES_CALLBACK *SerDesLaneProbeCallback,
+  IN SERDES_PROBE_LANES_CALLBACK SerDesLaneProbeCallback,
   IN VOID *Arg
   );
 
