@@ -1,0 +1,22 @@
+# LS2088A.dec
+#
+# Copyright 2017 NXP
+#
+# This program and the accompanying materials are licensed and made available under
+# the terms and conditions of the BSD License which accompanies this distribution.
+# The full text of the license may be found at
+# http://opensource.org/licenses/bsd-license.php
+#
+# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+
+[Defines]
+  DEC_SPECIFICATION              = 0x00010005
+
+[Guids.common]
+  gNxpLs2088ATokenSpaceGuid      = {0xaf770da7, 0x264c, 0x4857, {0x9d, 0xed, 0x56, 0x5e, 0x2c, 0x08, 0x7e, 0x26}}
+
+[Includes]
+  Include

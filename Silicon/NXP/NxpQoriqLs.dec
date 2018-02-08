@@ -102,6 +102,18 @@
   gNxpQoriqLsTokenSpaceGuid.PcdFlashReservedRegionBase64|0x0|UINT64|0x00000196
 
   #
+  # DPAA2 PCDs
+  #
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McRamSize|0x0|UINT64|0x000001E0
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McPortalBaseAddr|0x0|UINT64|0x000001E1
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McPortalSize|0x0|UINT64|0x000001E2
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2NiPortalsBaseAddr|0x0|UINT64|0x000001E3
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2NiPortalsSize|0x0|UINT64|0x000001E4
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2QBmanPortalsBaseAddr|0x0|UINT64|0x000001E5
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2QBmanPortalSize|0x0|UINT64|0x000001E6
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2QBmanPortalsCacheSize|0x0|UINT64|0x000001E7
+
+  #
   # NV Pcd
   #
   gNxpQoriqLsTokenSpaceGuid.PcdNvFdBase|0x0|UINT64|0x00000210
@@ -112,6 +124,7 @@
   #
   gNxpQoriqLsTokenSpaceGuid.PcdPlatformFreqDiv|0x0|UINT32|0x00000250
   gNxpQoriqLsTokenSpaceGuid.PcdSerdes2Enabled|FALSE|BOOLEAN|0x00000251
+  gNxpQoriqLsTokenSpaceGuid.PcdMcHighMemSupport|FALSE|BOOLEAN|0x00000252
   gNxpQoriqLsTokenSpaceGuid.PcdMuxToUsb3|FALSE|BOOLEAN|0x00000253
 
   #
