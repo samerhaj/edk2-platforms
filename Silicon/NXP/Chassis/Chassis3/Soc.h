@@ -20,7 +20,6 @@
 #define FSL_CLK_GRPA_ADDR           0x01300000
 #define FSL_CLK_GRPB_ADDR           0x01310000
 #define NUM_CC_PLLS                 6
-#define CLK_FREQ                    100000000
 
 #define FSL_CLUSTER_CLOCKS          { 1, 1, 4, 4 } /* LS208x */
 #define TP_CLUSTER_EOC_MASK         0x80000000      /* Mask for End of clusters */

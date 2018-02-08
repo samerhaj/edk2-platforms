@@ -39,6 +39,9 @@
   BeIoLib|Silicon/NXP/Library/BeIoLib/BeIoLib.inf
   SocLib|Silicon/NXP/Chassis/LS2088aSocLib.inf
   RealTimeClockLib|Silicon/Maxim/Library/Ds3232RtcLib/Ds3232RtcLib.inf
+  IfcLib|Silicon/NXP/Library/IfcLib/IfcLib.inf
+  BoardLib|Platform/NXP/LS2088aRdbPkg/Library/BoardLib/BoardLib.inf
+  FpgaLib|Platform/NXP/LS2088aRdbPkg/Library/FpgaLib/FpgaLib.inf
 
 [PcdsFixedAtBuild.common]
 

@@ -18,12 +18,16 @@
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib/MemLibInternals.h>
 #include <Library/DebugLib.h>
+#include <Library/IfcLib.h>
 #include <Library/IoLib.h>
 #include <Library/PcdLib.h>
 #include <Library/PrintLib.h>
 #include <Library/SerialPortLib.h>
 
 #include "Soc.h"
+
+extern VOID PrintBoardPersonality (VOID);
+extern UINTN GetBoardSysClk (VOID);
 
 VOID
 GetSysInfo (
@@ -83,7 +87,7 @@ GetSysInfo (
 
   GurBase = (VOID *)PcdGet64 (PcdGutsBaseAddr);
   ClkBase = (VOID *)PcdGet64 (PcdClkBaseAddr);
-  SysClk = CLK_FREQ;
+  SysClk = GetBoardSysClk ();
 
   PtrSysInfo->FreqSystemBus = SysClk;
   PtrSysInfo->FreqDdrBus = PcdGet64 (PcdDdrClk);
@@ -152,6 +156,13 @@ SocInit (
   SmmuInit ();
 
   //
+  // Perform IFC Initialization.
+  // Early IFC initialization is required to set timings required for fpga initilzation to
+  // get system clock frequency, board info etc.
+  //
+  IfcInit ();
+
+  //
   //  Initialize the Serial Port.
   //  Early serial port initialization is required to print RCW, Soc and CPU infomation at
   //  the begining of UEFI boot.
@@ -176,5 +187,10 @@ SocInit (
   // Print Soc Personality information
   //
   PrintSoc ();
+
+  //
+  // Print Board Personality information
+  //
+  PrintBoardPersonality ();
 }
 
