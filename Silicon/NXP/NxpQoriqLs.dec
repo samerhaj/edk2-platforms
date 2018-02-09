@@ -25,6 +25,10 @@
   ##
   TimerExtensionLib|Include/Library/TimerExtensionLib.h
 
+  ##  @libraryclass  Provides APIs needed to get input clocks of various IP modules in SOC
+  #   This library is only intended to be used by NXP SOC based Platforms.
+  SocClockLib|Include/Library/SocClockLib.h
+
 [Guids.common]
   gNxpQoriqLsTokenSpaceGuid      = {0x98657342, 0x4aee, 0x4fc6, {0xbc, 0xb5, 0xff, 0x45, 0xb7, 0xa8, 0x71, 0xf2}}
 
