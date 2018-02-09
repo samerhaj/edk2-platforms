@@ -1,0 +1,53 @@
+## @file
+#  This driver enumerates SPI devices on SPI bus and produce SPI IO Protocol on SPI devices.
+#
+#  Based on MdeModulePkg/Bus/I2c/I2cDxe/I2cBusDxe.inf
+#
+#  Copyright 2018 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x0001000A
+  BASE_NAME                      = SpiBusDxe
+  FILE_GUID                      = 5145643e-b84f-4033-86e4-15e9dab163fb
+  MODULE_TYPE                    = DXE_RUNTIME_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = InitializeSpiBus
+  UNLOAD_IMAGE                   = SpiBusUnload
+
+[Sources.common]
+  SpiBusDxe.h
+  SpiBusDxe.c
+
+[LibraryClasses]
+  BaseMemoryLib
+  DebugLib
+  DevicePathLib
+  MemoryAllocationLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  UefiLib
+  UefiRuntimeLib
+
+[Packages]
+  Silicon/NXP/NxpQoriqLs.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+
+[Protocols]
+  gEfiDevicePathProtocolGuid                      ## TO_START
+  gEfiSpiHcProtocolGuid                           ## TO_START
+  gEfiSpiConfigurationProtocolGuid                ## TO_START
+  gEfiLegacySpiControllerProtocolGuid             ## TO_START
+
+[Depex]
+  TRUE
