@@ -42,6 +42,7 @@
   IfcLib|Silicon/NXP/Library/IfcLib/IfcLib.inf
   BoardLib|Platform/NXP/LS2088aRdbPkg/Library/BoardLib/BoardLib.inf
   FpgaLib|Platform/NXP/LS2088aRdbPkg/Library/FpgaLib/FpgaLib.inf
+  NorFlashLib|Silicon/NXP/Library/NorFlashLib/NorFlashLib.inf
 
 [PcdsFixedAtBuild.common]
 
@@ -89,6 +90,13 @@
   gDs3232RtcLibTokenSpaceGuid.PcdMuxRtcChannelValue|0x09
   gDs3232RtcLibTokenSpaceGuid.PcdMuxDefaultChannelValue|0x08
 
+  #
+  # NV Storage PCDs.
+  #
+  gArmTokenSpaceGuid.PcdVFPEnabled|1
+  gNxpQoriqLsTokenSpaceGuid.PcdFlashDeviceBase64|0x580000000
+  gNxpQoriqLsTokenSpaceGuid.PcdFlashReservedRegionBase64|0x580300000
+
 ################################################################################
 #
 # Components Section - list of all EDK II Modules needed by this Platform
@@ -98,6 +106,11 @@
   #
   # Architectural Protocols
   #
-  MdeModulePkg/Universal/Variable/EmuRuntimeDxe/EmuVariableRuntimeDxe.inf
+  MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf{
+     <LibraryClasses>
+     NULL|MdeModulePkg/Library/VarCheckUefiLib/VarCheckUefiLib.inf
+  }
+  MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
   ArmPlatformPkg/Drivers/SP805WatchdogDxe/SP805WatchdogDxe.inf
   Silicon/NXP/Drivers/I2cDxe/I2cDxe.inf
+  Silicon/NXP/Drivers/NorFlashDxe/NorFlashDxe.inf
