@@ -157,3 +157,8 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPciLutBigEndian|FALSE|BOOLEAN|0x00000312
   gNxpQoriqLsTokenSpaceGuid.PcdWdogBigEndian|FALSE|BOOLEAN|0x00000313
   gNxpQoriqLsTokenSpaceGuid.PcdIfcBigEndian|FALSE|BOOLEAN|0x00000314
+
+  #
+  # Qspi Controller Pcds
+  #
+  gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible|""|VOID*|0x00000315

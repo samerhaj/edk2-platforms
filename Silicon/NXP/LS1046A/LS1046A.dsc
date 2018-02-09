@@ -68,4 +68,6 @@
   gNxpQoriqLsTokenSpaceGuid.PcdQspiRegionSize|0x20000000
   gNxpQoriqLsTokenSpaceGuid.PcdIfcBaseAddr|0x1530000
 
+  gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible|"fsl,vf610-qspi"
+
 ##
