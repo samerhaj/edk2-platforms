@@ -79,6 +79,16 @@
   gNxpQoriqLsTokenSpaceGuid.PcdCcsrSize|0x0|UINT64|0x00000129
   gNxpQoriqLsTokenSpaceGuid.PcdDramMemSize|0x0|UINT64|0x0000012A
   gNxpQoriqLsTokenSpaceGuid.PcdIfcBaseAddr|0x0|UINT64|0x0000012B
+  gNxpQoriqLsTokenSpaceGuid.PcdRomBaseAddr|0x0|UINT64|0x0000012C
+  gNxpQoriqLsTokenSpaceGuid.PcdRomSize|0x0|UINT64|0x0000012D
+
+  #
+  # PCI PCDs
+  #
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieLutBase|0x0|UINT32|0x000001D0
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieLutDbg|0x0|UINT32|0x000001D1
+  gNxpQoriqLsTokenSpaceGuid.PcdPciDebug|FALSE|BOOLEAN|0x000001D2
+  gNxpQoriqLsTokenSpaceGuid.PcdNumPciController|0|UINT32|0x000001D3
 
   #
   # IFC PCDs

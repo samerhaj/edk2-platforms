@@ -259,6 +259,7 @@
   gEmbeddedTokenSpaceGuid.PcdEmbeddedAutomaticBootCommand|""
   gEmbeddedTokenSpaceGuid.PcdEmbeddedDefaultTextColor|0x07
   gEmbeddedTokenSpaceGuid.PcdEmbeddedMemVariableStoreSize|0x10000
+  gEmbeddedTokenSpaceGuid.PcdPrePiCpuIoSize|20
 
   #
   # Optional feature to help prevent EFI memory map fragments
