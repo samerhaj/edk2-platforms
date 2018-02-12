@@ -68,5 +68,6 @@
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSize|0x10000
   gNxpQoriqLsTokenSpaceGuid.PcdNumI2cController|4
   gNxpQoriqLsTokenSpaceGuid.PcdIfcBaseAddr|0x02240000
+  gNxpQoriqLsTokenSpaceGuid.PcdNumUsbController|2
 
 ##

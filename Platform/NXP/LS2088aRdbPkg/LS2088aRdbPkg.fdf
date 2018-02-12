@@ -151,6 +151,19 @@ READ_LOCK_STATUS   = TRUE
   INF  MdeModulePkg/Universal/Network/Tcp4Dxe/Tcp4Dxe.inf
 !endif
 
+  INF MdeModulePkg/Bus/Pci/NonDiscoverablePciDeviceDxe/NonDiscoverablePciDeviceDxe.inf
+
+  #
+  # USB Support
+  #
+  INF MdeModulePkg/Bus/Pci/UhciDxe/UhciDxe.inf
+  INF MdeModulePkg/Bus/Pci/EhciDxe/EhciDxe.inf
+  INF MdeModulePkg/Bus/Pci/XhciDxe/XhciDxe.inf
+  INF MdeModulePkg/Bus/Usb/UsbBusDxe/UsbBusDxe.inf
+  INF MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
+
+  INF Silicon/NXP/Drivers/UsbHcdInitDxe/UsbHcd.inf
+
   #
   # FAT filesystem + GPT/MBR partitioning
   #

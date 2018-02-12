@@ -114,3 +114,4 @@
   ArmPlatformPkg/Drivers/SP805WatchdogDxe/SP805WatchdogDxe.inf
   Silicon/NXP/Drivers/I2cDxe/I2cDxe.inf
   Silicon/NXP/Drivers/NorFlashDxe/NorFlashDxe.inf
+  Silicon/NXP/Drivers/UsbHcdInitDxe/UsbHcd.inf
