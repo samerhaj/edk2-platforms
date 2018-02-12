@@ -1,0 +1,48 @@
+#  UsbHcd.inf
+#
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+
+[Defines]
+  INF_VERSION                     = 0x0001000A
+  BASE_NAME                       = UsbHcdDxe
+  FILE_GUID                       = 196e7c2a-37b2-4b85-8683-718588952449
+  MODULE_TYPE                     = DXE_DRIVER
+  VERSION_STRING                  = 1.0
+  ENTRY_POINT                     = InitializeUsbHcd
+
+[Sources.common]
+  UsbHcd.c
+
+[Packages]
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  MdePkg/MdePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  DebugLib
+  IoLib
+  MemoryAllocationLib
+  NonDiscoverableDeviceRegistrationLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+
+[FixedPcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdNumUsbController
+  gNxpQoriqLsTokenSpaceGuid.PcdUsbBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdUsbSize
+
+[Depex]
+  TRUE

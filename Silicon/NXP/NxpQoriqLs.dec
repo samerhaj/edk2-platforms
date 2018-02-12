@@ -83,6 +83,11 @@
   gNxpQoriqLsTokenSpaceGuid.PcdRomSize|0x0|UINT64|0x0000012D
 
   #
+  # USB PCDs
+  #
+  gNxpQoriqLsTokenSpaceGuid.PcdNumUsbController|0|UINT32|0x00000170
+
+  #
   # PCI PCDs
   #
   gNxpQoriqLsTokenSpaceGuid.PcdPcieLutBase|0x0|UINT32|0x000001D0
