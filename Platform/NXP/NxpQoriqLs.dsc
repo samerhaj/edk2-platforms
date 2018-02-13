@@ -438,4 +438,9 @@
 !endif #$(NO_SHELL_PROFILES)
   }
 
+  #
+  # TFTP Shell Command
+  #
+  ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
+
   ##
