@@ -73,3 +73,6 @@ else
     echo "Error: ${GCC_UTILITY} not found. Please check PATH variable."
     unset GCC_UTILITY GCC_VERSION MajorVersion MinorVersion
 fi
+
+# Export the edk2-platforms path
+export PACKAGES_PATH=`dirname \`dirname "$PWD"\``

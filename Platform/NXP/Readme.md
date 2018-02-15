@@ -6,7 +6,7 @@ build script source environment file Env.cshrc
 
 user need to run only build command.
 
-1. export PACKAGES_PATH=PATH_TO_edk2-platforms
+1. source Env.cshrc
 
 2. Build desired board
    ./build.sh <SoC-name> <board-type> <build-candidate> <clean> (optional)
@@ -15,4 +15,3 @@ user need to run only build command.
    board-type      : RDB / QDS
    build-candidate : DEBUG / RELEASE
 
-Currently, support for LS1043 RDB is provided.
