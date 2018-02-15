@@ -41,6 +41,8 @@
   IfcLib|Silicon/NXP/Library/IfcLib/IfcLib.inf
   BoardLib|Platform/NXP/LS1046aRdbPkg/Library/BoardLib/BoardLib.inf
   FpgaLib|Platform/NXP/LS1046aRdbPkg/Library/FpgaLib/FpgaLib.inf
+  PciSegmentLib|Silicon/NXP/Library/PciSegmentLib/PciSegmentLib.inf
+  PciHostBridgeLib|Silicon/NXP/Library/PciHostBridgeLib/PciHostBridgeLib.inf
 
 [PcdsFixedAtBuild.common]
 
@@ -65,6 +67,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdGurBigEndian|TRUE
   gNxpQoriqLsTokenSpaceGuid.PcdWdogBigEndian|TRUE
   gNxpQoriqLsTokenSpaceGuid.PcdIfcBigEndian|TRUE
+  gNxpQoriqLsTokenSpaceGuid.PcdPciLutBigEndian|TRUE
 
   #
   # I2C controller Pcds
@@ -77,6 +80,12 @@
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSlaveAddress|0x51
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSpeed|100000
 
+  #
+  # PCI PCDs.
+  #
+  gNxpQoriqLsTokenSpaceGuid.PcdPciDebug|FALSE
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieLutBase|0x80000
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieLutDbg|0x407FC
 ################################################################################
 #
 # Components Section - list of all EDK II Modules needed by this Platform
@@ -90,6 +99,12 @@
 
   Silicon/NXP/Drivers/WatchDog/WatchDogDxe.inf
   Silicon/NXP/Drivers/I2cDxe/I2cDxe.inf
+  Silicon/NXP/Drivers/PciCpuIo2Dxe/PciCpuIo2Dxe.inf
+  MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridgeDxe.inf {
+    <PcdsFixedAtBuild>
+  gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8010004F
+  }
+  MdeModulePkg/Bus/Pci/PciBusDxe/PciBusDxe.inf
 
   Silicon/NXP/Drivers/QspiDxe/QspiDxe.inf
   Silicon/NXP/Drivers/SpiBusDxe/SpiBusDxe.inf

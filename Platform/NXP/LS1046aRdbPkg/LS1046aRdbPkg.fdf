@@ -123,6 +123,13 @@ READ_LOCK_STATUS   = TRUE
   INF EmbeddedPkg/SimpleTextInOutSerial/SimpleTextInOutSerial.inf
 
   #
+  # PCI
+  #
+  INF Silicon/NXP/Drivers/PciCpuIo2Dxe/PciCpuIo2Dxe.inf
+  INF MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridgeDxe.inf
+  INF MdeModulePkg/Bus/Pci/PciBusDxe/PciBusDxe.inf
+
+  #
   # Network modules
   #
   INF  MdeModulePkg/Universal/Network/SnpDxe/SnpDxe.inf
@@ -146,6 +153,8 @@ READ_LOCK_STATUS   = TRUE
 !else
   INF  MdeModulePkg/Universal/Network/Tcp4Dxe/Tcp4Dxe.inf
 !endif
+
+  INF ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
 
   #
   # FAT filesystem + GPT/MBR partitioning
