@@ -32,3 +32,10 @@
   BaseLib
   DebugLib
   IoLib
+  PcdLib
+
+[Pcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp1BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp2BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp3BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp4BaseAddr

@@ -13,8 +13,8 @@
 
 **/
 
-#ifndef _PCI_H_
-#define _PCI_H_
+#ifndef __PCI_H__
+#define __PCI_H__
 
 // Segment 0
 #define PCI_SEG0_NUM              0
@@ -27,9 +27,9 @@
 
 #define PCI_SEG0_MMIO32_MIN       0x40000000
 #define PCI_SEG0_MMIO32_MAX       0x4fffffff
-#define PCI_SEG0_MMIO64_MIN       0x4040000000
-#define PCI_SEG0_MMIO64_MAX       0x407fffffff
-#define PCI_SEG0_MMIO_MEMBASE     0x4000000000
+#define PCI_SEG0_MMIO64_MIN       PCI_SEG0_MMIO_MEMBASE + SEG_MEM_SIZE
+#define PCI_SEG0_MMIO64_MAX       PCI_SEG0_MMIO_MEMBASE + SEG_MEM_LIMIT
+#define PCI_SEG0_MMIO_MEMBASE     FixedPcdGet64 (PcdPciExp1BaseAddr)
 
 #define PCI_SEG0_DBI_BASE         0x03400000
 
@@ -44,9 +44,9 @@
 
 #define PCI_SEG1_MMIO32_MIN       0x50000000
 #define PCI_SEG1_MMIO32_MAX       0x5fffffff
-#define PCI_SEG1_MMIO64_MIN       0x4840000000
-#define PCI_SEG1_MMIO64_MAX       0x487fffffff
-#define PCI_SEG1_MMIO_MEMBASE     0x4800000000
+#define PCI_SEG1_MMIO64_MIN       PCI_SEG1_MMIO_MEMBASE + SEG_MEM_SIZE
+#define PCI_SEG1_MMIO64_MAX       PCI_SEG1_MMIO_MEMBASE + SEG_MEM_LIMIT
+#define PCI_SEG1_MMIO_MEMBASE     FixedPcdGet64 (PcdPciExp2BaseAddr)
 
 #define PCI_SEG1_DBI_BASE         0x03500000
 
@@ -61,25 +61,43 @@
 
 #define PCI_SEG2_MMIO32_MIN       0x60000000
 #define PCI_SEG2_MMIO32_MAX       0x6fffffff
-#define PCI_SEG2_MMIO64_MIN       0x5040000000
-#define PCI_SEG2_MMIO64_MAX       0x507fffffff
-#define PCI_SEG2_MMIO_MEMBASE     0x5000000000
+#define PCI_SEG2_MMIO64_MIN       PCI_SEG2_MMIO_MEMBASE + SEG_MEM_SIZE
+#define PCI_SEG2_MMIO64_MAX       PCI_SEG2_MMIO_MEMBASE + SEG_MEM_LIMIT
+#define PCI_SEG2_MMIO_MEMBASE     FixedPcdGet64 (PcdPciExp3BaseAddr)
 
 #define PCI_SEG2_DBI_BASE         0x03600000
+
+// Segment 3
+#define PCI_SEG3_NUM              3
+
+#define PCI_SEG3_BUSNUM_MIN       0x0
+#define PCI_SEG3_BUSNUM_MAX       0xff
+
+#define PCI_SEG3_PORTIO_MIN       0x30000
+#define PCI_SEG3_PORTIO_MAX       0x3ffff
+
+#define PCI_SEG3_MMIO32_MIN       0x70000000
+#define PCI_SEG3_MMIO32_MAX       0x7fffffff
+#define PCI_SEG3_MMIO64_MIN       PCI_SEG3_MMIO_MEMBASE + SEG_MEM_SIZE
+#define PCI_SEG3_MMIO64_MAX       PCI_SEG3_MMIO_MEMBASE + SEG_MEM_LIMIT
+#define PCI_SEG3_MMIO_MEMBASE     FixedPcdGet64 (PcdPciExp4BaseAddr)
+
+#define PCI_SEG3_DBI_BASE         0x03700000
 
 // Segment configuration
 #define SEG_CFG_SIZE              0x00001000
 #define SEG_CFG_BUS               0x00000000
 #define SEG_MEM_SIZE              0x40000000
+#define SEG_MEM_LIMIT             0x7fffffff
 #define SEG_MEM_BUS               0x40000000
 #define SEG_IO_SIZE               0x00010000
 #define SEG_IO_BUS                0x00000000
 #define PCI_BASE_DIFF             0x800000000
 #define PCI_DBI_SIZE_DIFF         0x100000
 #define PCI_SEG0_PHY_CFG0_BASE    PCI_SEG0_MMIO_MEMBASE
-#define PCI_SEG0_PHY_CFG1_BASE    0x4000001000
+#define PCI_SEG0_PHY_CFG1_BASE    PCI_SEG0_PHY_CFG0_BASE + SEG_CFG_SIZE
 #define PCI_SEG0_PHY_MEM_BASE     PCI_SEG0_MMIO64_MIN
-#define PCI_SEG0_PHY_IO_BASE      0x4000010000
+#define PCI_SEG0_PHY_IO_BASE      PCI_SEG0_MMIO_MEMBASE + SEG_IO_SIZE
 
 // iATU configuration
 #define IATU_VIEWPORT_OFF                            0x900
@@ -118,8 +136,8 @@
 #define PCI_DBI_RO_WR_EN     0x8bc
 #define PCI_BASE_ADDRESS_0   0x10
 
-extern VOID GetSerdesProtocolMaps (UINT64 *);
+VOID GetSerdesProtocolMaps (UINT64 *);
 
-extern BOOLEAN IsSerDesLaneProtocolConfigured (UINT64, UINT16);
+BOOLEAN IsSerDesLaneProtocolConfigured (UINT64, UINT16);
 
 #endif

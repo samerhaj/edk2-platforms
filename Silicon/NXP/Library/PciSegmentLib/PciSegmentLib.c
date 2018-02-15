@@ -19,6 +19,7 @@
 #include <Library/BaseLib.h>
 #include <Library/DebugLib.h>
 #include <Library/IoLib.h>
+#include <Library/PcdLib.h>
 #include <Pcie.h>
 
 typedef enum {
@@ -84,6 +85,15 @@ PciSegmentLibGetConfigBase (
       } else {
         // On Bus 0 RCs are connected
         return PCI_SEG2_DBI_BASE;
+      }
+    // Root Complex 4
+    case PCI_SEG3_NUM:
+      // Reading bus number(bits 20-27)
+      if ((Address >> 20) & 1) {
+        return PCI_SEG3_MMIO_MEMBASE;
+      } else {
+        // On Bus 0 RCs are connected
+        return PCI_SEG3_DBI_BASE;
       }
     default:
       return 0;
