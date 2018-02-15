@@ -35,6 +35,12 @@
   UefiBootServicesTableLib
   UefiDriverEntryPoint
 
+[Pcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp1BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp2BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp3BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp4BaseAddr
+
 [Protocols]
   gEfiCpuIo2ProtocolGuid                         ## PRODUCES
 

@@ -18,6 +18,7 @@
 #include <Library/BaseLib.h>
 #include <Library/DebugLib.h>
 #include <Library/IoLib.h>
+#include <Library/PcdLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Pcie.h>
 #include <Protocol/CpuIo2.h>
@@ -253,6 +254,9 @@ CpuMemoryServiceRead (
   } else if ((Address >= PCI_SEG2_MMIO32_MIN) &&
              (Address <= PCI_SEG2_MMIO32_MAX)) {
     Address += PCI_SEG2_MMIO_MEMBASE;
+  } else if ((Address >= PCI_SEG3_MMIO32_MIN) &&
+             (Address <= PCI_SEG3_MMIO32_MAX)) {
+    Address += PCI_SEG3_MMIO_MEMBASE;
   } else {
     ASSERT (FALSE);
     return EFI_INVALID_PARAMETER;
@@ -347,6 +351,9 @@ CpuMemoryServiceWrite (
   } else if ((Address >= PCI_SEG2_MMIO32_MIN) &&
              (Address <= PCI_SEG2_MMIO32_MAX)) {
     Address += PCI_SEG2_MMIO_MEMBASE;
+  } else if ((Address >= PCI_SEG3_MMIO32_MIN) &&
+             (Address <= PCI_SEG3_MMIO32_MAX)) {
+    Address += PCI_SEG3_MMIO_MEMBASE;
   } else {
     ASSERT (FALSE);
     return EFI_INVALID_PARAMETER;
