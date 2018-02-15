@@ -63,8 +63,8 @@ STATIC CONST EFI_PCI_ROOT_BRIDGE_DEVICE_PATH mEfiPciRootBridgeDevicePath[] = {
         ACPI_DEVICE_PATH,
         ACPI_DP,
         {
-          (UINT8)(sizeof(ACPI_HID_DEVICE_PATH)),
-          (UINT8)(sizeof(ACPI_HID_DEVICE_PATH) >> 8)
+          (UINT8)(sizeof (ACPI_HID_DEVICE_PATH)),
+          (UINT8)(sizeof (ACPI_HID_DEVICE_PATH) >> 8)
         }
       },
       EISA_PNP_ID (0x0A08), // PCI Express
@@ -86,8 +86,8 @@ STATIC CONST EFI_PCI_ROOT_BRIDGE_DEVICE_PATH mEfiPciRootBridgeDevicePath[] = {
         ACPI_DEVICE_PATH,
         ACPI_DP,
         {
-          (UINT8)(sizeof(ACPI_HID_DEVICE_PATH)),
-          (UINT8)(sizeof(ACPI_HID_DEVICE_PATH) >> 8)
+          (UINT8)(sizeof (ACPI_HID_DEVICE_PATH)),
+          (UINT8)(sizeof (ACPI_HID_DEVICE_PATH) >> 8)
         }
       },
       EISA_PNP_ID (0x0A08), // PCI Express
@@ -102,9 +102,33 @@ STATIC CONST EFI_PCI_ROOT_BRIDGE_DEVICE_PATH mEfiPciRootBridgeDevicePath[] = {
         0
       }
     }
+  },
+  {
+    {
+      {
+        ACPI_DEVICE_PATH,
+        ACPI_DP,
+        {
+          (UINT8)(sizeof (ACPI_HID_DEVICE_PATH)),
+          (UINT8)(sizeof (ACPI_HID_DEVICE_PATH) >> 8)
+        }
+      },
+      EISA_PNP_ID (0x0A08), // PCI Express
+      PCI_SEG3_NUM
+    },
+
+    {
+      END_DEVICE_PATH_TYPE,
+      END_ENTIRE_DEVICE_PATH_SUBTYPE,
+      {
+        END_DEVICE_PATH_LENGTH,
+        0
+      }
+    }
   }
 };
 
+STATIC
 GLOBAL_REMOVE_IF_UNREFERENCED
 CHAR16 *mPciHostBridgeLibAcpiAddressSpaceTypeStr[] = {
   L"Mem", L"I/O", L"Bus"
@@ -177,6 +201,25 @@ PCI_ROOT_BRIDGE mPciRootBridges[] = {
     { MAX_UINT64, 0x0 },                    // PMem
     { MAX_UINT64, 0x0 },                    // PMemAbove4G
     (EFI_DEVICE_PATH_PROTOCOL *)&mEfiPciRootBridgeDevicePath[PCI_SEG2_NUM]
+  }, {
+    PCI_SEG3_NUM,                           // Segment
+    PCI_SUPPORT_ATTRIBUTES,                 // Supports
+    PCI_SUPPORT_ATTRIBUTES,                 // Attributes
+    FALSE,                                  // DmaAbove4G
+    FALSE,                                  // NoExtendedConfigSpace
+    FALSE,                                  // ResourceAssigned
+    PCI_ALLOCATION_ATTRIBUTES,              // AllocationAttributes
+    { PCI_SEG3_BUSNUM_MIN,
+      PCI_SEG3_BUSNUM_MAX },                // Bus
+    { PCI_SEG3_PORTIO_MIN,
+      PCI_SEG3_PORTIO_MAX },                // Io
+    { PCI_SEG3_MMIO32_MIN,
+      PCI_SEG3_MMIO32_MAX },                // Mem
+    { PCI_SEG3_MMIO64_MIN,
+      PCI_SEG3_MMIO64_MAX },                // MemAbove4G
+    { MAX_UINT64, 0x0 },                    // PMem
+    { MAX_UINT64, 0x0 },                    // PMemAbove4G
+    (EFI_DEVICE_PATH_PROTOCOL *)&mEfiPciRootBridgeDevicePath[PCI_SEG3_NUM]
   }
 };
 
