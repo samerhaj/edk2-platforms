@@ -69,5 +69,8 @@
   gNxpQoriqLsTokenSpaceGuid.PcdNumI2cController|4
   gNxpQoriqLsTokenSpaceGuid.PcdIfcBaseAddr|0x02240000
   gNxpQoriqLsTokenSpaceGuid.PcdNumUsbController|2
+  gNxpQoriqLsTokenSpaceGuid.PcdNumPciController|4
+  gNxpQoriqLsTokenSpaceGuid.PcdRomBaseAddr|0x00000000
+  gNxpQoriqLsTokenSpaceGuid.PcdRomSize|0x00100000
 
 ##

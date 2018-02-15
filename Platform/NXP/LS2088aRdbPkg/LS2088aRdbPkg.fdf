@@ -127,6 +127,13 @@ READ_LOCK_STATUS   = TRUE
   INF Silicon/NXP/Drivers/NorFlashDxe/NorFlashDxe.inf
 
   #
+  # PCI
+  #
+  INF Silicon/NXP/Drivers/PciCpuIo2Dxe/PciCpuIo2Dxe.inf
+  INF MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridgeDxe.inf
+  INF MdeModulePkg/Bus/Pci/PciBusDxe/PciBusDxe.inf
+
+  #
   # Network modules
   #
   INF  MdeModulePkg/Universal/Network/SnpDxe/SnpDxe.inf
@@ -152,6 +159,8 @@ READ_LOCK_STATUS   = TRUE
 !endif
 
   INF MdeModulePkg/Bus/Pci/NonDiscoverablePciDeviceDxe/NonDiscoverablePciDeviceDxe.inf
+
+  INF ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
 
   #
   # USB Support

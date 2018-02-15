@@ -47,6 +47,8 @@
   gArmTokenSpaceGuid.PcdArmPrimaryCore
   gNxpQoriqLsTokenSpaceGuid.PcdCcsrBaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdCcsrSize
+  gNxpQoriqLsTokenSpaceGuid.PcdRomBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdRomSize
   gNxpQoriqLsTokenSpaceGuid.PcdIfcRegion1BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdIfcRegion1Size
   gNxpQoriqLsTokenSpaceGuid.PcdIfcRegion2BaseAddr
