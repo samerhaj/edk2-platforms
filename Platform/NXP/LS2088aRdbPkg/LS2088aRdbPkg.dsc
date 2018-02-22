@@ -106,6 +106,10 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPcieLutBase|0x80000
   gNxpQoriqLsTokenSpaceGuid.PcdPcieLutDbg|0x407FC
 
+  #
+  # SATA Pcds
+  #
+  gNxpQoriqLsTokenSpaceGuid.PcdSataErratumA009185|TRUE
 ################################################################################
 #
 # Components Section - list of all EDK II Modules needed by this Platform
@@ -131,4 +135,5 @@
   }
   MdeModulePkg/Bus/Pci/PciBusDxe/PciBusDxe.inf
 
+  Silicon/NXP/Drivers/SataInitDxe/SataInitDxe.inf
  ##

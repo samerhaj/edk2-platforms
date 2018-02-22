@@ -72,5 +72,8 @@
   gNxpQoriqLsTokenSpaceGuid.PcdNumPciController|4
   gNxpQoriqLsTokenSpaceGuid.PcdRomBaseAddr|0x00000000
   gNxpQoriqLsTokenSpaceGuid.PcdRomSize|0x00100000
+  gNxpQoriqLsTokenSpaceGuid.PcdSataBaseAddr|0x3200000
+  gNxpQoriqLsTokenSpaceGuid.PcdSataSize|0x10000
+  gNxpQoriqLsTokenSpaceGuid.PcdNumSataController|0x2
 
 ##
