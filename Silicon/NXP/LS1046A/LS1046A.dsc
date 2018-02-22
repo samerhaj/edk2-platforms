@@ -70,6 +70,8 @@
   gNxpQoriqLsTokenSpaceGuid.PcdNumPciController|3
   gNxpQoriqLsTokenSpaceGuid.PcdRomBaseAddr|0x00000000
   gNxpQoriqLsTokenSpaceGuid.PcdRomSize|0x00100000
+  gNxpQoriqLsTokenSpaceGuid.PcdDcsrBaseAddr|0x20000000
+  gNxpQoriqLsTokenSpaceGuid.PcdDcsrSize|0x04000000
 
   gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible|"fsl,vf610-qspi"
 
