@@ -164,3 +164,4 @@
   # Qspi Controller Pcds
   #
   gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible|""|VOID*|0x00000315
+
