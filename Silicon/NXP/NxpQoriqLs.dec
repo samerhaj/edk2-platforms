@@ -165,3 +165,11 @@
   #
   gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible|""|VOID*|0x00000315
 
+  #
+  # SATA PCDs
+  #
+  gNxpQoriqLsTokenSpaceGuid.PcdNumSataController|0x0|UINT32|0x00000350
+  gNxpQoriqLsTokenSpaceGuid.PcdSataErratumA010554|FALSE|BOOLEAN|0x00000351
+  gNxpQoriqLsTokenSpaceGuid.PcdSataErratumA010635|FALSE|BOOLEAN|0x00000352
+  gNxpQoriqLsTokenSpaceGuid.PcdSataErratumA009185|FALSE|BOOLEAN|0x00000353
+
