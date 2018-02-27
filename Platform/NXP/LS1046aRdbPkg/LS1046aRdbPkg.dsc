@@ -86,6 +86,14 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPciDebug|FALSE
   gNxpQoriqLsTokenSpaceGuid.PcdPcieLutBase|0x80000
   gNxpQoriqLsTokenSpaceGuid.PcdPcieLutDbg|0x407FC
+
+  #
+  # SATA Pcds
+  #
+  gNxpQoriqLsTokenSpaceGuid.PcdSataErratumA009185|TRUE
+  gNxpQoriqLsTokenSpaceGuid.PcdSataErratumA010554|TRUE
+  gNxpQoriqLsTokenSpaceGuid.PcdSataErratumA010635|TRUE
+
 ################################################################################
 #
 # Components Section - list of all EDK II Modules needed by this Platform
@@ -111,4 +119,5 @@
   Silicon/NXP/Drivers/SpiNorFlashDxe/SpiNorFlashDxe.inf
   Platform/NXP/LS1046aRdbPkg/Drivers/SpiConfigurationDxe/SpiConfigurationDxe.inf
 
+  Silicon/NXP/Drivers/SataInitDxe/SataInitDxe.inf
  ##
