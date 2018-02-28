@@ -155,7 +155,7 @@ ParseDeviceTree (
   Status = EFI_SUCCESS;
   QspiMasterIndex = 0;
 
-  for  (NodeOffset = fdt_node_offset_by_compatible (Fdt, -1, (VOID *)(PcdGetPtr(PcdQspiFdtCompatible)));
+  for  (NodeOffset = fdt_node_offset_by_compatible (Fdt, -1, (VOID *)(PcdGetPtr (PcdQspiFdtCompatible)));
         NodeOffset != -FDT_ERR_NOTFOUND;
         NodeOffset = fdt_node_offset_by_compatible (Fdt, NodeOffset, (VOID *)(PcdGetPtr (PcdQspiFdtCompatible))))
   {

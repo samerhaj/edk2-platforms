@@ -3,7 +3,7 @@
   Driver for installing SPI Master and other spi protocols
   over QSPI controller Handle
 
-  Copyright 2017 NXP
+  Copyright 2017-2018 NXP
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the bsd
@@ -191,7 +191,7 @@ QspiChipSelect (
   )
 {
   QSPI_MASTER    *QMaster;
-  UINT8          ChipSelect;
+  UINT32         ChipSelect;
 
   if (!SpiPeripheral || !This || !(SpiPeripheral->ChipSelectParameter)) {
     return EFI_INVALID_PARAMETER;
@@ -208,7 +208,7 @@ QspiChipSelect (
   /// control. When SpiPeripheral->ChipSelect is not NULL, the declaration for this data
   /// structure is provided by the board layer.
   ///
-  ChipSelect = *((UINT8 *)(SpiPeripheral->ChipSelectParameter));
+  ChipSelect = *((UINT32 *)(SpiPeripheral->ChipSelectParameter));
 
   if (ChipSelect >= QMaster->NumChipselect) {
     return EFI_INVALID_PARAMETER;
@@ -218,7 +218,7 @@ QspiChipSelect (
   // Qspi controller asserts Chip select when starting transaction and deasserts chip select after transaction
   // has completed. we can just control which chip select to assert/deassert here.
   //
-  if (PinValue == FALSE) {
+  if (PinValue == TRUE) {
     ChipSelect = QSPI_CHIP_SELECT_0;
   }
 
