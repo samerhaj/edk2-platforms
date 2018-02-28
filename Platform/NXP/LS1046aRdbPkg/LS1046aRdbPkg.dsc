@@ -118,6 +118,7 @@
   Silicon/NXP/Drivers/QspiDxe/QspiDxe.inf
   Silicon/NXP/Drivers/SpiBusDxe/SpiBusDxe.inf
   Silicon/NXP/Drivers/SpiNorFlashDxe/SpiNorFlashDxe.inf
+  Silicon/NXP/Drivers/SpiConfigurationDxe/SpiConfigurationDxe.inf
 
   Silicon/NXP/Drivers/SataInitDxe/SataInitDxe.inf
   #

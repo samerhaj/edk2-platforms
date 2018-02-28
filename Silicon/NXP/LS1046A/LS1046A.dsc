@@ -77,5 +77,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdNumSataController|0x1
 
   gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible|"fsl,vf610-qspi"
+  gNxpQoriqLsTokenSpaceGuid.PcdDspiFdtCompatible|"fsl,vf610-dspi"
+  gNxpQoriqLsTokenSpaceGuid.PcdSpiBusCount|3
 
 ##
