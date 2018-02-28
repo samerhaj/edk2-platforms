@@ -36,6 +36,8 @@
 
   gEfiSpiNorFlashDriverGuid      = {0x93E34C7E, 0xB50E, 0x11DF, {0x92, 0x23, 0x24, 0x43, 0xDF, 0xD7, 0x20, 0x85}}
 
+  gEfiDspiDriverGuid             = {0xde9eb0c8, 0xd66e, 0x4ea5, {0x8b, 0x7c, 0x68, 0x66, 0x69, 0xd3, 0x99, 0x30}}
+
 [PcdsFixedAtBuild.common]
   #
   # Pcds for I2C Controller
@@ -160,10 +162,13 @@
   gNxpQoriqLsTokenSpaceGuid.PcdWdogBigEndian|FALSE|BOOLEAN|0x00000313
   gNxpQoriqLsTokenSpaceGuid.PcdIfcBigEndian|FALSE|BOOLEAN|0x00000314
 
+  gNxpQoriqLsTokenSpaceGuid.PcdSpiBusCount|0x00|UINT32|0x00000315
+
   #
-  # Qspi Controller Pcds
+  # Spi Controllers' Pcds
   #
-  gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible|""|VOID*|0x00000315
+  gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible|""|VOID*|0x00000316
+  gNxpQoriqLsTokenSpaceGuid.PcdDspiFdtCompatible|""|VOID*|0x00000317
 
   #
   # SATA PCDs
