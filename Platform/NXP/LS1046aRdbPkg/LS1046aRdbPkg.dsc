@@ -43,6 +43,7 @@
   FpgaLib|Platform/NXP/LS1046aRdbPkg/Library/FpgaLib/FpgaLib.inf
   PciSegmentLib|Silicon/NXP/Library/PciSegmentLib/PciSegmentLib.inf
   PciHostBridgeLib|Silicon/NXP/Library/PciHostBridgeLib/PciHostBridgeLib.inf
+  SpiPlatformConfigLib|Platform/NXP/LS1046aRdbPkg/Library/SpiPlatformConfigLib/SpiPlatformConfigLib.inf
 
 [PcdsFixedAtBuild.common]
 
