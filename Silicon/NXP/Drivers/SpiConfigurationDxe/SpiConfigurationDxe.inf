@@ -1,0 +1,60 @@
+#/** @file
+#
+#  Component description file for SpiConfigurationDxe module
+#
+#  Copyright 2018 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x0001000A
+  BASE_NAME                      = SpiConfigurationDxe
+  FILE_GUID                      = 36e3193b-0d0f-4c4d-af9b-f8338284fcef
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = SpiConfigurationDxeEntryPoint
+
+[Sources.common]
+  SpiConfigurationDxe.c
+
+[Packages]
+  Silicon/NXP/NxpQoriqLs.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+
+[LibraryClasses]
+  DebugLib
+  DxeServicesLib
+  DxeServicesTableLib
+  FdtLib
+  PcdLib
+  SpiPlatformConfigLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  UefiLib
+
+[Guids]
+  gEfiSpiNorFlashDriverGuid
+  gEfiQspiDriverGuid
+  gEfiDspiDriverGuid
+  gDtPlatformDefaultDtbFileGuid
+
+[FixedPcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible
+  gNxpQoriqLsTokenSpaceGuid.PcdDspiFdtCompatible
+  gNxpQoriqLsTokenSpaceGuid.PcdSpiBusCount
+
+[Protocols]
+  gEfiSpiConfigurationProtocolGuid   ## BY_START
+
+[Depex]
+  TRUE
