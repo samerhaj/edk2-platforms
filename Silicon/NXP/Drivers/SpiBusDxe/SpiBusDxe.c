@@ -872,6 +872,8 @@ RegisterSpiDevice (
   CONST EFI_SPI_PERIPHERAL      *SpiPeripheral;
   SPI_DEVICE_CONTEXT            *SpiDeviceContext;
   UINT32                        SpiAttributes;
+  UINTN                         StartBit;
+  UINTN                         EndBit;
   EFI_STATUS                    Status;
 
   Status                 = EFI_SUCCESS;
@@ -922,18 +924,22 @@ RegisterSpiDevice (
     SpiDeviceContext->SpiIo.MaximumTransferBytes = SpiBusContext->SpiHost->MaximumTransferBytes;
     SpiAttributes = SpiBusContext->SpiHost->Attributes;
     // SPI Io attributes are least attributes supported by both SPI peripheral and SPI Host controller
+    StartBit = __builtin_ctz (SPI_HALF_DUPLEX);
+    EndBit = __builtin_ctz (SPI_SUPPORTS_READ_ONLY_OPERATIONS);
     SpiAttributes = BitFieldOr32 (
                       SpiAttributes,
-                      __builtin_ctz (SPI_HALF_DUPLEX),
-                      __builtin_ctz (SPI_SUPPORTS_READ_ONLY_OPERATIONS),
-                      SpiPeripheral->Attributes
+                      StartBit,
+                      EndBit,
+                      BitFieldRead32 (SpiPeripheral->Attributes, StartBit, EndBit)
                       );
 
+    StartBit = __builtin_ctz (SPI_SUPPORTS_DTR_OPERATIONS);
+    EndBit = __builtin_ctz (SPI_SUPPORTS_8_BIT_DATA_BUS_WIDTH);
     SpiAttributes = BitFieldAnd32 (
                       SpiAttributes,
-                      __builtin_ctz (SPI_SUPPORTS_DTR_OPERATIONS),
-                      __builtin_ctz (SPI_SUPPORTS_8_BIT_DATA_BUS_WIDTH),
-                      SpiPeripheral->Attributes
+                      StartBit,
+                      EndBit,
+                      BitFieldRead32 (SpiPeripheral->Attributes, StartBit, EndBit)
                       );
 
     SpiDeviceContext->SpiIo.Attributes = SpiAttributes;
