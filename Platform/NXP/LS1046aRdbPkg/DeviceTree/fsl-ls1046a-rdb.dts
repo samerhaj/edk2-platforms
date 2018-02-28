@@ -9,7 +9,8 @@
  */
 
 /dts-v1/;
-/include/ "fsl-ls1046a.dtsi"
+
+#include "fsl-ls1046a.dtsi"
 
 / {
   model = "LS1046A RDB Board";

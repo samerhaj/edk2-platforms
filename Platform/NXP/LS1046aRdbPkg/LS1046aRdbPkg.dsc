@@ -119,4 +119,9 @@
   Silicon/NXP/Drivers/SpiNorFlashDxe/SpiNorFlashDxe.inf
 
   Silicon/NXP/Drivers/SataInitDxe/SataInitDxe.inf
+  #
+  # DT support
+  #
+  Platform/NXP/LS1046aRdbPkg/DeviceTree/DeviceTree.inf
+
  ##
