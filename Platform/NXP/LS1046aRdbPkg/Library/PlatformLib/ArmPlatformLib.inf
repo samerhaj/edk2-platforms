@@ -38,9 +38,6 @@
 [Ppis]
   gArmMpCoreInfoPpiGuid
 
-[FeaturePcd]
-  gEmbeddedTokenSpaceGuid.PcdCacheEnable
-
 [FixedPcd]
   gArmTokenSpaceGuid.PcdArmPrimaryCore
   gNxpQoriqLsTokenSpaceGuid.PcdCcsrBaseAddr

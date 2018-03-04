@@ -205,14 +205,6 @@
   # Control what commands are supported from the UI
   # Turn these on and off to add features or save size
   #
-  gEmbeddedTokenSpaceGuid.PcdEmbeddedMacBoot|TRUE
-  gEmbeddedTokenSpaceGuid.PcdEmbeddedDirCmd|TRUE
-  gEmbeddedTokenSpaceGuid.PcdEmbeddedHobCmd|TRUE
-  gEmbeddedTokenSpaceGuid.PcdEmbeddedHwDebugCmd|TRUE
-  gEmbeddedTokenSpaceGuid.PcdEmbeddedPciDebugCmd|TRUE
-  gEmbeddedTokenSpaceGuid.PcdEmbeddedIoEnable|FALSE
-  gEmbeddedTokenSpaceGuid.PcdEmbeddedScriptCmd|FALSE
-  gEmbeddedTokenSpaceGuid.PcdCacheEnable|TRUE
 
   # Use the Vector Table location in CpuDxe. We will not copy the Vector Table at PcdCpuVectorBaseAddress
   gArmTokenSpaceGuid.PcdRelocateVectorTable|FALSE
@@ -259,9 +251,6 @@
 !endif
 
   gEfiMdePkgTokenSpaceGuid.PcdReportStatusCodePropertyMask|0x07
-  gEmbeddedTokenSpaceGuid.PcdEmbeddedAutomaticBootCommand|""
-  gEmbeddedTokenSpaceGuid.PcdEmbeddedDefaultTextColor|0x07
-  gEmbeddedTokenSpaceGuid.PcdEmbeddedMemVariableStoreSize|0x10000
   gEmbeddedTokenSpaceGuid.PcdPrePiCpuIoSize|20
 
   #

@@ -69,11 +69,7 @@ ArmPlatformGetVirtualMemoryMap (
     return;
   }
 
-  if (FeaturePcdGet (PcdCacheEnable) == TRUE) {
-    CacheAttributes = ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK;
-  } else {
-    CacheAttributes = ARM_MEMORY_REGION_ATTRIBUTE_UNCACHED_UNBUFFERED;
-  }
+  CacheAttributes = ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK;
 
   // DRAM1 (Must be 1st entry)
   VirtualMemoryTable[Index].PhysicalBase = FixedPcdGet64 (PcdDram1BaseAddr);
