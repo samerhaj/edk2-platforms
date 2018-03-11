@@ -44,6 +44,7 @@
   NorFlashLib|Silicon/NXP/Library/NorFlashLib/NorFlashLib.inf
   PciSegmentLib|Silicon/NXP/Library/PciSegmentLib/PciSegmentLib.inf
   PciHostBridgeLib|Silicon/NXP/Library/PciHostBridgeLib/PciHostBridgeLib.inf
+  MmcLib|Silicon/NXP/Library/MmcLib/MmcLib.inf
 
 [PcdsFixedAtBuild.common]
 
@@ -70,6 +71,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdWdogBigEndian|TRUE
   gNxpQoriqLsTokenSpaceGuid.PcdIfcBigEndian|TRUE
   gNxpQoriqLsTokenSpaceGuid.PcdPciLutBigEndian|TRUE
+  gNxpQoriqLsTokenSpaceGuid.PcdMmcBigEndian|TRUE
 
   #
   # I2C controller Pcds
@@ -122,4 +124,5 @@
   }
   MdeModulePkg/Bus/Pci/PciBusDxe/PciBusDxe.inf
 
+  Silicon/NXP/Drivers/MmcHostDxe/MmcHostDxe.inf
  ##
