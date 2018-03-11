@@ -1,0 +1,42 @@
+#/**@file
+#
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = MmcHostDxe
+  FILE_GUID                      = 7948a4ca-2f2e-41ca-90a2-d4420cecbbcf
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = MmcHostDxeEntryPoint
+
+[Sources.common]
+  MmcHostDxe.c
+
+[Packages]
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdePkg/MdePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  MmcLib
+  TimerLib
+  UefiDriverEntryPoint
+
+[Protocols]
+  gEfiMmcHostProtocolGuid
+
+[Depex]
+  TRUE
