@@ -402,6 +402,8 @@
   FatPkg/FatPei/FatPei.inf
   FatPkg/EnhancedFatDxe/Fat.inf
 
+  EmbeddedPkg/Universal/MmcDxe/MmcDxe.inf
+
   #
   # Bds
   #
