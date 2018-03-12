@@ -177,6 +177,12 @@ READ_LOCK_STATUS   = TRUE
   INF FatPkg/EnhancedFatDxe/Fat.inf
 
   #
+  # MMC
+  #
+  INF Silicon/NXP/Drivers/MmcHostDxe/MmcHostDxe.inf
+  INF EmbeddedPkg/Universal/MmcDxe/MmcDxe.inf
+
+  #
   # UEFI application (Shell Embedded Boot Loader)
   #
   INF ShellPkg/Application/Shell/Shell.inf
