@@ -196,10 +196,10 @@ READ_LOCK_STATUS   = TRUE
   INF MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
   INF MdeModulePkg/Application/UiApp/UiApp.inf
 
-  INF Silicon/NXP/Drivers/QspiDxe/QspiDxe.inf
   INF Silicon/NXP/Drivers/SpiBusDxe/SpiBusDxe.inf
   INF Silicon/NXP/Drivers/SpiNorFlashDxe/SpiNorFlashDxe.inf
   INF Silicon/NXP/Drivers/SpiConfigurationDxe/SpiConfigurationDxe.inf
+  INF Silicon/NXP/Drivers/QspiDxe/QspiDxe.inf
 
   #
   # DT support
