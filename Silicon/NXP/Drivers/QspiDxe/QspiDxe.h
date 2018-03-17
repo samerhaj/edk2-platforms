@@ -249,11 +249,11 @@ typedef struct {
   ///
   /// QSPI controller Register Read function
   ///
-  UINT32                             (*QspiRead32) (IN  UINTN  Address);
+  UINT32                             (*Read32) (IN  UINTN  Address);
   ///
   /// QSPI controller Register write function
   ///
-  UINT32                             (*QspiWrite32) (IN  UINTN  Address, IN  UINT32  Value);
+  UINT32                             (*Write32) (IN  UINTN  Address, IN  UINT32  Value);
   ///
   /// List of QSPI controllers
   ///

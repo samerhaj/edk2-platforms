@@ -76,8 +76,8 @@ QSPI_MASTER  mQspiMasterTemplate = {
     }
   },
 
-  .QspiRead32 = MmioRead32,
-  .QspiWrite32 = MmioWrite32,
+  .Read32 = MmioRead32,
+  .Write32 = MmioWrite32,
   .Link = {
     .ForwardLink = NULL,
     .BackLink = NULL
@@ -258,11 +258,11 @@ ParseDeviceTree (
     QspiMasterPtr->AmbaBase = AmbaBase;
 
     if (fdt_getprop(Fdt, NodeOffset, "big-endian", NULL) != NULL) {
-      QspiMasterPtr->QspiRead32 = BeMmioRead32;
-      QspiMasterPtr->QspiWrite32 = BeMmioWrite32;
+      QspiMasterPtr->Read32 = BeMmioRead32;
+      QspiMasterPtr->Write32 = BeMmioWrite32;
     } else {
-      QspiMasterPtr->QspiRead32 = MmioRead32;
-      QspiMasterPtr->QspiWrite32 = MmioWrite32;
+      QspiMasterPtr->Read32 = MmioRead32;
+      QspiMasterPtr->Write32 = MmioWrite32;
     }
 
     Prop = fdt_getprop(Fdt, NodeOffset, "num-cs", &PropLen);
@@ -291,10 +291,10 @@ ParseDeviceTree (
     QspiSwReset (QspiMasterPtr, TRUE);
 
     /* Put the QSPI controller in Module Disable Mode */
-    McrVal = QspiMasterPtr->QspiRead32 ( (UINTN)&QspiMasterPtr->Regs->Mcr);
+    McrVal = QspiMasterPtr->Read32 ( (UINTN)&QspiMasterPtr->Regs->Mcr);
     McrVal |= MCR_IDLE_SIGNAL_DRIVE | MCR_MDIS_MASK | (McrVal & MCR_END_CFD_MASK);
 
-    QspiMasterPtr->QspiWrite32 ( (UINTN)&QspiMasterPtr->Regs->Mcr, McrVal);
+    QspiMasterPtr->Write32 ( (UINTN)&QspiMasterPtr->Regs->Mcr, McrVal);
 
     QspiConfigureSampling (
       QspiMasterPtr,
@@ -322,28 +322,28 @@ ParseDeviceTree (
       //
       switch (QspiMasterPtr->NumChipselect) {
         case QSPI_CHIP_SELECT_MAX :
-          QspiMasterPtr->QspiWrite32 (
+          QspiMasterPtr->Write32 (
                            (UINTN)&QspiMasterPtr->Regs->Sfb2ad,
                            QspiMasterPtr->AmbaBase + QSPI_CHIP_SELECT_MAX * AmbaSizePerChip
                            );
           // don't use break; use fall through mode
 
         case QSPI_CHIP_SELECT_3 :
-          QspiMasterPtr->QspiWrite32 (
+          QspiMasterPtr->Write32 (
                            (UINTN)&QspiMasterPtr->Regs->Sfb1ad,
                            QspiMasterPtr->AmbaBase + QSPI_CHIP_SELECT_3 * AmbaSizePerChip
                            );
           // don't use break; use fall through mode
 
         case QSPI_CHIP_SELECT_2 :
-          QspiMasterPtr->QspiWrite32 (
+          QspiMasterPtr->Write32 (
                            (UINTN)&QspiMasterPtr->Regs->Sfa2ad,
                             QspiMasterPtr->AmbaBase + QSPI_CHIP_SELECT_2 * AmbaSizePerChip
                             );
           // don't use break; use fall through mode
 
         default:
-          QspiMasterPtr->QspiWrite32 (
+          QspiMasterPtr->Write32 (
                            (UINTN)&QspiMasterPtr->Regs->Sfa1ad,
                             QspiMasterPtr->AmbaBase + AmbaSizePerChip
                             );

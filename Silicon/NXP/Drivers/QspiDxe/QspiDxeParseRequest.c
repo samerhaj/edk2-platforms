@@ -304,18 +304,18 @@ ParseRequest (
   }
 
   /* Unlock The LUT */
-  QMaster->QspiWrite32 ( (UINTN)&Regs->Lutkey, LUT_KEY);
-  QMaster->QspiWrite32 ( (UINTN)&Regs->Lckcr, LCKCR_UNLOCK);
+  QMaster->Write32 ( (UINTN)&Regs->Lutkey, LUT_KEY);
+  QMaster->Write32 ( (UINTN)&Regs->Lckcr, LCKCR_UNLOCK);
 
   LutId = Request->LutId * 4;
-  QMaster->QspiWrite32 ( (UINTN)&LutBase[LutId], Lut[1] << LUT_OPRND1_SHIFT | Lut[0]);
-  QMaster->QspiWrite32 ( (UINTN)&LutBase[LutId + 1], Lut[3] << LUT_OPRND1_SHIFT | Lut[2]);
-  QMaster->QspiWrite32 ( (UINTN)&LutBase[LutId + 2], Lut[5] << LUT_OPRND1_SHIFT | Lut[4]);
-  QMaster->QspiWrite32 ( (UINTN)&LutBase[LutId + 3], Lut[7] << LUT_OPRND1_SHIFT | Lut[6]);
+  QMaster->Write32 ( (UINTN)&LutBase[LutId], Lut[1] << LUT_OPRND1_SHIFT | Lut[0]);
+  QMaster->Write32 ( (UINTN)&LutBase[LutId + 1], Lut[3] << LUT_OPRND1_SHIFT | Lut[2]);
+  QMaster->Write32 ( (UINTN)&LutBase[LutId + 2], Lut[5] << LUT_OPRND1_SHIFT | Lut[4]);
+  QMaster->Write32 ( (UINTN)&LutBase[LutId + 3], Lut[7] << LUT_OPRND1_SHIFT | Lut[6]);
 
   /* Lock The LUT */
-  QMaster->QspiWrite32 ( (UINTN)&Regs->Lutkey, LUT_KEY);
-  QMaster->QspiWrite32 ( (UINTN)&Regs->Lckcr, LCKCR_LOCK);
+  QMaster->Write32 ( (UINTN)&Regs->Lutkey, LUT_KEY);
+  QMaster->Write32 ( (UINTN)&Regs->Lckcr, LCKCR_LOCK);
 
   return EFI_SUCCESS;
 }

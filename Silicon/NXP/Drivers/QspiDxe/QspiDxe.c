@@ -228,15 +228,15 @@ QspiChipSelect (
       break;
 
     case QSPI_CHIP_SELECT_1:
-      QMaster->CurAmbaBase = QMaster->QspiRead32 ( (UINTN)&QMaster->Regs->Sfa1ad);
+      QMaster->CurAmbaBase = QMaster->Read32 ( (UINTN)&QMaster->Regs->Sfa1ad);
       break;
 
     case QSPI_CHIP_SELECT_2:
-      QMaster->CurAmbaBase = QMaster->QspiRead32 ( (UINTN)&QMaster->Regs->Sfa2ad);
+      QMaster->CurAmbaBase = QMaster->Read32 ( (UINTN)&QMaster->Regs->Sfa2ad);
       break;
 
     case QSPI_CHIP_SELECT_3:
-      QMaster->CurAmbaBase = QMaster->QspiRead32 ( (UINTN)&QMaster->Regs->Sfb1ad);
+      QMaster->CurAmbaBase = QMaster->Read32 ( (UINTN)&QMaster->Regs->Sfb1ad);
       break;
   }
 
