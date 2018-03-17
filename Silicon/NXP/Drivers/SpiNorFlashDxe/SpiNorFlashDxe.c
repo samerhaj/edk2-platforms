@@ -37,6 +37,7 @@
 #include <Library/DebugLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiLib.h>
+#include <Library/TimerLib.h>
 
 #include "SpiNorFlashDxe.h"
 
@@ -86,6 +87,385 @@ SpiNorFlashSupported (
 }
 
 EFI_STATUS
+FlashErase (
+  IN EFI_SPI_IO_PROTOCOL   *SpiIo
+  )
+{
+  UINT8                      *Buf;
+  EFI_SPI_REQUEST_PACKET     *RequestPacket;
+  EFI_STATUS                 Status;
+  UINT32                     Address;
+
+  RequestPacket = NULL;
+  Buf = NULL;
+
+  RequestPacket = (EFI_SPI_REQUEST_PACKET *)AllocateZeroPool (
+                                              sizeof (UINTN) +
+                                              2 * sizeof (EFI_SPI_BUS_TRANSACTION)
+                                              );
+  if (RequestPacket == NULL) {
+    goto ErrorExit;
+  }
+  Buf = (UINT8 *)AllocatePool (sizeof (UINT32));
+  if (Buf == NULL) {
+    goto ErrorExit;
+  }
+  Buf[0] = 0xD8; // Sector Erase
+  Address = 0x3C0000; // Sector Offset
+  CopyMem (&Buf[1], &Address, 3); // copy 24 bits
+
+  RequestPacket->TransactionCount = 2;
+
+  // Send Command
+  RequestPacket->Transaction[0].TransactionType = SPI_TRANSACTION_COMMAND;
+  RequestPacket->Transaction[0].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+  RequestPacket->Transaction[0].Length = 1;
+  RequestPacket->Transaction[0].FrameSize = 8;
+  RequestPacket->Transaction[0].WriteBuffer = &Buf[0];
+
+  // Send Address
+  RequestPacket->Transaction[1].TransactionType = SPI_TRANSACTION_ADDRESS;
+  RequestPacket->Transaction[1].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+  RequestPacket->Transaction[1].Length = 3; // 24 bit address
+  RequestPacket->Transaction[1].FrameSize = 8;
+  RequestPacket->Transaction[1].WriteBuffer = &Buf[1];
+
+  Status = SpiIo->Transaction (
+                    SpiIo,
+                    RequestPacket,
+                    0
+                    );
+  if (EFI_ERROR (Status)) {
+    goto ErrorExit;
+  }
+
+ErrorExit:
+  //
+  // When there is an error, the private data structures need to be freed and
+  // the protocols that were opened need to be closed.
+  //
+  if (Buf != NULL) {
+    gBS->FreePool (Buf);
+  }
+  if (RequestPacket != NULL) {
+    gBS->FreePool (RequestPacket);
+  }
+
+  return Status;
+}
+
+EFI_STATUS
+FlashWriteEnable (
+  IN EFI_SPI_IO_PROTOCOL   *SpiIo
+  )
+{
+  UINT8                      *Buf;
+  EFI_SPI_REQUEST_PACKET     *RequestPacket;
+  EFI_STATUS                 Status;
+
+  RequestPacket = NULL;
+  Buf = NULL;
+
+  RequestPacket = (EFI_SPI_REQUEST_PACKET *)AllocateZeroPool (
+                                              sizeof (UINTN) +
+                                              1 * sizeof (EFI_SPI_BUS_TRANSACTION)
+                                              );
+  if (RequestPacket == NULL) {
+    goto ErrorExit;
+  }
+  Buf = (UINT8 *)AllocatePool (sizeof (UINT8));
+  if (Buf == NULL) {
+    goto ErrorExit;
+  }
+  Buf[0] = 0x06; // Write Enable
+
+  RequestPacket->TransactionCount = 1;
+
+  // Send Command
+  RequestPacket->Transaction[0].TransactionType = SPI_TRANSACTION_COMMAND;
+  RequestPacket->Transaction[0].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+  RequestPacket->Transaction[0].Length = 1;
+  RequestPacket->Transaction[0].FrameSize = 8;
+  RequestPacket->Transaction[0].WriteBuffer = &Buf[0];
+
+  Status = SpiIo->Transaction (
+                    SpiIo,
+                    RequestPacket,
+                    0
+                    );
+  if (EFI_ERROR (Status)) {
+    goto ErrorExit;
+  }
+
+ErrorExit:
+  //
+  // When there is an error, the private data structures need to be freed and
+  // the protocols that were opened need to be closed.
+  //
+  if (Buf != NULL) {
+    gBS->FreePool (Buf);
+  }
+  if (RequestPacket != NULL) {
+    gBS->FreePool (RequestPacket);
+  }
+
+  return Status;
+}
+
+EFI_STATUS
+FlashWrite (
+  IN EFI_SPI_IO_PROTOCOL   *SpiIo
+  )
+{
+  UINT8                      *Buf;
+  EFI_SPI_REQUEST_PACKET     *RequestPacket;
+  EFI_STATUS                 Status;
+  UINT32                     Address;
+  UINT8                      *Data;
+  UINTN                      Index;
+
+  RequestPacket = NULL;
+  Buf = NULL;
+  Data = NULL;
+
+  RequestPacket = (EFI_SPI_REQUEST_PACKET *)AllocateZeroPool (
+                                              sizeof (UINTN) +
+                                              3 * sizeof (EFI_SPI_BUS_TRANSACTION)
+                                              );
+  if (RequestPacket == NULL) {
+    goto ErrorExit;
+  }
+  Buf = (UINT8 *)AllocatePool (sizeof (UINT32));
+  if (Buf == NULL) {
+    goto ErrorExit;
+  }
+  Data = (UINT8 *)AllocatePool (sizeof (UINT8) * 0x100);
+  if (Data == NULL) {
+    goto ErrorExit;
+  }
+  Buf[0] = 0x02; // Page Program
+  Address = 0x3C0000; // Sector Offset
+  CopyMem (&Buf[1], &Address, 3); // copy 24 bits
+
+  DEBUG ((DEBUG_ERROR, "Data to be written @ Offset 0x%x:\n", Address));
+  for (Index = 1; Index <= 0x100; Index++) {
+    Data[Index - 1] = GetPerformanceCounter () % 0xFF;
+    MicroSecondDelay (1); // to introduce randomization
+    DEBUG ((DEBUG_ERROR, "0x%02x, ", Data[Index - 1]));
+    if (!(Index % 0x10)) DEBUG ((DEBUG_ERROR, "\n"));
+  }
+  DEBUG ((DEBUG_ERROR, "\n"));
+
+  RequestPacket->TransactionCount = 3;
+
+  // Send Command
+  RequestPacket->Transaction[0].TransactionType = SPI_TRANSACTION_COMMAND;
+  RequestPacket->Transaction[0].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+  RequestPacket->Transaction[0].Length = 1;
+  RequestPacket->Transaction[0].FrameSize = 8;
+  RequestPacket->Transaction[0].WriteBuffer = &Buf[0];
+
+  // Send Address
+  RequestPacket->Transaction[1].TransactionType = SPI_TRANSACTION_ADDRESS;
+  RequestPacket->Transaction[1].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+  RequestPacket->Transaction[1].Length = 3; // 24 bit address
+  RequestPacket->Transaction[1].FrameSize = 8;
+  RequestPacket->Transaction[1].WriteBuffer = &Buf[1];
+
+  // Send Address
+  RequestPacket->Transaction[2].TransactionType = SPI_TRANSACTION_DATA;
+  RequestPacket->Transaction[2].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+  RequestPacket->Transaction[2].Length = 0x100;
+  RequestPacket->Transaction[2].FrameSize = 8;
+  RequestPacket->Transaction[2].WriteBuffer = Data;
+
+  Status = SpiIo->Transaction (
+                    SpiIo,
+                    RequestPacket,
+                    0
+                    );
+  if (EFI_ERROR (Status)) {
+    goto ErrorExit;
+  }
+
+ErrorExit:
+  //
+  // When there is an error, the private data structures need to be freed and
+  // the protocols that were opened need to be closed.
+  //
+  if (Data != NULL) {
+    gBS->FreePool (Data);
+  }
+  if (Buf != NULL) {
+    gBS->FreePool (Buf);
+  }
+  if (RequestPacket != NULL) {
+    gBS->FreePool (RequestPacket);
+  }
+
+  return Status;
+}
+
+EFI_STATUS
+FlashWaitForWriteDone (
+  IN EFI_SPI_IO_PROTOCOL   *SpiIo
+  )
+{
+  UINT8                      *Buf;
+  EFI_SPI_REQUEST_PACKET     *RequestPacket;
+  EFI_STATUS                 Status;
+
+  RequestPacket = NULL;
+  Buf = NULL;
+
+  RequestPacket = (EFI_SPI_REQUEST_PACKET *)AllocateZeroPool (
+                                              sizeof (UINTN) +
+                                              2 * sizeof (EFI_SPI_BUS_TRANSACTION)
+                                              );
+  if (RequestPacket == NULL) {
+    goto ErrorExit;
+  }
+  Buf = (UINT8 *)AllocatePool (sizeof (UINT16));
+  if (Buf == NULL) {
+    goto ErrorExit;
+  }
+  Buf[0] = 0x05; // Read Status
+
+  RequestPacket->TransactionCount = 2;
+
+  // Send Command
+  RequestPacket->Transaction[0].TransactionType = SPI_TRANSACTION_COMMAND;
+  RequestPacket->Transaction[0].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+  RequestPacket->Transaction[0].Length = 1;
+  RequestPacket->Transaction[0].FrameSize = 8;
+  RequestPacket->Transaction[0].WriteBuffer = &Buf[0];
+
+  // Read Data
+  RequestPacket->Transaction[1].TransactionType = SPI_TRANSACTION_DATA;
+  RequestPacket->Transaction[1].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+  RequestPacket->Transaction[1].Length = 1;
+  RequestPacket->Transaction[1].FrameSize = 8;
+  RequestPacket->Transaction[1].ReadBuffer = &Buf[1];
+
+  do {
+    Status = SpiIo->Transaction (
+                      SpiIo,
+                      RequestPacket,
+                      0
+                      );
+    if (EFI_ERROR (Status)) {
+      goto ErrorExit;
+    }
+  } while (Buf[1] & BIT0);
+
+ErrorExit:
+  //
+  // When there is an error, the private data structures need to be freed and
+  // the protocols that were opened need to be closed.
+  //
+  if (Buf != NULL) {
+    gBS->FreePool (Buf);
+  }
+  if (RequestPacket != NULL) {
+    gBS->FreePool (RequestPacket);
+  }
+
+  return Status;
+}
+
+EFI_STATUS
+FlashRead (
+  IN EFI_SPI_IO_PROTOCOL   *SpiIo
+  )
+{
+  UINT8                      *Buf;
+  EFI_SPI_REQUEST_PACKET     *RequestPacket;
+  EFI_STATUS                 Status;
+  UINT32                     Address;
+  UINT8                      *Data;
+  UINTN                      Index;
+
+  RequestPacket = NULL;
+  Buf = NULL;
+  Data = NULL;
+
+  RequestPacket = (EFI_SPI_REQUEST_PACKET *)AllocateZeroPool (
+                                              sizeof (UINTN) +
+                                              3 * sizeof (EFI_SPI_BUS_TRANSACTION)
+                                              );
+  if (RequestPacket == NULL) {
+    goto ErrorExit;
+  }
+  Buf = (UINT8 *)AllocatePool (sizeof (UINT32));
+  if (Buf == NULL) {
+    goto ErrorExit;
+  }
+  Data = (UINT8 *)AllocatePool (sizeof (UINT8) * 0x100);
+  if (Data == NULL) {
+    goto ErrorExit;
+  }
+  Buf[0] = 0x03; // Slow read
+  Address = 0x3C0000; // Sector Offset
+  CopyMem (&Buf[1], &Address, 3); // copy 24 bits
+
+  RequestPacket->TransactionCount = 3;
+
+  // Send Command
+  RequestPacket->Transaction[0].TransactionType = SPI_TRANSACTION_COMMAND;
+  RequestPacket->Transaction[0].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+  RequestPacket->Transaction[0].Length = 1;
+  RequestPacket->Transaction[0].FrameSize = 8;
+  RequestPacket->Transaction[0].WriteBuffer = &Buf[0];
+
+  // Send Address
+  RequestPacket->Transaction[1].TransactionType = SPI_TRANSACTION_ADDRESS;
+  RequestPacket->Transaction[1].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+  RequestPacket->Transaction[1].Length = 3; // 24 bit address
+  RequestPacket->Transaction[1].FrameSize = 8;
+  RequestPacket->Transaction[1].WriteBuffer = &Buf[1];
+
+  // Read Data
+  RequestPacket->Transaction[2].TransactionType = SPI_TRANSACTION_DATA;
+  RequestPacket->Transaction[2].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+  RequestPacket->Transaction[2].Length = 0x100;
+  RequestPacket->Transaction[2].FrameSize = 8;
+  RequestPacket->Transaction[2].ReadBuffer = Data;
+
+  Status = SpiIo->Transaction (
+                    SpiIo,
+                    RequestPacket,
+                    0
+                    );
+  if (EFI_ERROR (Status)) {
+    goto ErrorExit;
+  }
+
+  DEBUG ((DEBUG_ERROR, "Data Read from Device @ Offset 0x%x:\n", Address));
+  for (Index = 1; Index <= 0x100; Index++) {
+    DEBUG ((DEBUG_ERROR, "0x%02x, ", Data[Index - 1]));
+    if (!(Index % 0x10)) DEBUG ((DEBUG_ERROR, "\n"));
+  }
+  DEBUG ((DEBUG_ERROR, "\n"));
+
+ErrorExit:
+  //
+  // When there is an error, the private data structures need to be freed and
+  // the protocols that were opened need to be closed.
+  //
+  if (Data != NULL) {
+    gBS->FreePool (Data);
+  }
+  if (Buf != NULL) {
+    gBS->FreePool (Buf);
+  }
+  if (RequestPacket != NULL) {
+    gBS->FreePool (RequestPacket);
+  }
+
+  return Status;
+}
+
+EFI_STATUS
 SpiNorFlashStart (
   IN EFI_DRIVER_BINDING_PROTOCOL   *This,
   IN EFI_HANDLE                    ControllerHandle,
@@ -94,15 +474,7 @@ SpiNorFlashStart (
 {
   EFI_STATUS                 Status;
   EFI_SPI_IO_PROTOCOL        *SpiIo;
-  EFI_SPI_REQUEST_PACKET     *RequestPacket;
-  UINT8                      *Buf;
-  UINT8                      *Data;
-  UINTN                      Index;
-  UINT32                     Address;
 
-  Buf = NULL;
-  Data = NULL;
-  RequestPacket = NULL;
   Status = EFI_SUCCESS;
   SpiIo = NULL;
 
@@ -123,78 +495,52 @@ SpiNorFlashStart (
 
   DEBUG ((DEBUG_ERROR, "%a Attributes = 0x%08x\n",__FUNCTION__, SpiIo->Attributes));
 
-  //
-  // Allocate and zero a private data structure for the SpiNorFlash device.
-  //
-  RequestPacket = (EFI_SPI_REQUEST_PACKET *)AllocateZeroPool (
-                                              sizeof (UINTN) +
-                                              4 * sizeof (EFI_SPI_BUS_TRANSACTION)
-                                              );
-  if (RequestPacket == NULL) {
-    goto ErrorExit;
-  }
-  Buf = (UINT8 *)AllocatePool (sizeof (UINT32));
-  if (Buf == NULL) {
-    goto ErrorExit;
-  }
-  Data = (UINT8 *)AllocatePool (sizeof (UINT8) * 0x40);
-  if (Data == NULL) {
-    goto ErrorExit;
-  }
-
-  //
-  // Initialize the contents of the private data structure for the SpiNorFlash device.
-  // This includes the SpiIo protocol instance and other private data fields
-  // and the EFI_ABC_IO_PROTOCOL instance that will be installed.
-  //
-  Buf[0] = 0x0b; // Fast Read
-  Address = 0x100000; // first boot loader address
-  CopyMem (&Buf[1], &Address, 3); // copy 3 bytes of address
-
-  RequestPacket->TransactionCount = 4;
-
-  // Send Fast read Command
-  RequestPacket->Transaction[0].TransactionType = SPI_TRANSACTION_COMMAND;
-  RequestPacket->Transaction[0].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
-  RequestPacket->Transaction[0].Length = 1;
-  RequestPacket->Transaction[0].FrameSize = 8;
-  RequestPacket->Transaction[0].WriteBuffer = &Buf[0];
-
-  // Send Address
-  RequestPacket->Transaction[1].TransactionType = SPI_TRANSACTION_ADDRESS;
-  RequestPacket->Transaction[1].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
-  RequestPacket->Transaction[1].Length = 3;
-  RequestPacket->Transaction[1].FrameSize = 8;
-  RequestPacket->Transaction[1].WriteBuffer = &Buf[1];
-
-  // Send 8 dummy cycles
-  RequestPacket->Transaction[2].TransactionType = SPI_TRANSACTION_DUMMY;
-  RequestPacket->Transaction[2].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
-  RequestPacket->Transaction[2].Length = 8;
-  RequestPacket->Transaction[2].FrameSize = 8;
-
-  // Read Data
-  RequestPacket->Transaction[3].TransactionType = SPI_TRANSACTION_DATA;
-  RequestPacket->Transaction[3].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
-  RequestPacket->Transaction[3].Length = 0x40;
-  RequestPacket->Transaction[3].FrameSize = 8;
-  RequestPacket->Transaction[3].ReadBuffer = Data;
-
-  Status = SpiIo->Transaction (
-                    SpiIo,
-                    RequestPacket,
-                    0
-                    );
+  Status = FlashRead (SpiIo);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "%a %d Status = %d\n", __FUNCTION__, __LINE__, Status));
+    DEBUG ((DEBUG_ERROR, "%a %d Status = %r\n",__FUNCTION__, __LINE__, Status));
     goto ErrorExit;
   }
 
-  for (Index = 1; Index <= 0x40; Index++) {
-    DEBUG ((DEBUG_ERROR, "0x%02x, ", Data[Index - 1]));
-    if (!(Index % 0x10)) {
-      DEBUG ((DEBUG_ERROR, "\n"));
-    }
+  Status = FlashWriteEnable (SpiIo);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "%a %d Status = %r\n",__FUNCTION__, __LINE__, Status));
+    goto ErrorExit;
+  }
+
+  Status = FlashErase (SpiIo);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "%a %d Status = %r\n",__FUNCTION__, __LINE__, Status));
+    goto ErrorExit;
+  }
+
+  Status = FlashWaitForWriteDone (SpiIo);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "%a %d Status = %r\n",__FUNCTION__, __LINE__, Status));
+    goto ErrorExit;
+  }
+
+  Status = FlashWriteEnable (SpiIo);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "%a %d Status = %r\n",__FUNCTION__, __LINE__, Status));
+    goto ErrorExit;
+  }
+
+  Status = FlashWrite (SpiIo);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "%a %d Status = %r\n",__FUNCTION__, __LINE__, Status));
+    goto ErrorExit;
+  }
+
+  Status = FlashWaitForWriteDone (SpiIo);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "%a %d Status = %r\n",__FUNCTION__, __LINE__, Status));
+    goto ErrorExit;
+  }
+
+  Status = FlashRead (SpiIo);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "%a %d Status = %r\n",__FUNCTION__, __LINE__, Status));
+    goto ErrorExit;
   }
 
 ErrorExit:
@@ -202,15 +548,6 @@ ErrorExit:
   // When there is an error, the private data structures need to be freed and
   // the protocols that were opened need to be closed.
   //
-  if (Data != NULL) {
-    gBS->FreePool (Data);
-  }
-  if (Buf != NULL) {
-    gBS->FreePool (Buf);
-  }
-  if (RequestPacket != NULL) {
-    gBS->FreePool (RequestPacket);
-  }
   if (EFI_ERROR(Status)) {
     gBS->CloseProtocol (
            ControllerHandle,
@@ -219,6 +556,7 @@ ErrorExit:
            ControllerHandle
            );
   }
+
   return Status;
 }
 
