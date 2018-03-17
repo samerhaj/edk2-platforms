@@ -186,6 +186,47 @@ UpdateMcr (
 }
 
 /**
+  Enable or Disable the QSPI controller software reset
+
+  It is advisable to reset both the serial flash domain and AHB domain at the same time.
+  Resetting only one domain might lead to side effects.
+
+  The software resets need the clock to be running to propagate to the design. The
+  MCR[MDIS] should therefore be set to 0 when the software reset bits are asserted. Also,
+  before they can be de-asserted again (by setting MCR[SWRSTHD] and MCR[SWRSTSD] to 0),
+  it is recommended to set the MCR[MDIS] bit to 1.
+  Once the software resets have been de-asserted, the normal operation can be started by
+  setting the MCR[MDIS] bit to 0.
+
+  @param[in]   QMaster          QSPI_MASTER structure of a QSPI controller
+  @param[in]   ResetEn          TRUE: Enable QSPI controller software reset
+                                FALSE: Disable QSPI controller software reset
+**/
+STATIC
+VOID
+QspiSwReset(
+  IN  QSPI_MASTER *QMaster,
+  IN  BOOLEAN     ResetEn
+  )
+{
+  QSPI_REGISTERS *Regs;
+  UINT32 Reg;
+
+  Regs = QMaster->Regs;
+  Reg = QMaster->Read32 ( (UINTN)&Regs->Mcr);
+
+  if (ResetEn) {
+    Reg |= MCR_SWRSTHD_MASK | MCR_SWRSTSD_MASK;
+  } else {
+    Reg &= ~(MCR_SWRSTHD_MASK | MCR_SWRSTSD_MASK);
+  }
+
+  QMaster->Write32 ( (UINTN)&Regs->Mcr, Reg);
+
+  return;
+}
+
+/**
  Clears(puts) the QSPI controller from(into) Module Disabled state.
 
  The MDIS bit allows the clock to the non-memory mapped logic in the QuadSPI to be
@@ -251,19 +292,21 @@ WriteTransaction (
 {
   QSPI_REGISTERS  *Regs;
   UINT32          McrReg;
-  UINT32          Data[4];
+  UINT32          Data;
   UINT32          Index;
   UINT32          TxSize;
   UINT32          ToOrFrom;
   UINT32          TxBuffEmpty;
   UINT32          TxBuffFill;
-  UINT8           *Txbuf;
+  UINT32          *Txbuf;
+  UINT8           TxWmarkSize; // Tx Water mark size in 32 bit entries
   EFI_STATUS      Status;
 
   Regs = QMaster->Regs;
   Status = EFI_SUCCESS;
-  Txbuf = (UINT8 *)Request->Buffer;
+  Txbuf = (UINT32 *)Request->Buffer;
   TxBuffFill = 0;
+  TxWmarkSize = TX_WMRK + 1; // There must be atleast 128bit data available in TX FIFO for any pop operation
 
   Status = CheckStatusRegister(QMaster);
   if (EFI_ERROR (Status)) {
@@ -280,22 +323,24 @@ WriteTransaction (
   QMaster->Write32 ( (UINTN)&Regs->Sfacr, 0);
 
   TxSize = (Request->Length > TX_BUFFER_SIZE) ? TX_BUFFER_SIZE : Request->Length;
+  TxBuffFill = TxSize;
 
   while (TxSize) {
-    if (TxSize < sizeof(Data)) {
-      SetMem (Data, sizeof(Data), 0);
-      CopyMem(Data, Txbuf, TxSize);
-      Txbuf += TxSize;
-      TxBuffFill += TxSize;
-      TxSize = 0;
-    } else {
-      CopyMem(Data, Txbuf, sizeof(Data));
-      Txbuf += sizeof(Data);
-      TxBuffFill += sizeof(Data);
-      TxSize -= sizeof(Data);
-    }
-    for (Index = 0; Index < ARRAY_SIZE (Data); Index++) {
-      QMaster->Write32 ( (UINTN)&Regs->Tbdr, Data[Index]);
+    Index = 0;
+    while (Index++ < TxWmarkSize) {
+      if (TxSize == 0) {
+        Data = 0;
+        QMaster->Write32 ( (UINTN)&Regs->Tbdr, Data);
+      } else if (TxSize < sizeof (Data)) {
+        Data = 0;
+        CopyMem (&Data, Txbuf, TxSize);
+        QMaster->Write32 ( (UINTN)&Regs->Tbdr, Data);
+        Txbuf = (UINT32 *)((UINT8 *)Txbuf + TxSize);
+        TxSize = 0;
+      } else {
+        QMaster->Write32 ( (UINTN)&Regs->Tbdr, *Txbuf++);
+        TxSize -= sizeof (UINT32);
+      }
     }
   }
   TxSize = (Request->Length - TxBuffFill);
@@ -314,21 +359,24 @@ WriteTransaction (
      */
     TxBuffFill = ((QMaster->Read32 ( (UINTN)&Regs->Tbsr) & TBSR_TRBL_MASK) >> TBSR_TRBL_SHIFT) << 2;
     TxBuffEmpty = TX_BUFFER_SIZE - TxBuffFill;
-    if (TxBuffEmpty < sizeof(Data)) {
+    if (TxBuffEmpty < (TxWmarkSize * sizeof (UINT32))) {
       continue;
     }
-    if (TxSize < sizeof(Data)) {
-      SetMem (Data, sizeof(Data), 0);
-      CopyMem(Data, Txbuf, TxSize);
-      Txbuf += TxSize;
-      TxSize = 0;
-    } else {
-      CopyMem(Data, Txbuf, sizeof(Data));
-      Txbuf += sizeof(Data);
-      TxSize -= sizeof(Data);
-    }
-    for (Index = 0; Index < ARRAY_SIZE (Data); Index++) {
-      QMaster->Write32 ( (UINTN)&Regs->Tbdr, Data[Index]);
+    Index = 0;
+    while (Index++ < TxWmarkSize) {
+      if (TxSize == 0) {
+        Data = 0;
+        QMaster->Write32 ( (UINTN)&Regs->Tbdr, Data);
+      } else if (TxSize < sizeof (Data)) {
+        Data = 0;
+        CopyMem (&Data, Txbuf, TxSize);
+        QMaster->Write32 ( (UINTN)&Regs->Tbdr, Data);
+        Txbuf = (UINT32 *)((UINT8 *)Txbuf + TxSize);
+        TxSize = 0;
+      } else {
+        QMaster->Write32 ( (UINTN)&Regs->Tbdr, *Txbuf++);
+        TxSize -= sizeof (UINT32);
+      }
     }
   }
   while (QMaster->Read32 ( (UINTN)&Regs->Sr) & (SR_IP_ACC | SR_BUSY)) {
@@ -416,6 +464,9 @@ ReadTransaction (
         break;
       }
     }
+    if (EFI_ERROR (Status)) {
+      break;
+    }
 
     From += Size;
     Request->Length -= Size;
@@ -470,41 +521,101 @@ QspiConfigureSampling (
 }
 
 /**
-  Enable or Disable the QSPI controller software reset
+ Configure The QSpi controller at startup
 
-  It is advisable to reset both the serial flash domain and AHB domain at the same time.
-  Resetting only one domain might lead to side effects.
+ @param[in] QMaster       Pointer to QSPI_MASTER structure of a QSPI controller
+ @param[in] AmbaTotalSize Total Size for Memory mapped SPI flash devices
 
-  The software resets need the clock to be running to propagate to the design. The
-  MCR[MDIS] should therefore be set to 0 when the software reset bits are asserted. Also,
-  before they can be de-asserted again (by setting MCR[SWRSTHD] and MCR[SWRSTSD] to 0),
-  it is recommended to set the MCR[MDIS] bit to 1.
-  Once the software resets have been de-asserted, the normal operation can be started by
-  setting the MCR[MDIS] bit to 0.
-
-  @param[in]   QMaster          QSPI_MASTER structure of a QSPI controller
-  @param[in]   ResetEn          TRUE: Enable QSPI controller software reset
-                                FALSE: Disable QSPI controller software reset
+ @retval EFI_INVALID_PARAMETER  QMaster is Null or AmbaTotalSize is zero
+ @retval EFI_SUCCESS       Successfully configured the controller
+ @retval EFI_DEVICE_ERROR  Error occurred while configuring QSpi controller
 **/
-VOID
-QspiSwReset(
-  IN  QSPI_MASTER *QMaster,
-  IN  BOOLEAN     ResetEn
+EFI_STATUS
+QspiSetup (
+  IN  QSPI_MASTER           *QMaster,
+  IN  UINT64                AmbaTotalSize
   )
 {
-  QSPI_REGISTERS *Regs;
-  UINT32 Reg;
+  QSPI_REGISTERS                *Regs;
+  UINT32                        McrVal;
+  UINT64                        AmbaSizePerChip;
+  EFI_STATUS                    Status;
 
-  Regs = QMaster->Regs;
-  Reg = QMaster->Read32 ( (UINTN)&Regs->Mcr);
-
-  if (ResetEn) {
-    Reg |= MCR_SWRSTHD_MASK | MCR_SWRSTSD_MASK;
-  } else {
-    Reg &= ~(MCR_SWRSTHD_MASK | MCR_SWRSTSD_MASK);
+  if ((QMaster == NULL) || (AmbaTotalSize == 0)) {
+    return EFI_INVALID_PARAMETER;
   }
 
-  QMaster->Write32 ( (UINTN)&Regs->Mcr, Reg);
+  Status = EFI_SUCCESS;
+  Regs = QMaster->Regs;
 
-  return;
+  // Reset QSPI Module
+  QspiSwReset (QMaster, TRUE);
+
+  /* Put the QSPI controller in Module Disable Mode */
+  McrVal = QMaster->Read32 ( (UINTN)&Regs->Mcr);
+  McrVal |= MCR_IDLE_SIGNAL_DRIVE | MCR_MDIS_MASK | (McrVal & MCR_END_CFD_MASK);
+
+  QMaster->Write32 ( (UINTN)&Regs->Mcr, McrVal);
+
+  QspiConfigureSampling (
+    QMaster,
+    (SMPR_FSDLY_MASK | SMPR_DDRSMP_MASK | SMPR_FSPHS_MASK | SMPR_HSENA_MASK),
+    0
+    );
+
+  if (QMaster->NumChipselect) {
+    //
+    // Assign AMBA Memory Zone for Every CS
+    // QSPI Has Two Channels And Every Channel Has Two CS.
+    // if No Of CS Is 2, The AMBA Memory Will Be Divided Into Two Parts
+    // And Assign To Every Channel. This Indicate That Every
+    // Channel Only Has One Valid CS.
+    // if No Of CS Is 4, The AMBA Memory Will Be Divided Into Four Parts
+    // And Assign To Every Chipselect.Every Channel Will Has Two Valid CS.
+    //
+    AmbaSizePerChip = AmbaTotalSize >> ((QMaster->NumChipselect + 1) >> 1);
+
+    //
+    // In case Of Single Die Flash Devices, TOP_ADDR_MEMA2 And
+    // TOP_ADDR_MEMB2 Should Be Initialized To TOP_ADDR_MEMA1
+    // And TOP_ADDR_MEMB1 Respectively. This Would Ensure
+    // That Complete Memory Map Is Assigned To One Flash Device.
+    //
+    switch (QMaster->NumChipselect) {
+      case QSPI_CHIP_SELECT_MAX :
+        QMaster->Write32 (
+                   (UINTN)&Regs->Sfb2ad,
+                   QMaster->AmbaBase + QSPI_CHIP_SELECT_MAX * AmbaSizePerChip
+                   );
+        // don't use break; use fall through mode
+
+      case QSPI_CHIP_SELECT_3 :
+        QMaster->Write32 (
+                   (UINTN)&Regs->Sfb1ad,
+                   QMaster->AmbaBase + QSPI_CHIP_SELECT_3 * AmbaSizePerChip
+                   );
+        // don't use break; use fall through mode
+
+      case QSPI_CHIP_SELECT_2 :
+        QMaster->Write32 (
+                   (UINTN)&Regs->Sfa2ad,
+                   QMaster->AmbaBase + QSPI_CHIP_SELECT_2 * AmbaSizePerChip
+                   );
+        // don't use break; use fall through mode
+
+      default:
+        QMaster->Write32 (
+                   (UINTN)&Regs->Sfa1ad,
+                   QMaster->AmbaBase + AmbaSizePerChip
+                   );
+        break;
+    }
+  }
+
+  // Enable the QSPI Module
+  EnableQspiModule (QMaster, TRUE);
+  // Clear SW Reset Bits
+  QspiSwReset (QMaster, FALSE);
+
+  return Status;
 }

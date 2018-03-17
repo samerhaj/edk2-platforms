@@ -18,7 +18,6 @@
 
 #include <Library/BeIoLib.h>
 #include <Library/DebugLib.h>
-#include <Library/DxeServicesTableLib.h>
 #include <Library/IoLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/UefiBootServicesTableLib.h>
@@ -78,10 +77,7 @@ QSPI_MASTER  mQspiMasterTemplate = {
 
   .Read32 = MmioRead32,
   .Write32 = MmioWrite32,
-  .Link = {
-    .ForwardLink = NULL,
-    .BackLink = NULL
-  }
+  .Event = NULL
 };
 
 /**
@@ -116,9 +112,7 @@ QspiReadNumber(
  the SpiMaster Protocol and Device Path protocol on to that handle.
 
  @param[in]  Fdt                 Platform's device tree blob
- @param[out] QMasterList         Link List of QSPI_MASTER structures that are runtime.
-                                 each member corresponds to one QSPI controller.
- @param[out] QspiMasterCount     Count of Qspi controllers in Platform
+ @param[out] QSpiCount           Total number of QSPI controllers found.
 
  @retval EFI_UNSUPPORTED         The device tree node properties of QSPI controller are
                                  not supported by driver
@@ -131,10 +125,9 @@ QspiReadNumber(
 EFI_STATUS
 ParseDeviceTree (
   IN  VOID          *Fdt,
-  OUT LIST_ENTRY    *QMasterList
+  OUT UINTN         *QSpiCount
   )
 {
-  UINT32             McrVal;
   INT32              NodeOffset;
   INT32              ParentOffset;
   INT32              AddressCells;
@@ -148,12 +141,13 @@ ParseDeviceTree (
   EFI_STATUS         Status;
   UINT32             AmbaBase;
   UINT32             AmbaTotalSize;
-  UINT32             AmbaSizePerChip;
   UINT32             QspiMasterIndex;
-  BOOLEAN            ContainVariableStorage;
+  QSPI_REGISTERS     *Regs;
+  BOOLEAN            Runtime;
 
   Status = EFI_SUCCESS;
   QspiMasterIndex = 0;
+  *QSpiCount = 0;
 
   for  (NodeOffset = fdt_node_offset_by_compatible (Fdt, -1, (VOID *)(PcdGetPtr (PcdQspiFdtCompatible)));
         NodeOffset != -FDT_ERR_NOTFOUND;
@@ -238,23 +232,23 @@ ParseDeviceTree (
                       SizeCells
                       );
 
-    // Check if this QSPI controller is connected to a device using runtime variables
-    ContainVariableStorage =
-        (AmbaBase <= PcdGet64 (PcdFlashNvStorageVariableBase64)) &&
-        (PcdGet64 (PcdFlashNvStorageVariableBase64) + PcdGet32 (PcdFlashNvStorageVariableSize) <= AmbaTotalSize);
+    Regs = (VOID *)QspiReadNumber (Prop + (QspiIndex * (AddressCells + SizeCells)), AddressCells);
 
-    if (ContainVariableStorage) {
-      QspiMasterPtr = AllocateRuntimeCopyPool (sizeof(QSPI_MASTER), &mQspiMasterTemplate);
-    } else {
+    Prop = fdt_getprop (Fdt, NodeOffset, "uefi-runtime", &PropLen);
+    if (Prop == NULL) {
       QspiMasterPtr = AllocateCopyPool (sizeof(QSPI_MASTER), &mQspiMasterTemplate);
+      Runtime = FALSE;
+    } else {
+      QspiMasterPtr = AllocateRuntimeCopyPool (sizeof(QSPI_MASTER), &mQspiMasterTemplate);
+      Runtime = TRUE;
     }
     if (!QspiMasterPtr) {
-      DEBUG ((DEBUG_ERROR, "No space left!!\n"));
+      DEBUG ((DEBUG_WARN, "No space left!!\n"));
       Status = EFI_OUT_OF_RESOURCES;
       break;
     }
 
-    QspiMasterPtr->Regs = (VOID *)QspiReadNumber (Prop + (QspiIndex * (AddressCells + SizeCells)), AddressCells);
+    QspiMasterPtr->Regs = Regs;
     QspiMasterPtr->AmbaBase = AmbaBase;
 
     if (fdt_getprop(Fdt, NodeOffset, "big-endian", NULL) != NULL) {
@@ -278,7 +272,6 @@ ParseDeviceTree (
       }
     }
 
-    QspiMasterIndex++;
     Prop = fdt_getprop(Fdt, NodeOffset, "bus-num", &PropLen);
 
     if (Prop == NULL) {
@@ -287,115 +280,25 @@ ParseDeviceTree (
       QspiMasterPtr->DevicePath.Controller.ControllerNumber = fdt32_to_cpu(*Prop);
     }
 
-    // Reset QSPI Module
-    QspiSwReset (QspiMasterPtr, TRUE);
+    QspiMasterIndex++;
 
-    /* Put the QSPI controller in Module Disable Mode */
-    McrVal = QspiMasterPtr->Read32 ( (UINTN)&QspiMasterPtr->Regs->Mcr);
-    McrVal |= MCR_IDLE_SIGNAL_DRIVE | MCR_MDIS_MASK | (McrVal & MCR_END_CFD_MASK);
-
-    QspiMasterPtr->Write32 ( (UINTN)&QspiMasterPtr->Regs->Mcr, McrVal);
-
-    QspiConfigureSampling (
-      QspiMasterPtr,
-      (SMPR_FSDLY_MASK | SMPR_DDRSMP_MASK | SMPR_FSPHS_MASK | SMPR_HSENA_MASK),
-      0
-      );
-
-    if (QspiMasterPtr->NumChipselect) {
-      //
-      // Assign AMBA Memory Zone for Every CS
-      // QSPI Has Two Channels And Every Channel Has Two CS.
-      // if No Of CS Is 2, The AMBA Memory Will Be Divided Into Two Parts
-      // And Assign To Every Channel. This Indicate That Every
-      // Channel Only Has One Valid CS.
-      // if No Of CS Is 4, The AMBA Memory Will Be Divided Into Four Parts
-      // And Assign To Every Chipselect.Every Channel Will Has Two Valid CS.
-      //
-      AmbaSizePerChip = AmbaTotalSize >> ((QspiMasterPtr->NumChipselect + 1) >> 1);
-
-      //
-      // In case Of Single Die Flash Devices, TOP_ADDR_MEMA2 And
-      // TOP_ADDR_MEMB2 Should Be Initialized To TOP_ADDR_MEMA1
-      // And TOP_ADDR_MEMB1 Respectively. This Would Ensure
-      // That Complete Memory Map Is Assigned To One Flash Device.
-      //
-      switch (QspiMasterPtr->NumChipselect) {
-        case QSPI_CHIP_SELECT_MAX :
-          QspiMasterPtr->Write32 (
-                           (UINTN)&QspiMasterPtr->Regs->Sfb2ad,
-                           QspiMasterPtr->AmbaBase + QSPI_CHIP_SELECT_MAX * AmbaSizePerChip
-                           );
-          // don't use break; use fall through mode
-
-        case QSPI_CHIP_SELECT_3 :
-          QspiMasterPtr->Write32 (
-                           (UINTN)&QspiMasterPtr->Regs->Sfb1ad,
-                           QspiMasterPtr->AmbaBase + QSPI_CHIP_SELECT_3 * AmbaSizePerChip
-                           );
-          // don't use break; use fall through mode
-
-        case QSPI_CHIP_SELECT_2 :
-          QspiMasterPtr->Write32 (
-                           (UINTN)&QspiMasterPtr->Regs->Sfa2ad,
-                            QspiMasterPtr->AmbaBase + QSPI_CHIP_SELECT_2 * AmbaSizePerChip
-                            );
-          // don't use break; use fall through mode
-
-        default:
-          QspiMasterPtr->Write32 (
-                           (UINTN)&QspiMasterPtr->Regs->Sfa1ad,
-                            QspiMasterPtr->AmbaBase + AmbaSizePerChip
-                            );
-          break;
-      }
-    }
-
-    // Enable the QSPI Module
-    EnableQspiModule (QspiMasterPtr, TRUE);
-    // Clear SW Reset Bits
-    QspiSwReset (QspiMasterPtr, FALSE);
-
-    // Install SPI Host controller protocol and Device Path Protocol
-    Status = gBS->InstallMultipleProtocolInterfaces (
-                    &QspiMasterPtr->Handle,
-                    &gEfiSpiHcProtocolGuid, &QspiMasterPtr->QspiHcProtocol,
-                    &gEfiDevicePathProtocolGuid, &QspiMasterPtr->DevicePath,
-                    NULL
-                    );
+    // Setup FLEX_SPI Module
+    Status = QspiSetup (QspiMasterPtr, AmbaTotalSize);
     if (EFI_ERROR (Status)) {
-      DEBUG ((DEBUG_ERROR, "%a:%d Error = %d\n", __FUNCTION__, __LINE__, Status));
+      DEBUG ((DEBUG_WARN, "Qspi Setup failed!!\n"));
       FreePool (QspiMasterPtr);
       continue;
     }
 
-    if (ContainVariableStorage) {
-      // Declare the controller registers as EFI_MEMORY_RUNTIME
-      Status = gDS->AddMemorySpace (
-                      EfiGcdMemoryTypeMemoryMappedIo,
-                      (UINTN)QspiMasterPtr->Regs,
-                      ALIGN_VALUE (sizeof (QSPI_REGISTERS), SIZE_64KB),
-                      EFI_MEMORY_UC | EFI_MEMORY_RUNTIME
-                      );
-      ASSERT_EFI_ERROR (Status);
-
-      Status = gDS->SetMemorySpaceAttributes (
-                      (UINTN)QspiMasterPtr->Regs,
-                      ALIGN_VALUE (sizeof (QSPI_REGISTERS), SIZE_64KB),
-                      EFI_MEMORY_UC | EFI_MEMORY_RUNTIME
-                      );
-      ASSERT_EFI_ERROR (Status);
-
-      InsertTailList (QMasterList, &QspiMasterPtr->Link);
-
-      // Connect the controller Recursively to SPI bus
-      Status = gBS->ConnectController (QspiMasterPtr->Handle, NULL, NULL, TRUE);
-      if (EFI_ERROR (Status)) {
-        DEBUG ((DEBUG_ERROR, "%a:%d Error = %d\n", __FUNCTION__, __LINE__, Status));
-        FreePool (QspiMasterPtr);
-        continue;
-      }
+    // Install SPI Host controller protocol and Device Path Protocol
+    Status = QspiInstallProtocol (QspiMasterPtr, Runtime);
+    if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_WARN, "QSpi Spi Host Controller Installation Failed!!\n"));
+      FreePool (QspiMasterPtr);
+      continue;
     }
+
+    *QSpiCount += 1;
   }
 
   return Status;

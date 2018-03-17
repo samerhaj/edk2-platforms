@@ -52,8 +52,6 @@
   SocClockLib
 
 [Pcd]
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase64
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableSize
   gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible
 
 [Protocols]

@@ -25,6 +25,8 @@
 #define TX_BUFFER_SIZE       (0x40)
 #define RX_BUFFER_SIZE       (0x80)
 
+#define TX_WMRK              3 // Watermark level is (TXWMRK+1)*32 Bits.
+
 #define LCKCR_LOCK           (0x1)
 #define LCKCR_UNLOCK         (0x2)
 #define LUT_KEY              (0x5af05af0)
@@ -255,9 +257,9 @@ typedef struct {
   ///
   UINT32                             (*Write32) (IN  UINTN  Address, IN  UINT32  Value);
   ///
-  /// List of QSPI controllers
+  /// if the QSpi controller is runtime, then VirtualNotifyEvent
   ///
-  LIST_ENTRY                         Link;
+  EFI_EVENT                          Event;
 } QSPI_MASTER;
 
 /**
@@ -266,8 +268,7 @@ typedef struct {
  the SpiMaster Protocol and Device Path protocol on to that handle.
 
  @param[in]  Fdt                 Platform's device tree blob
- @param[out] QMasterList         Link List of QSPI_MASTER structures that are runtime
-                                 each member corresponds to one QSPI controller.
+ @param[out] QSpiCount           Total number of QSPI controllers found.
 
  @retval EFI_UNSUPPORTED         The device tree node properties of QSPI controller are
                                  not supported by driver
@@ -280,7 +281,7 @@ typedef struct {
 EFI_STATUS
 ParseDeviceTree (
   IN  VOID         *Fdt,
-  OUT LIST_ENTRY   *QMasterList
+  OUT UINTN        *QSpiCount
   );
 
 /**
@@ -315,26 +316,19 @@ EnableQspiModule (
   );
 
 /**
-  Enable or Disable the QSPI controller software reset
+ Configure The QSpi controller at startup
 
-  It is advisable to reset both the serial flash domain and AHB domain at the same time.
-  Resetting only one domain might lead to side effects.
+ @param[in] QMaster       Pointer to QSPI_MASTER structure of a QSPI controller
+ @param[in] AmbaTotalSize Total Size for Memory mapped SPI flash devices
 
-  The software resets need the clock to be running to propagate to the design. The
-  MCR[MDIS] should therefore be set to 0 when the software reset bits are asserted. Also,
-  before they can be de-asserted again (by setting MCR[SWRSTHD] and MCR[SWRSTSD] to 0),
-  it is recommended to set the MCR[MDIS] bit to 1.
-  Once the software resets have been de-asserted, the normal operation can be started by
-  setting the MCR[MDIS] bit to 0.
-
-  @param[in]   QMaster          QSPI_MASTER structure of a QSPI controller
-  @param[in]   ResetEn          TRUE: Enable QSPI controller software reset
-                                FALSE: Disable QSPI controller software reset
+ @retval EFI_INVALID_PARAMETER  QMaster is Null or AmbaTotalSize is zero
+ @retval EFI_SUCCESS       Successfully configured the controller
+ @retval EFI_DEVICE_ERROR  Error occurred while configuring QSpi controller
 **/
-VOID
-QspiSwReset (
-  IN  QSPI_MASTER       *QMaster,
-  IN  BOOLEAN           ResetEn
+EFI_STATUS
+QspiSetup (
+  IN  QSPI_MASTER           *QMaster,
+  IN  UINT64                AmbaTotalSize
   );
 
 /**
@@ -527,6 +521,26 @@ QspiChipSelect (
   IN CONST EFI_SPI_HC_PROTOCOL  *This,
   IN CONST EFI_SPI_PERIPHERAL   *SpiPeripheral,
   IN BOOLEAN                    PinValue
+  );
+
+/**
+ Installs the SpiMaster Protocol and Device Path protocol on to that handle.
+
+ Also this function registers for an Virtual Address change event, to convert the runtime
+ memory allocated from physical address space to virtual address space.
+
+ @param[in]   QMaster      Pointer to QSPI_MASTER strcture of a QSPI controller
+ @param[in]   Runtime      Weather Qspi controller is to be used at runtime or not
+
+ @retval EFI_DEVICE_ERROR      Not able to Install SPI Host Controller Protocol or if the QMaster
+                               Controller is runtime, then not able to set the memory attributes for this controller.
+ @retval EFI_SUCCESS           Protocols installed successfully on QSPI controllers' handles.
+**/
+EFI_STATUS
+EFIAPI
+QspiInstallProtocol (
+  IN  QSPI_MASTER    *QMaster,
+  IN  BOOLEAN        Runtime
   );
 
 #endif //__QSPI_DXE_H__

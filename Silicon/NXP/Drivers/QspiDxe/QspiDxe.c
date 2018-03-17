@@ -21,6 +21,7 @@
 #include <Library/BaseLib.h>
 #include <Library/DebugLib.h>
 #include <Library/DxeServicesLib.h>
+#include <Library/DxeServicesTableLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/PcdLib.h>
 #include <Library/UefiBootServicesTableLib.h>
@@ -28,11 +29,6 @@
 #include <Library/SocClockLib.h>
 
 #include "QspiDxe.h"
-
-STATIC EFI_EVENT     mQspiVirtualAddrChangeEvent;
-
-// Link list of QSPI masters that are runtime
-STATIC LIST_ENTRY    mQspiMasterList = INITIALIZE_LIST_HEAD_VARIABLE (mQspiMasterList);
 
 /**
   Fixup internal data so that EFI can be call in virtual mode.
@@ -50,18 +46,15 @@ QspiVirtualNotifyEvent (
   IN VOID             *Context
   )
 {
-  LIST_ENTRY      *Link;
   QSPI_MASTER     *QMaster;
 
-  for (Link = mQspiMasterList.ForwardLink;  Link != &mQspiMasterList; Link = Link->ForwardLink) {
-    QMaster = BASE_CR (Link, QSPI_MASTER, Link);
+  QMaster = (QSPI_MASTER *)Context;
 
-    EfiConvertPointer (0x0, (VOID **)&QMaster->Regs);
-    // Convert SpiMaster protocol
-    EfiConvertPointer (0x0, (VOID **)&QMaster->QspiHcProtocol.ChipSelect);
-    EfiConvertPointer (0x0, (VOID **)&QMaster->QspiHcProtocol.Clock);
-    EfiConvertPointer (0x0, (VOID **)&QMaster->QspiHcProtocol.Transaction);
-  }
+  EfiConvertPointer (0x0, (VOID **)&QMaster->Regs);
+  // Convert SpiMaster protocol
+  EfiConvertPointer (0x0, (VOID **)&QMaster->QspiHcProtocol.ChipSelect);
+  EfiConvertPointer (0x0, (VOID **)&QMaster->QspiHcProtocol.Clock);
+  EfiConvertPointer (0x0, (VOID **)&QMaster->QspiHcProtocol.Transaction);
 
   return;
 }
@@ -309,6 +302,109 @@ QspiTransaction (
 }
 
 /**
+ Installs the SpiMaster Protocol and Device Path protocol on to that handle.
+
+ Also this function registers for an Virtual Address change event, to convert the runtime
+ memory allocated from physical address space to virtual address space.
+
+ @param[in]   QMaster      Pointer to QSPI_MASTER strcture of a QSPI controller
+ @param[in]   Runtime      Weather Qspi controller is to be used at runtime or not
+
+ @retval EFI_DEVICE_ERROR      Not able to Install SPI Host Controller Protocol or if the QMaster
+                               Controller is runtime, then not able to set the memory attributes for this controller.
+ @retval EFI_SUCCESS           Protocols installed successfully on QSPI controllers' handles.
+**/
+EFI_STATUS
+EFIAPI
+QspiInstallProtocol (
+  IN  QSPI_MASTER    *QMaster,
+  IN  BOOLEAN        Runtime
+  )
+{
+  EFI_STATUS Status;
+
+  // Install SPI Host controller protocol and Device Path Protocol
+  Status = gBS->InstallMultipleProtocolInterfaces (
+                  &QMaster->Handle,
+                  &gEfiSpiHcProtocolGuid, &QMaster->QspiHcProtocol,
+                  &gEfiDevicePathProtocolGuid, &QMaster->DevicePath,
+                  NULL
+                  );
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "%a:%d Error = %r\n", __FUNCTION__, __LINE__, Status));
+    return Status;
+  }
+
+  if (Runtime) {
+    // Declare the controller registers as EFI_MEMORY_RUNTIME
+    Status = gDS->AddMemorySpace (
+                    EfiGcdMemoryTypeMemoryMappedIo,
+                    (UINTN)QMaster->Regs,
+                    ALIGN_VALUE (sizeof (QSPI_REGISTERS), SIZE_64KB),
+                    EFI_MEMORY_UC | EFI_MEMORY_RUNTIME
+                    );
+    if (EFI_ERROR (Status)) {
+      goto UninstallProtocol;
+    }
+
+    Status = gDS->SetMemorySpaceAttributes (
+                    (UINTN)QMaster->Regs,
+                    ALIGN_VALUE (sizeof (QSPI_REGISTERS), SIZE_64KB),
+                    EFI_MEMORY_UC | EFI_MEMORY_RUNTIME
+                    );
+    if (EFI_ERROR (Status)) {
+      goto RemoveMemorySpace;
+    }
+
+    //
+    // Register for the virtual address change event
+    //
+    Status = gBS->CreateEventEx (
+                    EVT_NOTIFY_SIGNAL,
+                    TPL_NOTIFY,
+                    QspiVirtualNotifyEvent,
+                    (VOID *)QMaster,
+                    &gEfiEventVirtualAddressChangeGuid,
+                    &QMaster->Event
+                    );
+    if (EFI_ERROR (Status)) {
+      goto RemoveMemorySpace;
+    }
+
+    // Connect the controller Recursively to SPI bus
+    Status = gBS->ConnectController (QMaster->Handle, NULL, NULL, TRUE);
+    if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "%a:%d Error = %r\n", __FUNCTION__, __LINE__, Status));
+      goto RemoveEvent;
+    }
+  }
+
+  return Status;
+
+RemoveEvent:
+  Status = gBS->CloseEvent (QMaster->Event);
+  ASSERT_EFI_ERROR (Status);
+
+RemoveMemorySpace:
+  Status = gDS->RemoveMemorySpace (
+                  (UINTN)QMaster->Regs,
+                  ALIGN_VALUE (sizeof (QSPI_REGISTERS), SIZE_64KB)
+                  );
+  ASSERT_EFI_ERROR (Status);
+
+UninstallProtocol:
+  Status = gBS->UninstallMultipleProtocolInterfaces (
+                  QMaster->Handle,
+                  &gEfiSpiHcProtocolGuid, &QMaster->QspiHcProtocol,
+                  &gEfiDevicePathProtocolGuid, &QMaster->DevicePath,
+                  NULL
+                  );
+  ASSERT_EFI_ERROR (Status);
+
+  return EFI_DEVICE_ERROR;
+}
+
+/**
  This function reads the device tree file from FV and pass on to device tree parser.
  device tree parser function parses the device tree and for each QSPI controller node found,
  allocates runtime memory for the internal data structure containing a handle and installs
@@ -332,6 +428,7 @@ QspiInitialise (
   IN EFI_SYSTEM_TABLE  *SystemTable
   )
 {
+  UINTN                 QSpiCount;
   VOID                  *Dtb;
   UINTN                 DtbSize;
   EFI_STATUS            Status;
@@ -353,23 +450,10 @@ QspiInitialise (
     return EFI_CRC_ERROR;
   }
 
-  Status = ParseDeviceTree (Dtb, &mQspiMasterList);
-  if (EFI_ERROR (Status)) {
+  Status = ParseDeviceTree (Dtb, &QSpiCount);
+  if (EFI_ERROR (Status) && (QSpiCount == 0)) {
     return EFI_NOT_FOUND;
   }
-
-  //
-  // Register for the virtual address change event
-  //
-  Status = gBS->CreateEventEx (
-                  EVT_NOTIFY_SIGNAL,
-                  TPL_NOTIFY,
-                  QspiVirtualNotifyEvent,
-                  NULL,
-                  &gEfiEventVirtualAddressChangeGuid,
-                  &mQspiVirtualAddrChangeEvent
-                  );
-  ASSERT_EFI_ERROR (Status);
 
   return EFI_SUCCESS;
 }
