@@ -23,7 +23,7 @@
 #include <Pcie.h>
 #include <Protocol/CpuIo2.h>
 
-#define MAX_IO_PORT_ADDRESS PCI_SEG2_PORTIO_MAX
+#define MAX_IO_PORT_ADDRESS PCI_SEG_PORTIO_LIMIT
 
 //
 // Handle for the CPU I/O 2 Protocol
