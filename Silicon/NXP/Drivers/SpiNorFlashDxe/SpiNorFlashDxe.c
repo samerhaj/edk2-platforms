@@ -568,51 +568,17 @@ SpiNorFlashStop (
   IN EFI_HANDLE                    *ChildHandleBuffer OPTIONAL
   )
 {
-  EFI_STATUS             Status = EFI_SUCCESS;
-  /*EFI_ABC_IO             SpiNorFlashIo;
-  EFI_ABC_DEVICE         SpiNorFlashDevice;
+  EFI_STATUS    Status;
+
   //
-  // Get our context back
+  // Close the protocol opened in Start()
   //
-  Status = gBS->OpenProtocol (
+  Status = gBS->CloseProtocol (
                   ControllerHandle,
-                  &gEfiSpiNorFlashIoProtocolGuid,
-                  &SpiNorFlashIo,
+                  &gEfiCallerIdGuid,
                   This->DriverBindingHandle,
-                  ControllerHandle,
-                  EFI_OPEN_PROTOCOL_GET_PROTOCOL
+                  ControllerHandle
                   );
-  if (EFI_ERROR (Status)) {
-    return EFI_UNSUPPORTED;
-  }
-  //
-  // Use Containment Record Macro to get SpiNorFlashDevice structure from
-  // a pointer to the SpiNorFlashIo structure within the SpiNorFlashDevice structure.
-  //
-  SpiNorFlashDevice = ABC_IO_PRIVATE_DATA_FROM_THIS (SpiNorFlashIo);
-  //
-  // Uninstall the protocol installed in Start()
-  //
-  Status = gBS->UninstallMultipleProtocolInterfaces (
-                  ControllerHandle,
-                  &gEfiSpiNorFlashIoProtocolGuid, &SpiNorFlashDevice->SpiNorFlashIo,
-                  NULL
-                  );*/
-  if (!EFI_ERROR (Status)) {
-    //
-    // Close the protocol opened in Start()
-    //
-    Status = gBS->CloseProtocol (
-                    ControllerHandle,
-                    &gEfiCallerIdGuid,
-                    This->DriverBindingHandle,
-                    ControllerHandle
-                    );
-    //
-    // Free the structure allocated in Start().
-    //
-    // gBS->FreePool (SpiNorFlashDevice);
-  }
   return Status;
 }
 
