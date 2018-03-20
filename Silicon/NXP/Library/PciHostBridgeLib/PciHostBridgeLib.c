@@ -143,85 +143,7 @@ CHAR16 *mPciHostBridgeLibAcpiAddressSpaceTypeStr[] = {
                                         EFI_PCI_ATTRIBUTE_VGA_IO_16  | \
                                         EFI_PCI_ATTRIBUTE_VGA_PALETTE_IO_16
 
-PCI_ROOT_BRIDGE mPciRootBridges[] = {
-  {
-    PCI_SEG0_NUM,                           // Segment
-    PCI_SUPPORT_ATTRIBUTES,                 // Supports
-    PCI_SUPPORT_ATTRIBUTES,                 // Attributes
-    FALSE,                                  // DmaAbove4G
-    FALSE,                                  // NoExtendedConfigSpace
-    FALSE,                                  // ResourceAssigned
-    PCI_ALLOCATION_ATTRIBUTES,              // AllocationAttributes
-    { PCI_SEG0_BUSNUM_MIN,
-      PCI_SEG0_BUSNUM_MAX },                // Bus
-    { PCI_SEG0_PORTIO_MIN,
-      PCI_SEG0_PORTIO_MAX },                // Io
-    { PCI_SEG0_MMIO32_MIN,
-      PCI_SEG0_MMIO32_MAX },                // Mem
-    { PCI_SEG0_MMIO64_MIN,
-      PCI_SEG0_MMIO64_MAX },                // MemAbove4G
-    { MAX_UINT64, 0x0 },                    // PMem
-    { MAX_UINT64, 0x0 },                    // PMemAbove4G
-    (EFI_DEVICE_PATH_PROTOCOL *)&mEfiPciRootBridgeDevicePath[PCI_SEG0_NUM]
-  }, {
-    PCI_SEG1_NUM,                           // Segment
-    PCI_SUPPORT_ATTRIBUTES,                 // Supports
-    PCI_SUPPORT_ATTRIBUTES,                 // Attributes
-    FALSE,                                  // DmaAbove4G
-    FALSE,                                  // NoExtendedConfigSpace
-    FALSE,                                  // ResourceAssigned
-    PCI_ALLOCATION_ATTRIBUTES,              // AllocationAttributes
-    { PCI_SEG1_BUSNUM_MIN,
-      PCI_SEG1_BUSNUM_MAX },                // Bus
-    { PCI_SEG1_PORTIO_MIN,
-      PCI_SEG1_PORTIO_MAX },                // Io
-    { PCI_SEG1_MMIO32_MIN,
-      PCI_SEG1_MMIO32_MAX },                // Mem
-    { PCI_SEG1_MMIO64_MIN,
-      PCI_SEG1_MMIO64_MAX },                // MemAbove4G
-    { MAX_UINT64, 0x0 },                    // PMem
-    { MAX_UINT64, 0x0 },                    // PMemAbove4G
-    (EFI_DEVICE_PATH_PROTOCOL *)&mEfiPciRootBridgeDevicePath[PCI_SEG1_NUM]
-  }, {
-    PCI_SEG2_NUM,                           // Segment
-    PCI_SUPPORT_ATTRIBUTES,                 // Supports
-    PCI_SUPPORT_ATTRIBUTES,                 // Attributes
-    FALSE,                                  // DmaAbove4G
-    FALSE,                                  // NoExtendedConfigSpace
-    FALSE,                                  // ResourceAssigned
-    PCI_ALLOCATION_ATTRIBUTES,              // AllocationAttributes
-    { PCI_SEG2_BUSNUM_MIN,
-      PCI_SEG2_BUSNUM_MAX },                // Bus
-    { PCI_SEG2_PORTIO_MIN,
-      PCI_SEG2_PORTIO_MAX },                // Io
-    { PCI_SEG2_MMIO32_MIN,
-      PCI_SEG2_MMIO32_MAX },                // Mem
-    { PCI_SEG2_MMIO64_MIN,
-      PCI_SEG2_MMIO64_MAX },                // MemAbove4G
-    { MAX_UINT64, 0x0 },                    // PMem
-    { MAX_UINT64, 0x0 },                    // PMemAbove4G
-    (EFI_DEVICE_PATH_PROTOCOL *)&mEfiPciRootBridgeDevicePath[PCI_SEG2_NUM]
-  }, {
-    PCI_SEG3_NUM,                           // Segment
-    PCI_SUPPORT_ATTRIBUTES,                 // Supports
-    PCI_SUPPORT_ATTRIBUTES,                 // Attributes
-    FALSE,                                  // DmaAbove4G
-    FALSE,                                  // NoExtendedConfigSpace
-    FALSE,                                  // ResourceAssigned
-    PCI_ALLOCATION_ATTRIBUTES,              // AllocationAttributes
-    { PCI_SEG3_BUSNUM_MIN,
-      PCI_SEG3_BUSNUM_MAX },                // Bus
-    { PCI_SEG3_PORTIO_MIN,
-      PCI_SEG3_PORTIO_MAX },                // Io
-    { PCI_SEG3_MMIO32_MIN,
-      PCI_SEG3_MMIO32_MAX },                // Mem
-    { PCI_SEG3_MMIO64_MIN,
-      PCI_SEG3_MMIO64_MAX },                // MemAbove4G
-    { MAX_UINT64, 0x0 },                    // PMem
-    { MAX_UINT64, 0x0 },                    // PMemAbove4G
-    (EFI_DEVICE_PATH_PROTOCOL *)&mEfiPciRootBridgeDevicePath[PCI_SEG3_NUM]
-  }
-};
+PCI_ROOT_BRIDGE mPciRootBridges[NUM_PCIE_CONTROLLER];
 
 /**
   Function to set-up iATU outbound window for PCIe controller
@@ -473,12 +395,14 @@ PciHostBridgeGetRootBridges (
   )
 {
   UINTN  Idx;
+  UINTN  Loop;
   INTN   LinkUp;
   UINT64 PciPhyMemAddr[NUM_PCIE_CONTROLLER];
   UINT64 PciPhyCfg0Addr[NUM_PCIE_CONTROLLER];
   UINT64 PciPhyCfg1Addr[NUM_PCIE_CONTROLLER];
   UINT64 PciPhyIoAddr[NUM_PCIE_CONTROLLER];
   UINT64 Regs[NUM_PCIE_CONTROLLER];
+  UINT8  PciEnabled[NUM_PCIE_CONTROLLER];
 
   *Count = 0;
 
@@ -533,14 +457,55 @@ PciHostBridgeGetRootBridges (
                     PciPhyCfg1Addr[Idx],
                     PciPhyMemAddr[Idx],
                     PciPhyIoAddr[Idx]);
+
+    //
+    // Local array to index all enable PCIe controllers
+    //
+    PciEnabled[*Count] = Idx;
+
     *Count += BIT0;
-    break;
   }
 
   if (*Count == 0) {
      return NULL;
   } else {
-     return &mPciRootBridges[Idx];
+     for (Loop = 0; Loop < *Count; Loop++) {
+        mPciRootBridges[Loop].Segment               = PciEnabled[Loop];
+        mPciRootBridges[Loop].Supports              = PCI_SUPPORT_ATTRIBUTES;
+        mPciRootBridges[Loop].Attributes            = PCI_SUPPORT_ATTRIBUTES;
+        mPciRootBridges[Loop].DmaAbove4G            = FALSE;
+        mPciRootBridges[Loop].NoExtendedConfigSpace = FALSE;
+        mPciRootBridges[Loop].ResourceAssigned      = FALSE;
+        mPciRootBridges[Loop].AllocationAttributes  = PCI_ALLOCATION_ATTRIBUTES;
+
+        mPciRootBridges[Loop].Bus.Base              = PCI_SEG_BUSNUM_MIN;
+        mPciRootBridges[Loop].Bus.Limit             = PCI_SEG_BUSNUM_MAX;
+        mPciRootBridges[Loop].Io.Base               = PciEnabled[Loop] *
+                                                      SEG_IO_SIZE;
+        mPciRootBridges[Loop].Io.Limit              = PCI_SEG_PORTIO_MAX +
+                                                      (PciEnabled[Loop] *
+                                                       SEG_IO_SIZE);
+        mPciRootBridges[Loop].Mem.Base              = PCI_SEG_MMIO32_MIN +
+                                                      (PciEnabled[Loop] *
+                                                       PCI_SEG_MMIO32_DIFF);
+        mPciRootBridges[Loop].Mem.Limit             = PCI_SEG_MMIO32_MAX +
+                                                      (PciEnabled[Loop] *
+                                                      PCI_SEG_MMIO32_DIFF);
+        mPciRootBridges[Loop].MemAbove4G.Base       = PciPhyMemAddr[PciEnabled[Loop]];
+        mPciRootBridges[Loop].MemAbove4G.Limit      = PciPhyMemAddr[PciEnabled[Loop]] +
+                                                      PCI_SEG_MMIO64_MAX_DIFF;
+
+        //
+        // No separate ranges for prefetchable and non-prefetchable BARs
+        //
+        mPciRootBridges[Loop].PMem.Base             = MAX_UINT64;
+        mPciRootBridges[Loop].PMem.Limit            = 0;
+        mPciRootBridges[Loop].PMemAbove4G.Base      = MAX_UINT64;
+        mPciRootBridges[Loop].PMemAbove4G.Limit     = 0;
+        mPciRootBridges[Loop].DevicePath            = (EFI_DEVICE_PATH_PROTOCOL *)&mEfiPciRootBridgeDevicePath[PciEnabled[Loop]];
+     }
+
+     return mPciRootBridges;
   }
 }
 
