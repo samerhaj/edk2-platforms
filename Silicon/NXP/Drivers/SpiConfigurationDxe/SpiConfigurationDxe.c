@@ -148,16 +148,17 @@ ParseSpiChildNode (
   EFI_SPI_PART                       *SpiPart;
   EFI_STATUS                         Status;
 
-  if ((Runtime == NULL) || (SpiPeripheral == NULL) || (Fdt == NULL) || (SpiBusDevicePath == NULL)) {
-    Status = EFI_INVALID_PARAMETER;
-    goto ErrorExit;
-  }
-
   pSpiPeripheral = NULL;
   SpiPart = NULL;
   ChipSelectParameter = NULL;
   SpiConfigData = NULL;
   Status = EFI_SUCCESS;
+  SpiBusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+
+  if ((Runtime == NULL) || (SpiPeripheral == NULL) || (Fdt == NULL) || (SpiBusDevicePath == NULL)) {
+    Status = EFI_INVALID_PARAMETER;
+    goto ErrorExit;
+  }
 
   /* Allocate resources based on runtime property */
   Prop = fdt_getprop(Fdt, SpiChildNodeOffset, "uefi-runtime", &PropLen);
@@ -393,6 +394,9 @@ SpiConfigurationDxeEntryPoint (
   UINT32                             SpiBusTypeCount; // Spi buses of one type
   BOOLEAN                            Runtime;
   EFI_STATUS                         Status;
+
+  Runtime = FALSE;
+  SpiPeripheral = NULL;
 
   Status = GetSectionFromAnyFv (
              &gDtPlatformDefaultDtbFileGuid,

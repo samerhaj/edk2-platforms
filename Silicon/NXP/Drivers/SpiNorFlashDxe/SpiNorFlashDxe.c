@@ -98,16 +98,19 @@ FlashErase (
 
   RequestPacket = NULL;
   Buf = NULL;
+  Status = EFI_SUCCESS;
 
   RequestPacket = (EFI_SPI_REQUEST_PACKET *)AllocateZeroPool (
                                               sizeof (UINTN) +
                                               2 * sizeof (EFI_SPI_BUS_TRANSACTION)
                                               );
   if (RequestPacket == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
     goto ErrorExit;
   }
   Buf = (UINT8 *)AllocatePool (sizeof (UINT32));
   if (Buf == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
     goto ErrorExit;
   }
   Buf[0] = 0xD8; // Sector Erase
@@ -165,16 +168,19 @@ FlashWriteEnable (
 
   RequestPacket = NULL;
   Buf = NULL;
+  Status = EFI_SUCCESS;
 
   RequestPacket = (EFI_SPI_REQUEST_PACKET *)AllocateZeroPool (
                                               sizeof (UINTN) +
                                               1 * sizeof (EFI_SPI_BUS_TRANSACTION)
                                               );
   if (RequestPacket == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
     goto ErrorExit;
   }
   Buf = (UINT8 *)AllocatePool (sizeof (UINT8));
   if (Buf == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
     goto ErrorExit;
   }
   Buf[0] = 0x06; // Write Enable
@@ -227,20 +233,24 @@ FlashWrite (
   RequestPacket = NULL;
   Buf = NULL;
   Data = NULL;
+  Status = EFI_SUCCESS;
 
   RequestPacket = (EFI_SPI_REQUEST_PACKET *)AllocateZeroPool (
                                               sizeof (UINTN) +
                                               3 * sizeof (EFI_SPI_BUS_TRANSACTION)
                                               );
   if (RequestPacket == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
     goto ErrorExit;
   }
   Buf = (UINT8 *)AllocatePool (sizeof (UINT32));
   if (Buf == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
     goto ErrorExit;
   }
   Data = (UINT8 *)AllocatePool (sizeof (UINT8) * 0x100);
   if (Data == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
     goto ErrorExit;
   }
   Buf[0] = 0x02; // Page Program
@@ -317,16 +327,19 @@ FlashWaitForWriteDone (
 
   RequestPacket = NULL;
   Buf = NULL;
+  Status = EFI_SUCCESS;
 
   RequestPacket = (EFI_SPI_REQUEST_PACKET *)AllocateZeroPool (
                                               sizeof (UINTN) +
                                               2 * sizeof (EFI_SPI_BUS_TRANSACTION)
                                               );
   if (RequestPacket == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
     goto ErrorExit;
   }
   Buf = (UINT8 *)AllocatePool (sizeof (UINT16));
   if (Buf == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
     goto ErrorExit;
   }
   Buf[0] = 0x05; // Read Status
@@ -388,20 +401,24 @@ FlashRead (
   RequestPacket = NULL;
   Buf = NULL;
   Data = NULL;
+  Status = EFI_SUCCESS;
 
   RequestPacket = (EFI_SPI_REQUEST_PACKET *)AllocateZeroPool (
                                               sizeof (UINTN) +
                                               3 * sizeof (EFI_SPI_BUS_TRANSACTION)
                                               );
   if (RequestPacket == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
     goto ErrorExit;
   }
   Buf = (UINT8 *)AllocatePool (sizeof (UINT32));
   if (Buf == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
     goto ErrorExit;
   }
   Data = (UINT8 *)AllocatePool (sizeof (UINT8) * 0x100);
   if (Data == NULL) {
+    Status = EFI_OUT_OF_RESOURCES;
     goto ErrorExit;
   }
   Buf[0] = 0x03; // Slow read
