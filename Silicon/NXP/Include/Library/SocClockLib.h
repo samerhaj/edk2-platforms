@@ -44,7 +44,7 @@ typedef enum {
   @param[in]  Instance   The Instance of IP module whose input clock frequency is needed.
                          if there are multiple modules of same type then this value tells the
                          instance of module for which clock is to be retrieved.
-                         (e.g. if there are four i2c controllers in SOC, then this value can be 1, 2, 3, 4)
+                         (e.g. if there are four i2c controllers in SOC, then this value can be 0, 1, 2, 3)
                          for IP modules which have only single instance in SOC (e.g. one QSPI controller)
                          this value should be 0.
 

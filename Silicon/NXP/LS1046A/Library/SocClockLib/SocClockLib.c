@@ -15,6 +15,7 @@
 #include <Soc.h>
 #include <Library/BeIoLib.h>
 #include <Library/DebugLib.h>
+#include <Library/FpgaLib.h>
 #include <Library/SocClockLib.h>
 
 #include "SocClockInternalLib.h"
@@ -27,7 +28,7 @@
   @param[in]  Instance   The Instance of IP module whose input clock frequency is needed.
                          if there are multiple modules of same type then this value tells the
                          instance of module for which clock is to be retrieved.
-                         (e.g. if there are four i2c controllers in SOC, then this value can be 1, 2, 3, 4)
+                         (e.g. if there are four i2c controllers in SOC, then this value can be 0, 1, 2, 3)
                          for IP modules which have only single instance in SOC (e.g. one QSPI controller)
                          this value should be 0.
 
@@ -47,6 +48,7 @@ SocGetClock (
   RCW_FIELDS   *Rcw;
   UINT64       ClusterGroupA;
   UINT64       ReturnValue;
+  UINT64       SysClkHz;
   UINT16       SysClkFreqMultiplier;
   UINT32       ConfigRegister; // device configuration register. can be used for any device
 
@@ -61,10 +63,21 @@ SocGetClock (
   Rcw = (RCW_FIELDS *)GurBase->RcwSr;
   ReturnValue = 0;
 
-  // SysClkFreq comprises of 10 bits. 8 bits SysClkFreqH and 2 bits SysClkFreqL
-  SysClkFreqMultiplier = ((UINT16)Rcw->SysClkFreqH) << 2 | Rcw->SysClkFreqL;
+  // First try to get system clock from board
+  SysClkHz = GetBoardSysClk ();
+  if (SysClkHz == 0) {
+    // SysClkFreq comprises of 10 bits. 8 bits SysClkFreqH and 2 bits SysClkFreqL
+    SysClkFreqMultiplier = ((UINT16)Rcw->SysClkFreqH) << 2 | Rcw->SysClkFreqL;
+    // The value in this field is multiplied by 166.667 KHz.
+    SysClkHz = (((UINT64)SysClkFreqMultiplier * 250000) << 1) / 3;
+  }
+
+  ASSERT (SysClkHz != 0);
 
   switch (IpModule) {
+    case IP_DUART:
+      ReturnValue = ((UINT64)Rcw->SysPllRat * SysClkHz) >> 1;
+      break;
     case IP_QSPI:
       ConfigRegister = BeMmioRead32 ( (UINTN)&Scfg->QspiCfg);
       if (ConfigRegister & QSPI_CLOCK_DISABLE) {
@@ -75,11 +88,10 @@ SocGetClock (
         case 1:
         case 2:
         case 3:
-          ClusterGroupA = ((UINT64)Rcw->CgaPll2Rat * (UINT64)SysClkFreqMultiplier * 250000 * 2) /
-                          (Rcw->HwaCgaM2ClkSel * 3);
+          ClusterGroupA = ((UINT64)Rcw->CgaPll2Rat * SysClkHz) / Rcw->HwaCgaM2ClkSel;
           break;
         case 6:
-          ClusterGroupA = (UINT64)Rcw->CgaPll1Rat * (UINT64)SysClkFreqMultiplier * 250000 / 3;
+          ClusterGroupA = ((UINT64)Rcw->CgaPll1Rat * SysClkHz) >> 1;
           break;
         default:
           ClusterGroupA = 0;
