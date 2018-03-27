@@ -131,22 +131,6 @@ FpgaInit (
   VOID
   );
 
-/**
-   Function to get system clock frequency.
-**/
-UINTN
-GetBoardSysClk (
-  VOID
-  );
-
-/**
-   Function to print board personality.
-**/
-VOID
-PrintBoardPersonality (
-  VOID
-  );
-
 #define FPGA_BASE_PHYS           0x520000000
 
 //SYSCLK

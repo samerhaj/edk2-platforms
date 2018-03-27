@@ -18,6 +18,7 @@
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib/MemLibInternals.h>
 #include <Library/DebugLib.h>
+#include <Library/FpgaLib.h>
 #include <Library/IfcLib.h>
 #include <Library/IoLib.h>
 #include <Library/PcdLib.h>
@@ -25,9 +26,6 @@
 #include <Library/SerialPortLib.h>
 
 #include "Soc.h"
-
-extern VOID PrintBoardPersonality (VOID);
-extern UINTN GetBoardSysClk (VOID);
 
 VOID
 GetSysInfo (

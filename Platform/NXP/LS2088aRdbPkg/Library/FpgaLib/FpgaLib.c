@@ -23,6 +23,8 @@
 #include <Library/FpgaLib.h>
 #include <Library/IoLib.h>
 
+#include "FpgaLibInternal.h"
+
 /**
    Function to read FPGA register.
 

@@ -23,6 +23,8 @@
 #include <Library/FpgaLib.h>
 #include <Library/IoLib.h>
 
+#include "FpgaLibInternal.h"
+
 UINT8
 FpgaRead (
   IN  UINTN  Reg
@@ -115,3 +117,15 @@ PrintBoardPersonality (
 
   return;
 }
+
+/**
+   Function to get system clock frequency.
+**/
+UINTN
+GetBoardSysClk (
+  VOID
+  )
+{
+  return 0;
+}
+

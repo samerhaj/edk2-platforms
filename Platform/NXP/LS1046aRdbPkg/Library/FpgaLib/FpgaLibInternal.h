@@ -73,14 +73,6 @@ FpgaInit (
   VOID
   );
 
-/**
-   Function to print board personality.
-**/
-VOID
-PrintBoardPersonality (
-  VOID
-  );
-
 #define FPGA_BASE_PHYS          0x7fb00000
 
 #define SRC_VBANK               0x25

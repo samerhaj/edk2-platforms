@@ -23,6 +23,8 @@
 #include <Library/FpgaLib.h>
 #include <Library/IoLib.h>
 
+#include "FpgaLibInternal.h"
+
 /**
    Function to read FPGA register.
 
@@ -139,4 +141,15 @@ PrintBoardPersonality (
               SERDES_FREQ1, SERDES_FREQ1));
 
   return;
+}
+
+/**
+   Function to get system clock frequency.
+**/
+UINTN
+GetBoardSysClk (
+  VOID
+  )
+{
+  return 0;
 }
