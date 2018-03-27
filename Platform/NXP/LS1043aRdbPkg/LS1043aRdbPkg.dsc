@@ -98,6 +98,8 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPcieLutBase|0x10000
   gNxpQoriqLsTokenSpaceGuid.PcdPcieLutDbg|0x7FC
 
+  gNxpQoriqLsTokenSpaceGuid.PcdFdtAddress|0x60F00000
+
 ################################################################################
 #
 # Components Section - list of all EDK II Modules needed by this Platform

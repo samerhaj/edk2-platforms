@@ -97,6 +97,8 @@
   gNxpQoriqLsTokenSpaceGuid.PcdSataErratumA010554|TRUE
   gNxpQoriqLsTokenSpaceGuid.PcdSataErratumA010635|TRUE
 
+  gNxpQoriqLsTokenSpaceGuid.PcdFdtAddress|0x40F00000
+
 ################################################################################
 #
 # Components Section - list of all EDK II Modules needed by this Platform

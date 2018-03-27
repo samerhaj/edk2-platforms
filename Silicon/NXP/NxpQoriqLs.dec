@@ -182,3 +182,5 @@
   gNxpQoriqLsTokenSpaceGuid.PcdSataErratumA010635|FALSE|BOOLEAN|0x00000352
   gNxpQoriqLsTokenSpaceGuid.PcdSataErratumA009185|FALSE|BOOLEAN|0x00000353
 
+  gNxpQoriqLsTokenSpaceGuid.PcdFdtAddress|0x00|UINT64|0x00000354
+

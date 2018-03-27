@@ -111,6 +111,9 @@
   # SATA Pcds
   #
   gNxpQoriqLsTokenSpaceGuid.PcdSataErratumA009185|TRUE
+
+  gNxpQoriqLsTokenSpaceGuid.PcdFdtAddress|0x580F00000
+
 ################################################################################
 #
 # Components Section - list of all EDK II Modules needed by this Platform
