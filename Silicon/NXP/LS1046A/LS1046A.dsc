@@ -27,6 +27,7 @@
 
 [LibraryClasses.common]
   SocClockLib|Silicon/NXP/LS1046A/Library/SocClockLib/SocClockLib.inf
+  SocFixupLib|Silicon/NXP/Library/SocFixupLibNull/SocFixupLibNull.inf
 
 [PcdsFixedAtBuild.common]
 

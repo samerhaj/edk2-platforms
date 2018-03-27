@@ -129,6 +129,7 @@
   # DT support
   #
   Platform/NXP/LS1046aRdbPkg/DeviceTree/DeviceTree.inf
+  EmbeddedPkg/Drivers/DtPlatformDxe/DtPlatformDxe.inf
 
   Silicon/NXP/Drivers/MmcHostDxe/MmcHostDxe.inf
 
