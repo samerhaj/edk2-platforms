@@ -39,6 +39,7 @@
   Chassis.c
   Chassis3/Soc.c
   SerDes.c
+  SocHelper.S
 
 [FixedPcd]
   gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString
