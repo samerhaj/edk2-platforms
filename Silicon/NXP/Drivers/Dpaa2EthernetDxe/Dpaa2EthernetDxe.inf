@@ -1,0 +1,50 @@
+#  @file
+#
+#  Component description file for the Dpaa2EthernetDxe module
+#
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = Dpaa2EthernetDxe
+  FILE_GUID                      = 1a03496a-5bd0-43d8-ae19-a56ead3623be
+  MODULE_TYPE                    = UEFI_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = Dpaa2EthernetInitialize
+  UNLOAD_IMAGE                   = Dpaa2EthernetUnload
+
+[Sources.common]
+  Dpaa2EthernetDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[LibraryClasses]
+  Dpaa2EthernetMacLib
+  Dpaa2EthernetPhyLib
+  Dpaa2BoardSpecificLib
+  Dpaa2ManagementComplexLib
+  NetLib
+  UefiDriverEntryPoint
+  UefiLib
+
+[FixedPcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaaDebugFlags
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2Initialize
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2UsedDpmacsMask
+  gNxpQoriqLsTokenSpaceGuid.PcdMdioBustCount
+
+[depex]
+  TRUE
