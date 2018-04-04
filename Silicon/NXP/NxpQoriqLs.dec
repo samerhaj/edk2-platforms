@@ -136,6 +136,30 @@
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2QBmanPortalsBaseAddr|0x0|UINT64|0x000001E5
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2QBmanPortalSize|0x0|UINT64|0x000001E6
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2QBmanPortalsCacheSize|0x0|UINT64|0x000001E7
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2Initialize|FALSE|BOOLEAN|0x000001E8
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McFwSrc|0x0|UINT8|0x000001E9
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McFwNorAddr|0x0|UINT64|0x000001EA
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McDpcNorAddr|0x0|UINT64|0x000001EB
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McDplNorAddr|0x0|UINT64|0x000001EC
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McDpcMaxLen|0x0|UINT32|0x000001ED
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McDpcMcDramOffset|0x0|UINT32|0x000001EE
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McDplMaxLen|0x0|UINT32|0x000001EF
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McDplMcDramOffset|0x0|UINT32|0x000001F0
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2StreamIdStart|0x0|UINT32|0x000001F2
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2StreamIdEnd|0x0|UINT32|0x000001F3
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McBootTimeoutMs|0x0|UINT32|0x000001F4
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLogMcDramOffset|0x0|UINT32|0x000001F5
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLogLevel|0x0|UINT8|0x000001F6
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaaDebugFlags|0x0|UINT32|0x000001F7
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2CortinaFwNorAddr|0x0|UINT64|0x000001F9
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2CortinaFwMaxLen|0x0|UINT32|0x000001FA
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2UsedDpmacsMask|0x0|UINT64|0x000001FB
+  gNxpQoriqLsTokenSpaceGuid.PcdMacDeviceDisableRegAddr|0x0|UINT64|0x000001FC
+  gNxpQoriqLsTokenSpaceGuid.PcdBypassAmqMask|0x0|UINT32|0x000001FD
+  gNxpQoriqLsTokenSpaceGuid.PcdMdioBustCount|0x0|UINT8|0x000001FE
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2Wriop1Mdio1Addr|0x0|UINT64|0x00000200
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2Wriop1Mdio2Addr|0x0|UINT64|0x00000201
+  gNxpQoriqLsTokenSpaceGuid.PcdDisableMcLogging|FALSE|BOOLEAN|0x00000202
 
   #
   # NV Pcd
