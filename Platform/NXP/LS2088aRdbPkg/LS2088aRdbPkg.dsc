@@ -46,6 +46,7 @@
   PciSegmentLib|Silicon/NXP/Library/PciSegmentLib/PciSegmentLib.inf
   PciHostBridgeLib|Silicon/NXP/Library/PciHostBridgeLib/PciHostBridgeLib.inf
   MmcLib|Silicon/NXP/Library/MmcLib/MmcLib.inf
+  ItbParseLib|Silicon/NXP/Library/ItbParseLib/ItbParse.inf
 
 [PcdsFixedAtBuild.common]
 
