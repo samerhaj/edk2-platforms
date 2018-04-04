@@ -1,0 +1,40 @@
+##@file
+#
+#  Component description file for Dpaa2BoardSpecificLib module
+#
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = Dpaa2BoardSpecificLib
+  FILE_GUID                      = c1c62f53-ee9c-49b0-a615-7c02acad4309
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = Dpaa2BoardSpecificLib
+
+[Sources.common]
+  Dpaa2LS2088aRdb.c
+
+[LibraryClasses]
+  SocLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  Platform/NXP/LS2088aRdbPkg/LS2088aRdbPkg.dec
+  Silicon/NXP/Chassis/Chassis3/Chassis3.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[FixedPcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdMdioBustCount
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2Wriop1Mdio1Addr
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2Wriop1Mdio2Addr
