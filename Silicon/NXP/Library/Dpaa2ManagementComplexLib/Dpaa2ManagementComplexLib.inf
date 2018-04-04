@@ -1,0 +1,64 @@
+##@file
+#
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = Dpaa2ManagementComplexLib
+  FILE_GUID                      = 6583a1a4-3c97-47c8-9b12-275ec6472912
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = Dpaa2ManagementComplexLib
+
+[Sources.common]
+  Dpaa2McIo.c
+  ManagementComplexInit.c
+  NetworkInterfaceFactory.c
+  QBman.c
+
+[LibraryClasses]
+  Dpaa2McInterfaceLib
+  ItbParseLib
+  SocLib
+  TimerLib
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[FixedPcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McFwSrc
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McFwNorAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McDpcNorAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McDplNorAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McDpcMaxLen
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McDpcMcDramOffset
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McDplMaxLen
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McDplMcDramOffset
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2StreamIdStart
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2StreamIdEnd
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McBootTimeoutMs
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLogMcDramOffset
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLogLevel
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McPortalBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McRamSize
+  gNxpQoriqLsTokenSpaceGuid.PcdMcHighMemSupport
+  gNxpQoriqLsTokenSpaceGuid.PcdDramMemSize
+  gNxpQoriqLsTokenSpaceGuid.PcdDram1BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdDram2BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdBypassAmqMask
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2QBmanPortalsBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdDisableMcLogging
