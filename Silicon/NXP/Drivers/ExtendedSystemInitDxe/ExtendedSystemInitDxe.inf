@@ -1,0 +1,45 @@
+#  @file
+#
+#  Component description file for Extended System Init Dxe driver
+#
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = ExtendedSystemInit
+  FILE_GUID                      = a0ed8f3f-7486-4263-bb45-fe4044893bf6
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+
+  ENTRY_POINT                    = ExtendedSystemInitialize
+
+[Sources.common]
+  ExtendedSystemInitDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[LibraryClasses]
+  DxeServicesTableLib
+  UefiDriverEntryPoint
+
+[FixedPcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdSystemMemoryExBase
+  gNxpQoriqLsTokenSpaceGuid.PcdSystemMemoryExSize
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McRamSize
+  gNxpQoriqLsTokenSpaceGuid.PcdMcHighMemSupport
+
+[depex]
+  TRUE
