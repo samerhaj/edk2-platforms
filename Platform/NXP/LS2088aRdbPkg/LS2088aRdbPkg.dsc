@@ -180,6 +180,7 @@
   Silicon/NXP/Drivers/SataInitDxe/SataInitDxe.inf
   Silicon/NXP/Drivers/MmcHostDxe/MmcHostDxe.inf
   Silicon/NXP/Drivers/Dpaa2EthernetDxe/Dpaa2EthernetDxe.inf
+  Silicon/NXP/Drivers/ExtendedSystemInitDxe/ExtendedSystemInitDxe.inf
 
   Silicon/NXP/Drivers/NandFlashDxe/NandFlashDxe.inf
 
