@@ -183,6 +183,8 @@ READ_LOCK_STATUS   = TRUE
   INF Silicon/NXP/Drivers/MmcHostDxe/MmcHostDxe.inf
   INF EmbeddedPkg/Universal/MmcDxe/MmcDxe.inf
 
+  INF Silicon/NXP/Drivers/NandFlashDxe/NandFlashDxe.inf
+
   #
   # UEFI application (Shell Embedded Boot Loader)
   #
