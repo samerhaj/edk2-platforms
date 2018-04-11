@@ -31,6 +31,7 @@
 [LibraryClasses]
   BoardLib
   BeIoLib
+  TimerLib
 
 [FixedPcd]
   gNxpQoriqLsTokenSpaceGuid.PcdIfcBaseAddr

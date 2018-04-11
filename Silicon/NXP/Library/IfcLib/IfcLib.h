@@ -21,6 +21,43 @@
 #define IFC_NAND_RESERVED_SIZE      FixedPcdGet32 (PcdIfcNandReservedSize)
 
 typedef enum {
+  IFC_FIR_OP_NOP,
+  IFC_FIR_OP_CA0,
+  IFC_FIR_OP_CA1,
+  IFC_FIR_OP_CA2,
+  IFC_FIR_OP_CA3,
+  IFC_FIR_OP_RA0,
+  IFC_FIR_OP_RA1,
+  IFC_FIR_OP_RA2,
+  IFC_FIR_OP_RA3,
+  IFC_FIR_OP_CMD0,
+  IFC_FIR_OP_CMD1,
+  IFC_FIR_OP_CMD2,
+  IFC_FIR_OP_CMD3,
+  IFC_FIR_OP_CMD4,
+  IFC_FIR_OP_CMD5,
+  IFC_FIR_OP_CMD6,
+  IFC_FIR_OP_CMD7,
+  IFC_FIR_OP_CW0,
+  IFC_FIR_OP_CW1,
+  IFC_FIR_OP_CW2,
+  IFC_FIR_OP_CW3,
+  IFC_FIR_OP_CW4,
+  IFC_FIR_OP_CW5,
+  IFC_FIR_OP_CW6,
+  IFC_FIR_OP_CW7,
+  IFC_FIR_OP_WBCD,
+  IFC_FIR_OP_RBCD,
+  IFC_FIR_OP_BTRD,
+  IFC_FIR_OP_RDSTAT,
+  IFC_FIR_OP_NWAIT,
+  IFC_FIR_OP_WFR,
+  IFC_FIR_OP_SBRD,
+  IFC_FIR_OP_UA,
+  IFC_FIR_OP_RB,
+} IFC_NAND_FIR_OPCODES;
+
+typedef enum {
   IFC_FTIM0 = 0,
   IFC_FTIM1,
   IFC_FTIM2,
@@ -180,5 +217,7 @@ extern VOID GetIfcNorFlashTimings (IFC_TIMINGS * NorIfcTimings);
 extern VOID GetIfcFpgaTimings (IFC_TIMINGS  *FpgaIfcTimings);
 
 extern VOID GetIfcNandFlashTimings (IFC_TIMINGS * NandIfcTimings);
+
+extern VOID GetIfcNandBufBase (VOID*);
 
 #endif //__IFC_LIB_H__
