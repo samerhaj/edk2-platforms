@@ -26,6 +26,12 @@
 #define IFC_NAND_CS   IFC_CS1
 #define IFC_FPGA_CS   IFC_CS2
 
+// On board NAND flash properties
+#define NAND_PG_SZ        SIZE_2KB //NAND flash page size
+#define NAND_SP_SZ        BIT6 //NAND flash spare area 64Bytes
+#define NAND_BK_SZ        SIZE_128KB //NAND flash block size
+#define NAND_LAST_BLOCK   (SIZE_2KB - 1)
+
 // board-specific NAND timing
 #define NAND_FTIM0    (IFC_FTIM0_NAND_TCCST(0x7) | \
                       IFC_FTIM0_NAND_TWP(0x18)   | \

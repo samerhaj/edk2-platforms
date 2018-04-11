@@ -13,6 +13,7 @@
 **/
 
 #include <IfcBoardSpecific.h>
+#include <IfcNand.h>
 
 VOID
 GetIfcNorFlashTimings (
@@ -66,4 +67,27 @@ GetIfcNandFlashTimings (
   NandIfcTimings->CS = IFC_NAND_CS;
 
   return;
+}
+
+VOID
+GetIfcNandFlashInfo (
+  IN NAND_FLASH_INFO *NandFlashInfo
+  )
+{
+  NandFlashInfo->BufBase = (VOID*) IFC_NAND_BUF_BASE;
+  NandFlashInfo->ChipSelect = IFC_NAND_CS;
+  NandFlashInfo->LastBlock = NAND_LAST_BLOCK;
+  NandFlashInfo->PageSize = NAND_PG_SZ;
+  NandFlashInfo->SparePageSize = NAND_SP_SZ;
+  NandFlashInfo->BlockSize = NAND_BK_SZ;
+
+  return ;
+}
+
+VOID
+GetIfcNandBufBase (
+  VOID* BufBase
+  )
+{
+  BufBase = (VOID*) IFC_NAND_BUF_BASE;
 }
