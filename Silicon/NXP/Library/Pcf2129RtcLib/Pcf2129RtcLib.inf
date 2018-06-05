@@ -33,6 +33,10 @@
   DebugLib
   UefiBootServicesTableLib
   UefiLib
+  UefiRuntimeLib
+
+[Guids]
+  gEfiEventVirtualAddressChangeGuid
 
 [Protocols]
   gEfiDriverBindingProtocolGuid        ## CONSUMES

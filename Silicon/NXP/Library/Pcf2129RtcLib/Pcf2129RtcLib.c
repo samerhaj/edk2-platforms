@@ -24,11 +24,13 @@
 #include <Library/RealTimeClockLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiLib.h>
+#include <Library/UefiRuntimeLib.h>
 #include <Protocol/I2cMaster.h>
 
 #include "Pcf2129Rtc.h"
 
 STATIC EFI_I2C_MASTER_PROTOCOL    *mI2cMaster;
+STATIC EFI_EVENT                  mRtcVirtualAddrChangeEvent;
 
 /**
   returns Day of the week [0-6] 0=Sunday
@@ -283,6 +285,24 @@ LibSetWakeupTime (
 }
 
 /**
+  Fixup internal data so that EFI can be call in virtual mode.
+  Call the passed in Child Notify event and convert any pointers in
+  lib to virtual mode.
+
+  @param[in]    Event   The Event that is being processed
+  @param[in]    Context Event Context
+**/
+VOID
+EFIAPI
+LibRtcVirtualNotifyEvent (
+  IN EFI_EVENT        Event,
+  IN VOID             *Context
+  )
+{
+  EfiConvertPointer (0x0, (VOID **)&mI2cMaster);
+}
+
+/**
   This is the declaration of an EFI image entry point. This can be the entry point to an application
   written to this specification, an EFI boot service driver, or an EFI runtime driver.
 
@@ -325,6 +345,15 @@ LibRtcInitialize (
   }
 
   mI2cMaster = I2cMaster;
+
+  //
+  // Register for the virtual address change event
+  //
+  Status = gBS->CreateEventEx (EVT_NOTIFY_SIGNAL, TPL_NOTIFY,
+                  LibRtcVirtualNotifyEvent, NULL,
+                  &gEfiEventVirtualAddressChangeGuid,
+                  &mRtcVirtualAddrChangeEvent);
+  ASSERT_EFI_ERROR (Status);
 
   return EFI_SUCCESS;
 }
