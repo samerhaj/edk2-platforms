@@ -1,0 +1,67 @@
+#/** @FspiDxe.inf
+#  Component description file for FSPI Dxe driver
+#
+#  Copyright 2018 NXP
+#
+#  This Program And The Accompanying Materials
+#  Are Licensed And Made Available Under The Terms And Conditions Of The BSD
+#  License Which Accompanies This Distribution. The Full Text Of The License
+#  May Be Found At
+#  http://Opensource.Org/Licenses/Bsd-License.Php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x0001000A
+  BASE_NAME                      = Fspi
+  FILE_GUID                      = e248c411-0043-43bb-8514-758c3dfc302c
+  MODULE_TYPE                    = DXE_RUNTIME_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = FspiInitialise
+
+[Sources.common]
+  FspiDxe.c
+  FspiDxeOps.c
+  FspiDxeParseDt.c
+  FspiDxeParseRequest.c
+
+[Packages]
+  Silicon/NXP/NxpQoriqLs.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  ArmPkg/ArmPkg.dec
+
+[LibraryClasses]
+  ArmLib
+  BeIoLib
+  DxeServicesLib
+  DxeServicesTableLib
+  FdtLib
+  IoLib
+  ItbParseLib
+  MemoryAllocationLib
+  SocClockLib
+  TimerLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  UefiLib
+  UefiRuntimeLib
+  UefiRuntimeServicesTableLib
+
+[Pcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdFlexSpiFdtCompatible
+
+[Protocols]
+  gEfiDevicePathProtocolGuid
+  gEfiSpiHcProtocolGuid
+
+[Guids]
+  gFdtTableGuid
+  gEfiEventVirtualAddressChangeGuid
+
+[Depex]
+  gEdkiiPlatformHasDeviceTreeGuid
