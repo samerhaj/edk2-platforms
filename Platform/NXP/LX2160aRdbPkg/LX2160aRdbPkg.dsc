@@ -161,12 +161,13 @@
   #
   # Architectural Protocols
   #
-  MdeModulePkg/Universal/Variable/EmuRuntimeDxe/EmuVariableRuntimeDxe.inf
-  #MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf{
-   #  <LibraryClasses>
-    # NULL|MdeModulePkg/Library/VarCheckUefiLib/VarCheckUefiLib.inf
-  #}
-  #MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
+  MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf{
+     <LibraryClasses>
+     NULL|MdeModulePkg/Library/VarCheckUefiLib/VarCheckUefiLib.inf
+     NULL|EmbeddedPkg/Library/NvVarStoreFormattedLib/NvVarStoreFormattedLib.inf
+  }
+  MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
+
   ArmPkg/Drivers/GenericWatchdogDxe/GenericWatchdogDxe.inf
   Silicon/NXP/Drivers/I2cDxe/I2cDxe.inf
   EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf
@@ -190,5 +191,10 @@
   #
   Platform/NXP/LX2160aRdbPkg/DeviceTree/DeviceTree.inf
   Silicon/NXP/Drivers/DtPlatformDxe/DtPlatformDxe.inf
+
+  Silicon/NXP/Drivers/FlexSpiDxe/FspiDxe.inf
+  Silicon/NXP/Drivers/SpiBusDxe/SpiBusDxe.inf
+  Silicon/NXP/Drivers/SpiNorFlashDxe/SpiNorFlashDxe.inf
+  Silicon/NXP/Drivers/SpiConfigurationDxe/SpiConfigurationDxe.inf
 
  ##

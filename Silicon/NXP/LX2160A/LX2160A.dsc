@@ -75,6 +75,8 @@
   gNxpQoriqLsTokenSpaceGuid.PcdSataSize|0x10000
   gNxpQoriqLsTokenSpaceGuid.PcdNumSataController|0x4
 
+  gNxpQoriqLsTokenSpaceGuid.PcdFlexSpiFdtCompatible|"nxp,lx2160a-fspi"
+  gNxpQoriqLsTokenSpaceGuid.PcdSpiBusCount|4
   #
   # DPAA2 specific Pcd
   #

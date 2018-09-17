@@ -95,6 +95,17 @@ READ_LOCK_STATUS   = TRUE
   #
   INF ArmPkg/Drivers/CpuDxe/CpuDxe.inf
 
+  #
+  # DT support
+  #
+  INF RuleOverride = DTB Platform/NXP/LX2160aRdbPkg/DeviceTree/DeviceTree.inf
+  INF Silicon/NXP/Drivers/DtPlatformDxe/DtPlatformDxe.inf
+
+  INF Silicon/NXP/Drivers/SpiBusDxe/SpiBusDxe.inf
+  INF Silicon/NXP/Drivers/SpiNorFlashDxe/SpiNorFlashDxe.inf
+  INF Silicon/NXP/Drivers/SpiConfigurationDxe/SpiConfigurationDxe.inf
+  INF Silicon/NXP/Drivers/FlexSpiDxe/FspiDxe.inf
+
   INF MdeModulePkg/Core/RuntimeDxe/RuntimeDxe.inf
   INF ArmPkg/Drivers/ArmGic/ArmGicDxe.inf
   INF ArmPkg/Drivers/TimerDxe/TimerDxe.inf
@@ -103,9 +114,8 @@ READ_LOCK_STATUS   = TRUE
   INF MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf
   INF MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
   INF EmbeddedPkg/EmbeddedMonotonicCounter/EmbeddedMonotonicCounter.inf
-  #INF MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
-  #INF MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
-  INF MdeModulePkg/Universal/Variable/EmuRuntimeDxe/EmuVariableRuntimeDxe.inf
+  INF MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
+  INF MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
   INF MdeModulePkg/Universal/ResetSystemRuntimeDxe/ResetSystemRuntimeDxe.inf
 
   INF Silicon/NXP/Drivers/I2cDxe/I2cDxe.inf
@@ -222,12 +232,6 @@ READ_LOCK_STATUS   = TRUE
   INF MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
   INF MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
   INF MdeModulePkg/Application/UiApp/UiApp.inf
-
-  #
-  # DT support
-  #
-  INF RuleOverride = DTB Platform/NXP/LX2160aRdbPkg/DeviceTree/DeviceTree.inf
-  INF Silicon/NXP/Drivers/DtPlatformDxe/DtPlatformDxe.inf
 
 [FV.FVMAIN_COMPACT]
 FvAlignment        = 8
