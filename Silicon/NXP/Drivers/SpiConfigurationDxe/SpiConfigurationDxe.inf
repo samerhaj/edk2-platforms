@@ -46,11 +46,13 @@
   gEfiSpiNorFlashDriverGuid
   gEfiQspiDriverGuid
   gEfiDspiDriverGuid
+  gEfiFlexSpiDriverGuid
   gDtPlatformDefaultDtbFileGuid
 
 [FixedPcd]
   gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible
   gNxpQoriqLsTokenSpaceGuid.PcdDspiFdtCompatible
+  gNxpQoriqLsTokenSpaceGuid.PcdFlexSpiFdtCompatible
   gNxpQoriqLsTokenSpaceGuid.PcdSpiBusCount
 
 [Protocols]

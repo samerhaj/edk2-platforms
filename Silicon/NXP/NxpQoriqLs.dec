@@ -42,6 +42,8 @@
 
   gEfiDspiDriverGuid             = {0xde9eb0c8, 0xd66e, 0x4ea5, {0x8b, 0x7c, 0x68, 0x66, 0x69, 0xd3, 0x99, 0x30}}
 
+  gEfiFlexSpiDriverGuid          = {0xe248c411, 0x0043, 0x43bb, {0x85, 0x14, 0x75, 0x8c, 0x3d, 0xfc, 0x30, 0x2c}}
+
 [PcdsFixedAtBuild.common]
   #
   # Pcds for I2C Controller
@@ -197,6 +199,7 @@
   #
   gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible|""|VOID*|0x00000316
   gNxpQoriqLsTokenSpaceGuid.PcdDspiFdtCompatible|""|VOID*|0x00000317
+  gNxpQoriqLsTokenSpaceGuid.PcdFlexSpiFdtCompatible|""|VOID*|0x00000318
 
   #
   # SATA PCDs

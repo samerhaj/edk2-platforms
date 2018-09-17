@@ -86,7 +86,8 @@ STATIC CONST struct {
   GUID*   SpiBusDriverGuid;
 } gSpiBusIds[] = {
   { FixedPcdGetPtr (PcdQspiFdtCompatible), &gEfiQspiDriverGuid },
-  { FixedPcdGetPtr (PcdDspiFdtCompatible), &gEfiDspiDriverGuid }
+  { FixedPcdGetPtr (PcdDspiFdtCompatible), &gEfiDspiDriverGuid },
+  { FixedPcdGetPtr (PcdFlexSpiFdtCompatible), &gEfiFlexSpiDriverGuid }
 };
 
 ///
@@ -96,7 +97,8 @@ STATIC CONST struct {
   CHAR8*  SpiPeripheralCompatible;
   GUID*   SpiPeripheralDriverGuid;
 } gSpiPeripheralIds[] = {
-  { "spi-flash", &gEfiSpiNorFlashDriverGuid }
+  { "spi-flash", &gEfiSpiNorFlashDriverGuid },
+  { "micron,m25p80", &gEfiSpiNorFlashDriverGuid }
 };
 
 CONST EFI_SPI_BUS    *gSpiBuses[FixedPcdGet32 (PcdSpiBusCount)];
@@ -422,6 +424,10 @@ SpiConfigurationDxeEntryPoint (
 
   SpiBusCount = 0;
   for (Index = 0; (Index < ARRAY_SIZE (gSpiBusIds)) && (SpiBusCount < FixedPcdGet32 (PcdSpiBusCount)); Index++) {
+    if (AsciiStrSize(gSpiBusIds[Index].SpiBusCompatible) == 1) {
+      // The compatible string is empty string, therefore skip it.
+      continue;
+    }
     SpiBusTypeCount = 0;
     for ((SpiBusNodeOffset = fdt_node_offset_by_compatible (Fdt, -1, gSpiBusIds[Index].SpiBusCompatible));
          (SpiBusNodeOffset != -FDT_ERR_NOTFOUND) && ((SpiBusCount + SpiBusTypeCount) < FixedPcdGet32 (PcdSpiBusCount));
