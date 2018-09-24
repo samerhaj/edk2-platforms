@@ -216,7 +216,8 @@ typedef struct _EFI_SPI_BUS_TRANSACTION {
 ///
 /// SPI device request
 ///
-/// The EFI_SPI_REQUEST_PACKET describes a single SPI transaction.
+/// The EFI_SPI_REQUEST_PACKET describes a single SPI Operation.
+/// which consists of one or more SPI transactions
 ///
 typedef struct {
   ///

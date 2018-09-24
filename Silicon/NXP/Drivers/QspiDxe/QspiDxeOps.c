@@ -30,7 +30,7 @@ DumpRegs (
   IN  QSPI_MASTER  *QMaster
   )
 {
-  UINT32 Index = 0;
+  UINT32 Index;
   QSPI_REGISTERS *Regs;
 
   Regs = QMaster->Regs;
@@ -63,12 +63,12 @@ DumpRegs (
   DEBUG ((DEBUG_INFO, "Sfa2ad    :0x%08x \n", QMaster->Read32 ( (UINTN)&Regs->Sfa2ad)));
   DEBUG ((DEBUG_INFO, "Sfb1ad    :0x%08x \n", QMaster->Read32 ( (UINTN)&Regs->Sfb1ad)));
   DEBUG ((DEBUG_INFO, "Sfb2ad    :0x%08x \n", QMaster->Read32 ( (UINTN)&Regs->Sfb2ad)));
-  for (Index = 0; Index < 32; Index++) {
+  for (Index = 0; Index < sizeof(Regs->Rbdr); Index++) {
     DEBUG ((DEBUG_INFO, "Rbdr[%d]   :0x%08x \n", Index, QMaster->Read32 ( (UINTN)&Regs->Rbdr[Index])));
   }
   DEBUG ((DEBUG_INFO, "Lutkey    :0x%08x \n", QMaster->Read32 ( (UINTN)&Regs->Lutkey)));
   DEBUG ((DEBUG_INFO, "Lckcr     :0x%08x \n", QMaster->Read32 ( (UINTN)&Regs->Lckcr)));
-  for (Index = 0; Index < 64; Index++) {
+  for (Index = 0; Index < sizeof(Regs->Lut); Index++) {
     DEBUG ((DEBUG_INFO, "Lut[%d]   :0x%08x \n", Index, QMaster->Read32 ( (UINTN)&Regs->Lut[Index])));
   }
 
@@ -259,6 +259,27 @@ EnableQspiModule (
 }
 
 /**
+ If we have changed the content of the flash by writing or erasing,
+ we need to invalidate the AHB buffer. If we do not do so, we may read out
+ the wrong data. The spec tells us reset the AHB domain and Serial Flash
+ domain at the same time.
+
+ @param[in]  QMaster    Pointer to QSPI_MASTER structure of a QSPI controller
+**/
+VOID
+QspiInvalidateAHBBuffer (
+  IN  QSPI_MASTER    *QMaster
+  )
+{
+  QspiSwReset (QMaster, TRUE);
+  // The minimum delay : 1 AHB + 2 SFCK clocks.
+  // Delay 1 us is enough.
+  MicroSecondDelay(1);
+
+  QspiSwReset (QMaster, FALSE);
+}
+
+/**
   This function performs the WRITE_ONLY operation on SPI device.
 
   The QuadSPI module has only one method for writing to the external device:
@@ -387,6 +408,9 @@ WriteTransaction (
   }
 
   QMaster->Write32 ( (UINTN)&Regs->Mcr, McrReg);
+
+  // Invalidate the AHB buffer contents
+  QspiInvalidateAHBBuffer (QMaster);
 
   return Status;
 }

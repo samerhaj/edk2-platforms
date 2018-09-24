@@ -440,6 +440,7 @@ QspiInstallProtocol (
                     EFI_MEMORY_UC | EFI_MEMORY_RUNTIME
                     );
     if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "%a:%d Error = %r\n", __FUNCTION__, __LINE__, Status));
       goto UninstallProtocol;
     }
 
@@ -449,6 +450,7 @@ QspiInstallProtocol (
                     EFI_MEMORY_UC | EFI_MEMORY_RUNTIME
                     );
     if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "%a:%d Error = %r\n", __FUNCTION__, __LINE__, Status));
       goto RemoveMemorySpace;
     }
 
