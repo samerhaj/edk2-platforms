@@ -79,6 +79,7 @@
 
   gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible|"fsl,vf610-qspi"
   gNxpQoriqLsTokenSpaceGuid.PcdDspiFdtCompatible|"fsl,vf610-dspi"
+  gNxpQoriqLsTokenSpaceGuid.PcdQspiErratumA008886|TRUE
   gNxpQoriqLsTokenSpaceGuid.PcdSpiBusCount|3
 
 ##

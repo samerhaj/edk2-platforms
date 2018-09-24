@@ -27,6 +27,7 @@
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiRuntimeLib.h>
 #include <Library/SocClockLib.h>
+#include <Protocol/SpiConfigData.h>
 
 #include "QspiDxe.h"
 
@@ -86,7 +87,7 @@ QspiVirtualNotifyEvent (
 
 **/
 EFI_STATUS
-QspiSetupPeripheral (
+QspiClock (
   IN CONST EFI_SPI_HC_PROTOCOL  *This,
   IN CONST EFI_SPI_PERIPHERAL   *SpiPeripheral,
   IN UINT32                     *ClockHz
@@ -212,7 +213,7 @@ QspiChipSelect (
   // has completed. we can just control which chip select to assert/deassert here.
   //
   if (PinValue == TRUE) {
-    ChipSelect = QSPI_CHIP_SELECT_0;
+    return EFI_SUCCESS;
   }
 
   switch (ChipSelect) {
@@ -299,6 +300,101 @@ QspiTransaction (
     Status = EFI_UNSUPPORTED;
   }
   return Status;
+}
+
+/**
+  This routine is called by SPI bus layer to configure Host Controller from
+  SpiIO.UpdateSpiPeripheral.
+
+  Support socketed SPI parts by allowing the SPI peripheral driver to replace
+  the SPI peripheral after the connection is made. An example use is socketed
+  SPI NOR flash parts, where the size and parameters change depending upon
+  device is in the socket.
+
+  @param[in] This           Pointer to an EFI_SPI_HC_PROTOCOL structure.
+  @param[in] SpiPeripheral  Pointer to a EFI_SPI_PERIPHERAL data structure from
+                            which the routine can access the ConfigurationData.
+			    The routine also has access to the names for the SPI bus and
+                            chip which can be used during debugging.
+
+  @retval EFI_SUCCESS       The SPI peripheral was updated successfully
+  @retval EFI_DEVICE_ERROR  NOT able to update the SPI peripheral
+  @retval EFI_INVALID_PARAMETER The ChipSeLect value or its contents are
+                                invalid
+**/
+EFI_STATUS
+QspiUpdateSpiPeripheral (
+  IN CONST EFI_SPI_HC_PROTOCOL  *This,
+  IN CONST EFI_SPI_PERIPHERAL   *SpiPeripheral
+  )
+{
+  QSPI_MASTER    *QMaster;
+  UINT32         ChipSelect;
+  SPI_FLASH_CONFIGURATION_DATA *SpiConfigData;
+  EFI_PHYSICAL_ADDRESS   NextChipSelectBaseAddress;
+  EFI_PHYSICAL_ADDRESS   CurrentChipSelectBaseAddress;
+
+  if (!SpiPeripheral || !This || !(SpiPeripheral->ChipSelectParameter)) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  QMaster = BASE_CR (This, QSPI_MASTER, QspiHcProtocol);
+
+  ///
+  /// Address of a data structure containing the additional values which
+  /// describe the necessary control for the chip select. When SpiPeripheral->ChipSelect is
+  /// NULL, the declaration for this data structure is provided by the vendor
+  /// of the host's SPI controller driver. The vendor's documentation specifies
+  /// the necessary values to use for the chip select pin selection and
+  /// control. When SpiPeripheral->ChipSelect is not NULL, the declaration for this data
+  /// structure is provided by the board layer.
+  ///
+  ChipSelect = *((UINT32 *)(SpiPeripheral->ChipSelectParameter));
+
+  if (ChipSelect >= QMaster->NumChipselect) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  SpiConfigData = (SPI_FLASH_CONFIGURATION_DATA *)(SpiPeripheral->ConfigurationData);
+  if ((SpiConfigData == NULL) || (SpiConfigData->Signature != SPI_NOR_FLASH_SIGNATURE)) {
+    return EFI_SUCCESS;
+  }
+
+  if (ChipSelect == QSPI_CHIP_SELECT_0) {
+    CurrentChipSelectBaseAddress = QMaster->AmbaBase;
+  } else {
+    CurrentChipSelectBaseAddress = QMaster->Read32 ( (UINTN)&QMaster->Regs->Sfa1ad + ChipSelect - 1);
+    // if 64 bit memory mapped Qspi address range is used
+    if (CurrentChipSelectBaseAddress < QMaster->AmbaBase) {
+      CurrentChipSelectBaseAddress += QMaster->AmbaBase;
+    }
+  }
+
+  NextChipSelectBaseAddress = CurrentChipSelectBaseAddress + SpiConfigData->FlashSize;
+
+  QMaster->Write32 ( (UINTN)&QMaster->Regs->Sfa1ad + ChipSelect, NextChipSelectBaseAddress);
+
+  SpiConfigData->DeviceBaseAddress = CurrentChipSelectBaseAddress;
+
+  /// A-008886: Sometimes unexpected data is written to the external flash memory even
+  ///           though the underrun bit (QuadSPI_FR[TBUF]) is not set
+  /// Affects:  QSPI
+  /// Description: While carrying out continuous writes from the Tx buffer to the flash memory, there may be
+  ///              scenarios when the buffer is empty for some duration and gets filled later. For example,
+  ///              QuadSPI_TBSR[TRBFL] changes from non-zero to zero and again to non-zero in the middle of
+  ///              a flash transaction. Such a case may trigger unexpected or wrong data to be written into the
+  ///              flash memory, even though the underrun bit (QuadSPI_FR[TBUF]) is not set.
+  /// Impact:  A write to the flash memory may not work correctly.
+  /// Workaround:  Break the flash page writes into smaller chunks of Tx FIFO size and fill the FIFO before the
+  ///              write is initiated. For example, for a flash page size of 128 bytes, two separate write
+  ///              transactions of 64 bytes each (Tx FIFO size) must be initiated. This ensures that, for a single
+  ///              continuous write, the Tx FIFO never becomes empty during the write transaction on the flash
+  ///              interface.
+  if ((PcdGetBool (PcdQspiErratumA008886) == TRUE) && (SpiConfigData->PageSize > TX_BUFFER_SIZE)) {
+    SpiConfigData->PageSize = TX_BUFFER_SIZE;
+  }
+
+  return EFI_SUCCESS;
 }
 
 /**

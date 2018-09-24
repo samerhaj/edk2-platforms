@@ -37,7 +37,6 @@
   DxeServicesTableLib
   FdtLib
   PcdLib
-  SpiPlatformConfigLib
   UefiBootServicesTableLib
   UefiDriverEntryPoint
   UefiLib

@@ -53,6 +53,7 @@
 
 [Pcd]
   gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible
+  gNxpQoriqLsTokenSpaceGuid.PcdQspiErratumA008886
 
 [Protocols]
   gEfiDevicePathProtocolGuid

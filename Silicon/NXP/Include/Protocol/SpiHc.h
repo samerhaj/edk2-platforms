@@ -102,6 +102,32 @@ typedef EFI_STATUS
   );
 
 /**
+  This routine is called by SPI bus layer to configure Host Controller from
+  SpiIO.UpdateSpiPeripheral.
+
+  Support socketed SPI parts by allowing the SPI peripheral driver to replace
+  the SPI peripheral after the connection is made. An example use is socketed
+  SPI NOR flash parts, where the size and parameters change depending upon
+  device is in the socket.
+
+  @param[in] This           Pointer to an EFI_SPI_HC_PROTOCOL structure.
+  @param[in] SpiPeripheral  Pointer to a EFI_SPI_PERIPHERAL data structure from
+                            which the routine can access the ConfigurationData.
+			    The routine also has access to the names for the SPI bus and
+                            chip which can be used during debugging.
+
+  @retval EFI_SUCCESS       The SPI peripheral was updated successfully
+  @retval EFI_DEVICE_ERROR  NOT able to update the SPI peripheral
+  @retval EFI_INVALID_PARAMETER  The ChipSeLect value or its contents are
+                                 invalid
+**/
+typedef EFI_STATUS
+(EFIAPI *EFI_SPI_HC_PROTOCOL_UPDATE_SPI_PERIPHERAL) (
+  IN CONST EFI_SPI_HC_PROTOCOL  *This,
+  IN CONST EFI_SPI_PERIPHERAL   *SpiPeripheral
+  );
+
+/**
   Perform the SPI transaction on the SPI peripheral using the SPI host
   controller.
 
@@ -201,6 +227,11 @@ struct _EFI_SPI_HC_PROTOCOL {
   /// controller.
   ///
   EFI_SPI_HC_PROTOCOL_TRANSACTION           Transaction;
+
+  ///
+  /// Update the SPI host controller after SPI Peripheral is updated
+  ///
+  EFI_SPI_HC_PROTOCOL_UPDATE_SPI_PERIPHERAL UpdateSpiPeripheral;
 };
 
 extern EFI_GUID gEfiSpiHcProtocolGuid;

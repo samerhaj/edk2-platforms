@@ -41,8 +41,9 @@ QSPI_MASTER  mQspiMasterTemplate = {
     .FrameSizeSupportMask = SPI_FRAME_MASK (8), // 8-bit frames only
     .MaximumTransferBytes = SIZE_64KB + sizeof (UINT32), // 0xFFFF - IPCR[IDATSZ] + 1 byte opcode + 4 bytes address
     .ChipSelect = QspiChipSelect,
-    .Clock = QspiSetupPeripheral,
-    .Transaction = QspiTransaction
+    .Clock = QspiClock,
+    .Transaction = QspiTransaction,
+    .UpdateSpiPeripheral = QspiUpdateSpiPeripheral
   }, // EFI_SPI_HC_PROTOCOL
 
   .DevicePath = {

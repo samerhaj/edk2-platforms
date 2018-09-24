@@ -1008,6 +1008,8 @@ SpiBusUpdateSpiPeripheral (
   BOOLEAN                     ReinstallProtocol;
   CONST EFI_SPI_PERIPHERAL    *ExistingSpiPeripheral;
   EFI_STATUS                  Status;
+  CONST EFI_SPI_HC_PROTOCOL   *SpiHostController;
+  SPI_BUS_CONTEXT             *SpiBusContext;
 
   if ( (This == NULL)
     || (SpiPeripheral == NULL)
@@ -1029,6 +1031,15 @@ SpiBusUpdateSpiPeripheral (
   }
 
   SpiDeviceContext = SPI_DEVICE_CONTEXT_FROM_PROTOCOL (This);
+  SpiBusContext = SpiDeviceContext->SpiBusContext;
+  ASSERT (SpiBusContext != NULL);
+
+  SpiHostController = SpiBusContext->SpiHost;
+  Status = SpiHostController->UpdateSpiPeripheral (SpiHostController, SpiPeripheral);
+  if (EFI_ERROR (Status)) {
+    Status = EFI_INVALID_PARAMETER;
+    return Status;
+  }
 
   ReinstallProtocol = FALSE;
   if (!(CompareGuid (SpiPeripheral->SpiPeripheralDriverGuid, ExistingSpiPeripheral->SpiPeripheralDriverGuid))) {

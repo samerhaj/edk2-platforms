@@ -29,10 +29,6 @@
   #   This library is only intended to be used by NXP SOC based Platforms.
   SocClockLib|Include/Library/SocClockLib.h
 
-  ## @libraryclass Provides Platform specific configuration of SPI peripherals, which is not available in device tree
-  #
-  SpiPlatformConfigLib|Include/Library/SpiPlatformConfigLib.h
-
 [Guids.common]
   gNxpQoriqLsTokenSpaceGuid      = {0x98657342, 0x4aee, 0x4fc6, {0xbc, 0xb5, 0xff, 0x45, 0xb7, 0xa8, 0x71, 0xf2}}
 
@@ -200,6 +196,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible|""|VOID*|0x00000316
   gNxpQoriqLsTokenSpaceGuid.PcdDspiFdtCompatible|""|VOID*|0x00000317
   gNxpQoriqLsTokenSpaceGuid.PcdFlexSpiFdtCompatible|""|VOID*|0x00000318
+  gNxpQoriqLsTokenSpaceGuid.PcdQspiErratumA008886|FALSE|BOOLEAN|0x00000319
 
   #
   # SATA PCDs
