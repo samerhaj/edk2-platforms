@@ -50,10 +50,10 @@
 
   #
   # LS1046a board Specific PCDs
-  # XX (DRAM - Region 1 2GB)
+  # XX (DRAM - Region 1 2GB - 66 MB)
   # (NOR - IFC Region 1 512MB)
   gArmTokenSpaceGuid.PcdSystemMemoryBase|0x80000000
-  gArmTokenSpaceGuid.PcdSystemMemorySize|0x80000000
+  gArmTokenSpaceGuid.PcdSystemMemorySize|0x007BE00000
   gArmPlatformTokenSpaceGuid.PcdSystemMemoryUefiRegionSize|0x02000000
 
   #
