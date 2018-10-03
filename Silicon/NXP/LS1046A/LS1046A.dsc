@@ -77,9 +77,9 @@
   gNxpQoriqLsTokenSpaceGuid.PcdSataSize|0x10000
   gNxpQoriqLsTokenSpaceGuid.PcdNumSataController|0x1
 
-  gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible|"fsl,vf610-qspi"
-  gNxpQoriqLsTokenSpaceGuid.PcdDspiFdtCompatible|"fsl,vf610-dspi"
+  gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible|"fsl,ls1021a-qspi"
+  gNxpQoriqLsTokenSpaceGuid.PcdDspiFdtCompatible|"fsl,ls1021a-v1.0-dspi"
   gNxpQoriqLsTokenSpaceGuid.PcdQspiErratumA008886|TRUE
-  gNxpQoriqLsTokenSpaceGuid.PcdSpiBusCount|3
+  gNxpQoriqLsTokenSpaceGuid.PcdSpiBusCount|2
 
 ##

@@ -20,7 +20,12 @@
   VERSION_STRING = 1.0
 
 [Sources]
-  fsl-ls1046a-rdb.dts
+  # The order of these file is important
+  # the fist file is main platform dtb file which is loaded by DtDxe driver
+  # the order of the rest of the files in determined by their parsing in SocFixupLib
+  fsl-ls1046a-rdb-sdk.dts
 
 [Packages]
   MdePkg/MdePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+  Silicon/NXP/LS1046A/LS1046A.dec

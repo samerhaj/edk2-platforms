@@ -96,7 +96,7 @@ STATIC CONST struct {
   CHAR8*  SpiPeripheralCompatible;
   GUID*   SpiPeripheralDriverGuid;
 } gSpiPeripheralIds[] = {
-  { "spi-flash", &gEfiSpiNorFlashDriverGuid },
+  { "spansion,m25p80", &gEfiSpiNorFlashDriverGuid },
   { "micron,m25p80", &gEfiSpiNorFlashDriverGuid }
 };
 
