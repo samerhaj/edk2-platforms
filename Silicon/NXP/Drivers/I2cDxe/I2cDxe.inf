@@ -19,7 +19,7 @@
   INF_VERSION                    = 0x0001001A
   BASE_NAME                      = I2cDxe
   FILE_GUID                      = 5f2927ba-1b04-4d5f-8bef-2b50c635d1e7
-  MODULE_TYPE                    = DXE_DRIVER
+  MODULE_TYPE                    = DXE_RUNTIME_DRIVER
   VERSION_STRING                 = 1.0
   ENTRY_POINT                    = I2cDxeEntryPoint
   UNLOAD                         = I2cDxeUnload
@@ -29,13 +29,15 @@
 
 [LibraryClasses]
   ArmLib
+  DxeServicesTableLib
   IoLib
   MemoryAllocationLib
   PcdLib
-  SocLib
   TimerLib
   UefiDriverEntryPoint
+  UefiBootServicesTableLib
   UefiLib
+  UefiRuntimeLib
 
 [Packages]
   MdePkg/MdePkg.dec

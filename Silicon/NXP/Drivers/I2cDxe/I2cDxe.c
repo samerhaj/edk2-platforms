@@ -14,15 +14,20 @@
 **/
 
 #include <Library/DebugLib.h>
+#include <Library/DxeServicesTableLib.h>
 #include <Library/IoLib.h>
 #include <Library/TimerLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiLib.h>
+#include <Library/UefiRuntimeLib.h>
 
 #include <Protocol/I2cMaster.h>
 
 #include "I2cDxe.h"
 
+STATIC EFI_EVENT VirtualAddressChangeEvent;
+
+STATIC EFI_PHYSICAL_ADDRESS mI2cRegs;
 STATIC CONST UINT16 ClkDiv[60][2] = {
   { 20,  0x00 }, { 22, 0x01 },  { 24, 0x02 },  { 26, 0x03 },
   { 28,  0x04 }, { 30,  0x05 }, { 32,  0x09 }, { 34, 0x06 },
@@ -351,8 +356,7 @@ I2cDataRead (
   INT32                    I;
   I2C_REGS                 *I2cRegs;
 
-  I2cRegs = (I2C_REGS *)(FixedPcdGet64 (PcdI2c0BaseAddr +
-                         (I2cBus * FixedPcdGet32 (PcdI2cSize))));
+  I2cRegs = (I2C_REGS *)mI2cRegs;
 
   Status = InitDataTransfer (I2cRegs, Chip, Offset, Alen);
   if (Status != EFI_SUCCESS) {
@@ -439,8 +443,7 @@ I2cDataWrite (
   I2C_REGS                 *I2cRegs;
   INT32                    I;
 
-  I2cRegs = (I2C_REGS *)(FixedPcdGet64 (PcdI2c0BaseAddr +
-                         (I2cBus * FixedPcdGet32 (PcdI2cSize))));
+  I2cRegs = (I2C_REGS *)mI2cRegs;
 
   Status = InitDataTransfer (I2cRegs, Chip, Offset, Alen);
   if (Status != EFI_SUCCESS) {
@@ -479,8 +482,7 @@ SetBusFrequency (
   UINT8                    ClkId;
   UINT8                    SpeedId;
 
-  I2cRegs = (I2C_REGS *)(FixedPcdGet64 (PcdI2c0BaseAddr +
-                         (PcdGet32 (PcdI2cBus) * FixedPcdGet32 (PcdI2cSize))));
+  I2cRegs = (I2C_REGS *)mI2cRegs;
 
   ClkId = GetClkDiv (*BusClockHertz);
   SpeedId = ClkDiv[ClkId][1];
@@ -508,8 +510,7 @@ Reset (
 {
   I2C_REGS                         *I2cRegs;
 
-  I2cRegs = (I2C_REGS *)(FixedPcdGet64 (PcdI2c0BaseAddr +
-                         (PcdGet32 (PcdI2cBus) * FixedPcdGet32 (PcdI2cSize))));
+  I2cRegs = (I2C_REGS *)mI2cRegs;
 
   // Reset module
   MmioWrite8 ((UINTN)&I2cRegs->I2cCr, I2C_CR_IDIS);
@@ -633,6 +634,24 @@ STATIC I2C_DEVICE_PATH gDevicePath = {
 };
 
 /**
+  Fixup controller regs data so that EFI can be call in virtual mode
+
+  @param[in]    Event   The Event that is being processed
+  @param[in]    Context Event Context
+**/
+STATIC
+VOID
+EFIAPI
+I2cVirtualNotifyEvent (
+  IN EFI_EVENT        Event,
+  IN VOID             *Context
+  )
+{
+
+  EfiConvertPointer (0x0, (VOID **)&mI2cRegs);
+}
+
+/**
   The Entry Point for I2C driver.
 
   @param[in] ImageHandle    The firmware allocated handle for the EFI image.
@@ -651,6 +670,9 @@ I2cDxeEntryPoint (
 {
   EFI_STATUS                Status;
 
+
+  mI2cRegs = ( EFI_PHYSICAL_ADDRESS)(FixedPcdGet64 (PcdI2c0BaseAddr +
+                         (PcdGet32 (PcdI2cBus) * FixedPcdGet32 (PcdI2cSize))));
   //
   // Install I2c Master protocol on this controller
   //
@@ -663,7 +685,32 @@ I2cDxeEntryPoint (
                 NULL
                 );
 
+  // Declare the controller as EFI_MEMORY_RUNTIME
+  Status = gDS->AddMemorySpace (
+                  EfiGcdMemoryTypeMemoryMappedIo,
+                  (EFI_PHYSICAL_ADDRESS)mI2cRegs,
+                  (SIZE_64KB),
+                  EFI_MEMORY_UC | EFI_MEMORY_RUNTIME
+                );
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  Status = gDS->SetMemorySpaceAttributes (
+                  (EFI_PHYSICAL_ADDRESS)mI2cRegs,
+                   (SIZE_64KB),
+                  EFI_MEMORY_UC | EFI_MEMORY_RUNTIME
+                );
+
   ASSERT_EFI_ERROR (Status);
+
+    //
+    // Register for the virtual address change event
+    //
+    Status = gBS->CreateEventEx (EVT_NOTIFY_SIGNAL, TPL_NOTIFY,
+                    I2cVirtualNotifyEvent, NULL,
+                    &gEfiEventVirtualAddressChangeGuid,
+                    &VirtualAddressChangeEvent);
 
   return Status;
 }
