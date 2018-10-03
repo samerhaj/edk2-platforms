@@ -16,6 +16,79 @@
 #include <Library/ItbParse.h>
 #include <libfdt.h>
 
+/**
+  This function retrieves that address and size from address-size pairs in Prop property
+  Maximum #address-cells and #size-cells = 2 is supported.
+
+  @param[in]  Dtb         Input Dtb File
+  @param[in]  NodeOffset  Offset of Node whose property is to be read
+  @param[in]  PropName    Name of property containing address and size like "reg" or "ranges" etc
+  @param[in]  Index       index of address-size cell to read. it is zero based.
+  @param[out] Address     Address read from property
+  @param[out] Size        Size read from property
+
+  @retval  EFI_SUCCESS    Address read successfully
+  @retval  EFI_NOT_FOUND  Address not found in property
+**/
+EFI_STATUS
+FdtGetAddressSize (
+  IN  VOID*    Dtb,
+  IN  INT32    NodeOffset,
+  IN  CHAR8*   PropName,
+  IN  INT32    Index,
+  OUT UINT64   *Address,
+  OUT UINT64   *Size
+  )
+{
+  INT32           ParentOffset;
+  INT32           AddressCells;
+  INT32           SizeCells;
+  INT32           PropLen;
+  CONST fdt32_t   *Prop;
+  CONST fdt32_t   *Cell;
+
+  ParentOffset = fdt_parent_offset (Dtb, NodeOffset);
+  if (ParentOffset < 0) {
+    return EFI_NOT_FOUND;
+  }
+
+  AddressCells = fdt_address_cells (Dtb, ParentOffset);
+  if ((AddressCells < 0) || (AddressCells > 2)) {
+    return EFI_NOT_FOUND;
+  }
+
+  SizeCells = fdt_size_cells (Dtb, ParentOffset);
+  if ((SizeCells < 0) || (SizeCells > 2)) {
+    return EFI_UNSUPPORTED;
+  }
+
+  Prop = fdt_getprop (Dtb, NodeOffset, PropName, &PropLen);
+  if (Prop == NULL) {
+    return EFI_NOT_FOUND;
+  }
+
+  if (PropLen < (Index + 1) * (AddressCells + SizeCells) * sizeof (INT32)) {
+    return EFI_NOT_FOUND;
+  }
+
+  if (Address && AddressCells) {
+    Cell = Prop + Index * (AddressCells + SizeCells);
+    *Address = fdt32_to_cpu (*Cell);
+    if (AddressCells == 2) {
+      *Address = *Address << 32 | fdt32_to_cpu (*++Cell);
+    }
+  }
+
+  if (Size && SizeCells) {
+    Cell = Prop + Index * (AddressCells + SizeCells) + AddressCells;
+    *Size = fdt32_to_cpu (*Cell);
+    if (SizeCells == 2) {
+      *Size = *Size << 32 | fdt32_to_cpu (*++Cell);
+    }
+  }
+
+  return EFI_SUCCESS;
+}
 
 /**
 

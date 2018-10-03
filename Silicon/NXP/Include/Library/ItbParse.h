@@ -28,6 +28,29 @@
 #define FIT_IMAGE_LOAD     "load"
 
 /**
+  This function retrieves that address and size from address-size pairs in Prop property
+  Maximum #address-cells and #size-cells = 2 is supported.
+
+  @param[in]  Dtb         Input Dtb File
+  @param[in]  NodeOffset  Offset of Node whose property is to be read
+  @param[in]  PropName    Name of property containing address and size like "reg" or "ranges" etc
+  @param[in]  Index       index of address-size cell to read. it is zero based.
+  @param[out] Address     Address read from property
+  @param[out] Size        Size read from property
+
+  @retval  EFI_SUCCESS    Address read successfully
+  @retval  EFI_NOT_FOUND  Address not found in property
+**/
+EFI_STATUS
+FdtGetAddressSize (
+  IN  VOID*    Dtb,
+  IN  INT32    NodeOffset,
+  IN  CHAR8*   PropName,
+  IN  INT32    Index,
+  OUT UINT64   *Address,
+  OUT UINT64   *Size
+  );
+/**
 
  FitCheckHeader() - Check FIT image header
 
