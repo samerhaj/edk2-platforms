@@ -30,4 +30,14 @@ FdtSocFixup (
   IN  VOID  *Dtb
   );
 
+/**
+  Retrive the System Version from System Version Register (SVR)
+
+  @return  0  could not read SVR register or invalid value in SVR register
+  @return     SVR register value
+**/
+UINT32
+SocGetSvr (
+  );
+
 #endif // SOC_FIXUP_LIB_H_
