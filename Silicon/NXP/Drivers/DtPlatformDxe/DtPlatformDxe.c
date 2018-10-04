@@ -192,6 +192,41 @@ FdtFixupCrypto (
 }
 
 /**
+  Add/fix "clock-frequency" property in DUART(ns16550) node.
+
+  @retval EFI_SUCCESS       system's DUART clock value updated in DUART node in device tree
+  @retval EFI_DEVICE_ERROR  Failed to set values in device tree
+**/
+STATIC
+EFI_STATUS
+FdtFixupDuart (
+  IN  VOID *Dtb
+  )
+{
+  INTN     NodeOffset;
+  INTN     FdtStatus;
+  UINT32   DuartClk;
+
+  DuartClk = SocGetClock (IP_DUART, 0);
+  if (DuartClk == 0) {
+    DEBUG ((DEBUG_WARN, "Invalid Duart Clock\n"));
+    return EFI_SUCCESS;
+  }
+
+  for (NodeOffset = fdt_node_offset_by_compatible (Dtb, -1, "fsl,ns16550");
+       NodeOffset >= 0;
+       NodeOffset = fdt_node_offset_by_compatible (Dtb, NodeOffset, "fsl,ns16550")) {
+    FdtStatus = fdt_setprop_u32(Dtb, NodeOffset, "clock-frequency", DuartClk);
+    if (FdtStatus) {
+      DEBUG ((DEBUG_ERROR, "fdt_setprop_u32/Duart: Could not set clock-frequency, %a!!\n", fdt_strerror (FdtStatus)));
+      return EFI_DEVICE_ERROR;
+    }
+  }
+
+  return EFI_SUCCESS;
+}
+
+/**
   The entry point for DtPlatformDxe driver.
 
   @param[in] ImageHandle     The image handle of the driver.
@@ -272,6 +307,13 @@ DtPlatformDxeEntryPoint (
   }
   if (EFI_ERROR (Status)) {
     return EFI_DEVICE_ERROR;
+  }
+
+  // Fixup clock-frequency in DUART node
+  // TODO: Remove this fixup when linux driver has added clockgen support
+  Status = FdtFixupDuart (Dtb);
+  if (EFI_ERROR (Status)) {
+    goto FreeDtb;
   }
 
   //
