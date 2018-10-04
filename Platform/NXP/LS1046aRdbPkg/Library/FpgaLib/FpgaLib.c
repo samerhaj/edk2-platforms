@@ -151,5 +151,6 @@ GetBoardSysClk (
   VOID
   )
 {
-  return 0;
+  // TODO : read SYSCLK from clock generator using i2c bus
+  return 100000000;
 }
