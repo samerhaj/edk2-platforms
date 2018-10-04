@@ -19,6 +19,7 @@
 [Includes]
   .
   Include
+  Chassis
 
 [LibraryClasses]
   ##  @libraryclass  Provides enhancements to TimerLib. Uses standard TimerLib APIs.

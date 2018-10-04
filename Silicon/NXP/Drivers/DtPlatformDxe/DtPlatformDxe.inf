@@ -39,11 +39,15 @@
 
 [LibraryClasses]
   BaseLib
+  BeIoLib
   DebugLib
   DxeServicesLib
   FdtLib
+  IoLib
+  ItbParseLib
   MemoryAllocationLib
   SocClockLib
+  SocFixupLib
   UefiBootServicesTableLib
   UefiDriverEntryPoint
 

@@ -14,12 +14,17 @@
 **/
 
 #include <libfdt.h>
+#include <Chassis.h>
 #include <Library/BaseLib.h>
+#include <Library/BeIoLib.h>
 #include <Library/DebugLib.h>
 #include <Library/DevicePathLib.h>
 #include <Library/DxeServicesLib.h>
+#include <Library/IoLib.h>
+#include <Library/ItbParse.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/SocClockLib.h>
+#include <Library/SocFixupLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiDriverEntryPoint.h>
 
@@ -69,6 +74,124 @@ FdtSysClockFixup (
 }
 
 /**
+  Get the Crypto block's era property based on its ID and Rev
+
+  @param[in] CryptoAddress  Address of crypto block
+  @param[in] BigEndian      If the crypto block is big endian or not?
+
+  @retval   0   No valid Era found for Crypto block
+  @retval       The era property
+**/
+STATIC
+UINT8
+GetCryptoEra (
+ IN UINT64   CryptoAddress,
+ IN BOOLEAN  BigEndian
+ )
+{
+  UINT32 SecVidMs;
+  UINT32 CcbVid;
+  UINT16 Id;
+  UINT8 Rev;
+  UINT8 Era;
+  UINT32 Index;
+
+  if (BigEndian) {
+    SecVidMs = BeMmioRead32 (CryptoAddress + VIDMS_OFFSET);
+    CcbVid = BeMmioRead32 (CryptoAddress + VIDMS_OFFSET);
+  } else {
+    SecVidMs = MmioRead32 (CryptoAddress + VIDMS_OFFSET);
+    CcbVid = MmioRead32 (CryptoAddress + CCBVID_OFFSET);
+  }
+
+  Id = (SecVidMs & SECVID_MS_IPID_MASK) >> SECVID_MS_IPID_SHIFT;
+  Rev = (SecVidMs & SECVID_MS_MAJ_REV_MASK) >> SECVID_MS_MAJ_REV_SHIFT;
+  Era = (CcbVid & CCBVID_ERA_MASK) >> CCBVID_ERA_SHIFT;
+
+  if (Era) {
+    return Era;
+  }
+
+  for (Index = 0; Index < ARRAY_SIZE(Eras); Index++) {
+    if (Eras[Index].Id == Id && Eras[Index].Rev == Rev) {
+      return Eras[Index].Era;
+    }
+  }
+
+  DEBUG((DEBUG_WARN, "Unable to get ERA for CAAM rev: %u\n", SecVidMs));
+
+  return 0;
+}
+
+/**
+  either delete Crypto node or fixup the era property in crypto node.
+
+  @param[in]  Dtb           Dtb node to fixup
+  @param[in]  DeleteCrypto  Weather to delete the crypto node ot to fixup version info in it?
+
+  @retval EFI_SUCCESS       deleted the crypto node in device tree or fixup version info in it
+                            or crypto node doesn't exist in device tree
+  @retval EFI_DEVICE_ERROR  Failed to delete node in device tree or failed to fixup version info in it
+                            or failed to delete the node reference from aliases
+**/
+STATIC
+EFI_STATUS
+FdtFixupCrypto (
+  IN  VOID     *Dtb,
+  IN  BOOLEAN  DeleteCrypto
+  )
+{
+  INTN       NodeOffset;
+  INTN       FdtStatus;
+  UINT64     CryptoAddress;
+  UINT8      Era;
+  EFI_STATUS Status;
+
+  NodeOffset = fdt_path_offset (Dtb, "crypto");
+  if (NodeOffset < 0) {
+    return EFI_SUCCESS;
+  }
+
+  if (DeleteCrypto) {
+    FdtStatus = fdt_del_node(Dtb, NodeOffset);
+    if (FdtStatus) {
+      DEBUG ((DEBUG_ERROR, "fdt_del_node/crypto: Could not delete node, %a!!\n", fdt_strerror (FdtStatus)));
+      return EFI_DEVICE_ERROR;
+    }
+
+    NodeOffset = fdt_path_offset (Dtb, "/aliases");
+    if (NodeOffset >= 0) {
+      FdtStatus = fdt_delprop (Dtb, NodeOffset, "crypto");
+      if (FdtStatus && FdtStatus != -FDT_ERR_NOTFOUND) {
+        DEBUG ((DEBUG_ERROR, "fdt_delprop/crypto: Could not delete alias, %a!!\n", fdt_strerror (FdtStatus)));
+      }
+    }
+  } else {
+    Status = FdtGetAddressSize (Dtb, NodeOffset, "reg", 0, &CryptoAddress, NULL);
+    if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "Error: can't get regs base address(Status = %r)!\n", Status));
+      return EFI_SUCCESS;
+    }
+
+    if (fdt_getprop (Dtb, NodeOffset, "big-endian", NULL) != NULL) {
+      Era = GetCryptoEra (CryptoAddress, TRUE);
+    } else {
+      Era = GetCryptoEra (CryptoAddress, FALSE);
+    }
+
+    if (Era) {
+      FdtStatus = fdt_setprop_u32 (Dtb, NodeOffset, "fsl,sec-era", Era);
+      if (FdtStatus) {
+	DEBUG ((DEBUG_ERROR, "fdt_setprop_u32/sec-era could not set property %a\n", fdt_strerror (FdtStatus)));
+	return EFI_DEVICE_ERROR;
+      }
+    }
+  }
+
+  return EFI_SUCCESS;
+}
+
+/**
   The entry point for DtPlatformDxe driver.
 
   @param[in] ImageHandle     The image handle of the driver.
@@ -93,10 +216,14 @@ DtPlatformDxeEntryPoint (
   VOID                            *Dtb;
   VOID                            *OrigDtb;
   UINTN                           DtbSize;
+  UINT32                          Svr;
 
   Dtb = NULL;
   OrigDtb = NULL;
   Status = EFI_SUCCESS;
+
+  Svr = SocGetSvr ();
+  ASSERT (Svr != 0);
 
   Status = GetSectionFromAnyFv (
              &gDtPlatformDefaultDtbFileGuid,
@@ -134,6 +261,17 @@ DtPlatformDxeEntryPoint (
   Status = FdtSysClockFixup (Dtb);
   if (EFI_ERROR (Status)) {
     goto FreeDtb;
+  }
+
+  if (!IS_E_PROCESSOR (Svr)) {
+    // delete crypto node if not on an E-processor
+    Status = FdtFixupCrypto (Dtb, TRUE);
+  } else {
+    // fix the era version in crypto node
+    Status = FdtFixupCrypto (Dtb, FALSE);
+  }
+  if (EFI_ERROR (Status)) {
+    return EFI_DEVICE_ERROR;
   }
 
   //
