@@ -22,6 +22,7 @@
 #include <Library/ItbParse.h>
 #include <Library/PrintLib.h>
 #include <Library/SocClockLib.h>
+#include <Library/SysEepromLib.h>
 #include <Library/UefiLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiDriverEntryPoint.h>
@@ -83,7 +84,7 @@ FdtFixupFmanFirmware (
   }
 
   Length = fdt32_to_cpu (FmanFw->Header.Length);
-  Length -= sizeof (UINT32);	/* Subtract the size of the CRC */
+  Length -= sizeof (UINT32);  /* Subtract the size of the CRC */
   Crc = fdt32_to_cpu (*(UINT32 *)( (VOID *)FmanFw + Length));
   Status = gBS->CalculateCrc32 ( (VOID *)FmanFw, Length, &CrcCalculated);
   if (EFI_ERROR (Status) || Crc != CrcCalculated) {
@@ -296,6 +297,82 @@ FdtFixupBmanVersion (
   return Status;
 }
 
+/**
+  insert the mac addresses into the device tree
+
+  @param[in] Dtb     Dtb Image into which mac addresses are to be inserted.
+
+  @retval EFI_DEVICE_ERROR    Fail to add mac addresses to Device tree.
+  @retval EFI_SUCCES          mac addresses info inserted into Device tree.
+**/
+EFI_STATUS
+FdtFixupMacAddresses (
+  IN   VOID    *Dtb
+  )
+{
+  UINT32 I, Prop;
+  CONST CHAR8 *Path, *Name;
+  UINT8  MacAddr[6];
+  INT32 NodeOffset;
+  EFI_STATUS Status;
+  INT32  FdtStatus;
+  UINT32 EthernetId;
+
+  EthernetId = 0;
+
+  if (fdt_path_offset(Dtb, "/aliases") < 0) {
+    return EFI_SUCCESS;
+  }
+
+  /* Cycle through all aliases */
+  for (Prop = 0; ; Prop++) {
+    /* FDT might have been changed, recompute the offset */
+    NodeOffset = fdt_first_property_offset(Dtb, fdt_path_offset(Dtb, "/aliases"));
+    /* Select property number 'prop' */
+    for (I = 0; I < Prop; I++) {
+      NodeOffset = fdt_next_property_offset(Dtb, NodeOffset);
+    }
+
+    if (NodeOffset < 0) {
+      break;
+    }
+
+    Path = fdt_getprop_by_offset(Dtb, NodeOffset, &Name, NULL);
+    if (!AsciiStrnCmp(Name, "ethernet", AsciiStrLen("ethernet"))) {
+      Status = MacReadFromEeprom (EthernetId, MacAddr);
+      if (EFI_ERROR (Status)) {
+        Status = GenerateMacAddress (EthernetId, MacAddr);
+      }
+      if (EFI_ERROR (Status)) {
+        DEBUG ((DEBUG_ERROR, "Error getting mac address for Ethernet %d status %r\n", EthernetId, Status));
+        return EFI_DEVICE_ERROR;
+      }
+      EthernetId++;
+
+      NodeOffset = fdt_path_offset (Dtb, Path);
+      if (NodeOffset < 0) {
+        DEBUG ((DEBUG_ERROR, "Did not find path %a for alias %a\n", Path, Name));
+      }
+
+      if (fdt_getprop (Dtb, NodeOffset, "mac-address", NULL) != NULL) {
+        FdtStatus = fdt_setprop (Dtb, NodeOffset, "mac-address", MacAddr, sizeof(MacAddr));
+        if (FdtStatus) {
+          DEBUG ((DEBUG_ERROR, "Not able to set mac-address %a\n", fdt_strerror (FdtStatus)));
+          return EFI_DEVICE_ERROR;
+        }
+      }
+
+      FdtStatus = fdt_setprop (Dtb, NodeOffset, "local-mac-address", MacAddr, sizeof(MacAddr));
+      if (FdtStatus) {
+        DEBUG ((DEBUG_ERROR, "Not able to set local-mac-address %a\n", fdt_strerror (FdtStatus)));
+        return EFI_DEVICE_ERROR;
+      }
+    }
+  }
+
+  return EFI_SUCCESS;
+}
+
 EFI_STATUS
 FdtFixupDpaa1 (
   IN  VOID  *Dtb
@@ -314,6 +391,11 @@ FdtFixupDpaa1 (
   }
 
   Status = FdtFixupBmanVersion (Dtb);
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  Status = FdtFixupMacAddresses (Dtb);
   if (EFI_ERROR (Status)) {
     return Status;
   }

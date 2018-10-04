@@ -46,6 +46,7 @@
   ItbParseLib
   MemoryAllocationLib
   SocClockLib
+  SysEepromLib
   UefiBootServicesTableLib
   UefiDriverEntryPoint
 
