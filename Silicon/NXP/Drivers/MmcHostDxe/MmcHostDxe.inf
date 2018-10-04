@@ -31,12 +31,17 @@
 [LibraryClasses]
   BaseLib
   BaseMemoryLib
+  FdtLib
   MmcLib
+  SocClockLib
   TimerLib
   UefiDriverEntryPoint
 
 [Protocols]
   gEfiMmcHostProtocolGuid
+
+[Guids]
+  gFdtTableGuid
 
 [Depex]
   TRUE

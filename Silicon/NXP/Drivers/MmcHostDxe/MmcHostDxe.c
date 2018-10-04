@@ -13,12 +13,14 @@
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 **/
-
+#include <libfdt.h>
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib.h>
 #include <Library/DevicePathLib.h>
 #include <Library/MmcLib.h>
+#include <Library/SocClockLib.h>
 #include <Library/UefiBootServicesTableLib.h>
+#include <Library/UefiLib.h>
 #include <Protocol/MmcHost.h>
 
 STATIC SD_CMD Cmd;
@@ -391,6 +393,44 @@ EFI_MMC_HOST_PROTOCOL gMmcHost = {
 };
 
 /**
+  insert the MMC peripheral clock info into the device tree
+
+  @param[in] Dtb     Dtb Image into which MMC peripheral clock info is to be inserted.
+
+  @retval EFI_DEVICE_ERROR    Fail to add MMC peripheral clock info to Device tree.
+  @retval EFI_SUCCES          MMC peripheral clock info inserted into Device tree.
+**/
+EFI_STATUS
+FdtFixupMmc (
+  IN VOID *Dtb
+  )
+{
+  UINT64   MmcClk;
+  INT32    NodeOffset;
+  INT32    FdtStatus;
+
+  NodeOffset = fdt_node_offset_by_compatible (Dtb, -1, "fsl,esdhc");
+  // if node not found, silently return
+  if (NodeOffset < 0) {
+    return EFI_SUCCESS;
+  }
+
+  MmcClk = SocGetClock (IP_ESDHC, 0);
+  if (!MmcClk) {
+    DEBUG ((DEBUG_ERROR, "Invalid Mmc clock\n"));
+    return EFI_SUCCESS;
+  }
+
+  FdtStatus = fdt_setprop_u32 (Dtb, NodeOffset, "clock-frequency", MmcClk);
+  if (FdtStatus) {
+    DEBUG ((DEBUG_ERROR, "fdt_setprop/esdhc: Could not add property, %a!!\n", fdt_strerror (FdtStatus)));
+    return EFI_DEVICE_ERROR;
+  }
+
+  return EFI_SUCCESS;
+}
+
+/**
   Function to install MMC Host Protocol gEfiMmcHostProtocolGuid
 **/
 EFI_STATUS
@@ -401,8 +441,10 @@ MmcHostDxeEntryPoint (
 {
   EFI_STATUS                   Status;
   EFI_HANDLE                   Handle;
+  VOID                         *Dtb;
 
   Handle = NULL;
+  Dtb = NULL;
 
   Status = gBS->InstallMultipleProtocolInterfaces (
                   &Handle,
@@ -413,6 +455,14 @@ MmcHostDxeEntryPoint (
   if (EFI_ERROR(Status)) {
     DEBUG ((DEBUG_ERROR, "Failed to install gEfiMmcHostProtocolGuid\n"));
   }
+
+  Status = EfiGetSystemConfigurationTable (&gFdtTableGuid, &Dtb);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "Did not find the Dtb Blob.\n"));
+    return EFI_NOT_FOUND;
+  }
+
+  Status = FdtFixupMmc (Dtb);
 
   return Status;
 }
