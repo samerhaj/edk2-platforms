@@ -30,7 +30,7 @@ print_usage_banner()
 {
     echo ""
     echo "This shell script expects:"
-    echo "    Arg 1 (mandatory): SoC Type (can be LS1043 / LS1046 / LS2088)."
+    echo "    Arg 1 (mandatory): SoC Type (can be LS1043 / LS1046 / LS2088 / LX2160)."
     echo "    Arg 2 (mandatory): Board Type (can be RDB / QDS)."
     echo "    Arg 3 (mandatory): Build candidate (can be RELEASE or DEBUG). By
               default we build the RELEASE candidate."
@@ -59,7 +59,7 @@ if [[ $1 == "" || $2 == "" || $3 == "" ]]; then
 fi
 
 # Check for input arguments
-if [[ $1 != "LS1043" && $1 != "LS1046" && $1 != "LS2088" ]]; then
+if [[ $1 != "LS1043" && $1 != "LS1046" && $1 != "LS2088" && $1 != "LX2160" ]]; then
   echo "Error ! Incorrect Soc Type specified."
   print_usage_banner
   exit

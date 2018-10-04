@@ -26,6 +26,7 @@
   Aquantia.c
   Cortina.c
   PhyCommon.c
+  Qualcomm.c
 
 [Packages]
   MdePkg/MdePkg.dec

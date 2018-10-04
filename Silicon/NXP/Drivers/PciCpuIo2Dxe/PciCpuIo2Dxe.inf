@@ -40,6 +40,8 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp2BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp3BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp4BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp5BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp6BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdNumPciController
 
 [Protocols]

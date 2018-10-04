@@ -28,6 +28,7 @@
   BaseMemoryLib
   BeIoLib
   DmaLib
+  SocLib
 
 [Packages]
   EmbeddedPkg/EmbeddedPkg.dec

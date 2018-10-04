@@ -1,0 +1,58 @@
+#  @file
+#
+#  Copyright 2018 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = SocLib
+  FILE_GUID                      = 3b233a6a-0ee1-42a3-a7f7-c285b5ba80dc
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SocLib
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  MdePkg/MdePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+  Silicon/NXP/Chassis/Chassis3V2/Chassis3V2.dec
+  Silicon/NXP/LX2160A/LX2160A.dec
+
+[LibraryClasses]
+  ArmSmcLib
+  BaseLib
+  BeIoLib
+  DebugLib
+  FpgaLib
+  SerialPortLib
+
+[Sources.common]
+  Chassis.c
+  Chassis3V2/Soc.c
+  SerDes.c
+  SocHelper.S
+
+[FixedPcd]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString
+  gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPlatformFreqDiv
+  gNxpQoriqLsTokenSpaceGuid.PcdSerdes2Enabled
+  gNxpQoriqLsTokenSpaceGuid.PcdGurBigEndian
+  gNxpQoriqLsTokenSpaceGuid.PcdClkBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdDdrClk
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieExp1SysAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieExp2SysAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieExp3SysAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieExp4SysAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieExp5SysAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieExp6SysAddr

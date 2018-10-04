@@ -44,7 +44,11 @@
   gNxpQoriqLsTokenSpaceGuid.PcdNumPciController
   gNxpQoriqLsTokenSpaceGuid.PcdPcieLutBase
   gNxpQoriqLsTokenSpaceGuid.PcdPcieLutDbg
+  gNxpQoriqLsTokenSpaceGuid.PcdPciDebug
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp1BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp2BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp3BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp4BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp5BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp6BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieConfigurePex

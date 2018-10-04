@@ -50,6 +50,7 @@ STATIC const CHAR8 *const gPhyInterfaceTypeStrings[] = {
   [PHY_INTERFACE_XGMII] = "xgmii",
   [PHY_INTERFACE_SGMII] = "sgmii",
   [PHY_INTERFACE_QSGMII] = "qsgmii",
+  [PHY_INTERFACE_RGMII] = "rgmii",
 };
 
 #define WRIOP_DPMAC_INITIALIZER(_DpmacId) \
@@ -124,6 +125,7 @@ WriopDpmacInit (
   DPAA2_PHY_MDIO_BUS  *MdioBus,
   UINT8               PhyAddress,
   PHY_MEDIA_TYPE      PhyMediaType,
+  UINT8               PhyId,
   LIST_ENTRY          *EnabledDpmacsList
   )
 {
@@ -139,12 +141,13 @@ WriopDpmacInit (
   Dpmac->Phy.MdioBus = MdioBus;
   Dpmac->Phy.PhyAddress = PhyAddress;
   Dpmac->Phy.PhyMediaType = PhyMediaType;
+  Dpmac->Phy.PhyId = PhyId;
 
   DPAA_INFO_MSG (
-    "Dpmac %a  PHY type %a, %a\n",
+    "Dpmac %a  PHY type %a, %a Media %d PhyId %x \n",
     gWriopDpmacStrings[DpmacId],
     gPhyInterfaceTypeStrings[PhyInterfaceType],
-    Dpmac->Enabled ? "Enabled" : "Disabled");
+    Dpmac->Enabled ? "Enabled" : "Disabled", PhyMediaType,PhyId);
 
   if (Dpmac->Enabled) {
     InitializeListHead (&Dpmac->ListNode);

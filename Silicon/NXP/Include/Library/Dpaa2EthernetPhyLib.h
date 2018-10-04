@@ -59,6 +59,10 @@ typedef struct _MEMAC_MDIO_BUS_REGS {
   UINT32 MdioAddr;
 } MEMAC_MDIO_BUS_REGS;
 
+/**
+ * Phy Id for QC phy
+ */
+#define QC_PHY 0x5A
 
 /**
  * Control block kept for a PHY MDIO bus
@@ -81,6 +85,7 @@ typedef enum _PHY_INTERFACE_TYPE {
   PHY_INTERFACE_XGMII = 0,
   PHY_INTERFACE_SGMII,
   PHY_INTERFACE_QSGMII,
+  PHY_INTERFACE_RGMII,
 
   /*
    * New values must added above this entry
@@ -123,6 +128,11 @@ typedef struct _DPAA2_PHY {
    * PHY address on the MDIO bus for this PHY
    */
   UINT8 PhyAddress;
+
+  /**
+   * PHY Id,
+   */
+  UINT8 PhyId;
 
   /**
    * Boolean flag indicating if the physical link is up (TRUE) or down (FALSE)

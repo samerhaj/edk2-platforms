@@ -98,6 +98,8 @@
   gNxpQoriqLsTokenSpaceGuid.PcdIfcBaseAddr|0x0|UINT64|0x0000012B
   gNxpQoriqLsTokenSpaceGuid.PcdRomBaseAddr|0x0|UINT64|0x0000012C
   gNxpQoriqLsTokenSpaceGuid.PcdRomSize|0x0|UINT64|0x0000012D
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp5BaseAddr|0x0|UINT64|0x0000012E
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp6BaseAddr|0x0|UINT64|0x0000012F
 
   #
   # USB PCDs
@@ -111,6 +113,13 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPcieLutDbg|0x0|UINT32|0x000001D1
   gNxpQoriqLsTokenSpaceGuid.PcdPciDebug|FALSE|BOOLEAN|0x000001D2
   gNxpQoriqLsTokenSpaceGuid.PcdNumPciController|0|UINT32|0x000001D3
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieConfigurePex|FALSE|BOOLEAN|0x000001D4
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieExp1SysAddr|0x0|UINT64|0x000001D5
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieExp2SysAddr|0x0|UINT64|0x000001D6
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieExp3SysAddr|0x0|UINT64|0x000001D7
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieExp4SysAddr|0x0|UINT64|0x000001D8
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieExp5SysAddr|0x0|UINT64|0x000001D9
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieExp6SysAddr|0x0|UINT64|0x000001DA
 
   #
   # IFC PCDs

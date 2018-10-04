@@ -101,6 +101,7 @@ WriopDpmacInit (
   DPAA2_PHY_MDIO_BUS *MdioBus,
   UINT8              PhyAddress,
   PHY_MEDIA_TYPE     PhyMediaType,
+  UINT8              PhyId,
   LIST_ENTRY         *EnabledDmpacsList
   );
 

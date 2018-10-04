@@ -1,0 +1,36 @@
+#  LX2160aRdbPkg.dec
+#  LX2160a board package.
+#
+#  Copyright 2018 NXP
+#
+#  This program and the accompanying materials are licensed and made available under
+#  the terms and conditions of the BSD License which accompanies this distribution.
+#  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+
+[Defines]
+  PACKAGE_NAME                   = LX2160aRdbPkg
+  PACKAGE_GUID                   = 474e0c59-5f77-4060-82dd-9025ee4f4939
+
+################################################################################
+#
+# Include Section - list of Include Paths that are provided by this package.
+#                   Comments are used for Keywords and Module Types.
+#
+# Supported Module Types:
+#  BASE SEC PEI_CORE PEIM DXE_CORE DXE_DRIVER DXE_RUNTIME_DRIVER DXE_SMM_DRIVER DXE_SAL_DRIVER UEFI_DRIVER UEFI_APPLICATION
+#
+################################################################################
+[Includes.common]
+  Include                        # Root include for the package
+
+[PcdsFixedAtBuild.common]
+  gNxpQoriqLsTokenSpaceGuid.PcdFvNorSize|0x0|UINT32|0x0000409
+  gNxpQoriqLsTokenSpaceGuid.PcdFvNorBaseAddress|0x0|UINT64|0x000040A
+  gNxpQoriqLsTokenSpaceGuid.PcdOcram1BaseAddr|0x18000000|UINT64|0x000040B
+  gNxpQoriqLsTokenSpaceGuid.PcdOcram1Size|0x00200000|UINT64|0x0000040C
+

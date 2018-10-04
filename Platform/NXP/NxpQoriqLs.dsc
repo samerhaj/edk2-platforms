@@ -1,6 +1,6 @@
 #  @file
 #
-#  Copyright 2017 NXP.
+#  Copyright 2017 NXP
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License

@@ -13,7 +13,7 @@
 #
 
 [Defines]
-  INF_VERSION                     = 0x0001000A
+  INF_VERSION                     = 0x0001001A
   BASE_NAME                       = UsbHcdDxe
   FILE_GUID                       = 196e7c2a-37b2-4b85-8683-718588952449
   MODULE_TYPE                     = DXE_DRIVER

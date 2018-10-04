@@ -12,7 +12,7 @@
 #
 
 [Defines]
-  INF_VERSION                    = 0x0001000A
+  INF_VERSION                    = 0x0001001A
   BASE_NAME                      = FpgaLib
   FILE_GUID                      = 6e06ebbf-3a1d-47be-b4f6-1d82f2a9ac73
   MODULE_TYPE                    = BASE

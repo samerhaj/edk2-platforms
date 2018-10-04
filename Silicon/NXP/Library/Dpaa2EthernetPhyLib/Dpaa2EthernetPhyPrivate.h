@@ -23,6 +23,7 @@
 /*
  * MDIO control device addresses
  */
+#define MDIO_CTL_DEVAD_NONE                    (-1)
 
 /**
  * Physical Medium Attachment/Physical Medium Dependent
@@ -87,6 +88,11 @@ AquantiaPhyStartup (
 
 EFI_STATUS
 CortinaPhyConfig (
+  DPAA2_PHY *Dpaa2Phy
+  );
+
+EFI_STATUS
+QC8035PhyConfig (
   DPAA2_PHY *Dpaa2Phy
   );
 

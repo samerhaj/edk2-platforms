@@ -37,6 +37,11 @@ typedef struct _DPMAC_PHY_MAPPING {
    * PHY media type:
    */
   PHY_MEDIA_TYPE PhyMediaType;
+
+  /**
+   * PHY Id of the associated PHY
+   */
+  UINT8 PhyId;
 } DPMAC_PHY_MAPPING;
 
 /**
@@ -133,6 +138,7 @@ Dpaa2DiscoverWriopDpmac (
                    gDpmacToPhyMap[DpmacId].MdioBus,
                    gDpmacToPhyMap[DpmacId].PhyAddress,
                    gDpmacToPhyMap[DpmacId].PhyMediaType,
+                   gDpmacToPhyMap[DpmacId].PhyId,
                    Arg);
   }
 }

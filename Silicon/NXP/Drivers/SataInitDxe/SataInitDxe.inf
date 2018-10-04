@@ -14,7 +14,7 @@
 ##
 
 [Defines]
-  INF_VERSION                    = 0x0001000A
+  INF_VERSION                    = 0x0001001A
   BASE_NAME                      = SataInit
   FILE_GUID                      = 021722D8-522B-4079-852A-FE44C2C13F49
   MODULE_TYPE                    = DXE_DRIVER

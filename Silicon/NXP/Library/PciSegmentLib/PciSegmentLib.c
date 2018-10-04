@@ -13,12 +13,13 @@
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 **/
-
+#include <PiDxe.h>
 #include <Base.h>
 #include <Library/PciSegmentLib.h>
 #include <Library/BaseLib.h>
 #include <Library/DebugLib.h>
 #include <Library/IoLib.h>
+#include <Library/MemoryAllocationLib.h>
 #include <Library/PcdLib.h>
 #include <Pcie.h>
 
@@ -95,10 +96,53 @@ PciSegmentLibGetConfigBase (
         // On Bus 0 RCs are connected
         return PCI_SEG3_DBI_BASE;
       }
+    // Root Complex 5
+    case PCI_SEG4_NUM:
+      // Reading bus number(bits 20-27)
+      if ((Address >> 20) & 1) {
+        return PCI_SEG4_MMIO_MEMBASE;
+      } else {
+        // On Bus 0 RCs are connected
+        return PCI_SEG4_DBI_BASE;
+      }
+    // Root Complex 6
+    case PCI_SEG5_NUM:
+      // Reading bus number(bits 20-27)
+      if ((Address >> 20) & 1) {
+        return PCI_SEG5_MMIO_MEMBASE;
+      } else {
+        // On Bus 0 RCs are connected
+        return PCI_SEG5_DBI_BASE;
+      }
     default:
       return 0;
   }
 
+}
+
+/**
+  Function to select page among the 48 1KB pages for
+  AXI access
+
+  @param[in]  Dbi    GPEX host controller address.
+  @param[in]  PgIdx  The page index to select
+
+**/
+STATIC
+VOID
+CcsrSetPg (
+  IN EFI_PHYSICAL_ADDRESS Dbi,
+  IN UINT8 PgIdx
+  )
+{
+  UINT32 Val;
+  Val = MmioRead32 (Dbi + PAB_CTRL);
+  // Bit 18:13 of Bridge Control Register(PAB) denotes page select
+  // Mask is 6 bits and shift is 13 to select page
+  Val &= ~(PAB_CTRL_PAGE_SEL_MASK << PAB_CTRL_PAGE_SEL_SHIFT);
+  Val |= (PgIdx & PAB_CTRL_PAGE_SEL_MASK) << PAB_CTRL_PAGE_SEL_SHIFT;
+
+  MmioWrite32 (Dbi + PAB_CTRL, Val);
 }
 
 /**
@@ -132,6 +176,17 @@ PciSegmentLibReadWorker (
   Offset = (Address & 0xfff );
 
   Base = PciSegmentLibGetConfigBase (Address, Segment);
+
+  if (PcdGetBool (PcdPcieConfigurePex)) {
+    if ((Address >> 20) & 1) {
+      if (Offset < INDIRECT_ADDR_BNDRY) {
+        CcsrSetPg ((UINTN)Base, 0);
+      } else {
+        CcsrSetPg ((UINTN)Base, OFFSET_TO_PAGE_IDX (Offset));
+        Offset = OFFSET_TO_PAGE_ADDR (Offset);
+      }
+    }
+  }
 
   //
   // ignore devices > 0 on bus 0
@@ -193,6 +248,17 @@ PciSegmentLibWriteWorker (
   Offset = (Address & 0xfff );
 
   Base = PciSegmentLibGetConfigBase (Address, Segment);
+
+  if (PcdGetBool (PcdPcieConfigurePex)) {
+    if ((Address >> 20) & 1) {
+      if (Offset < INDIRECT_ADDR_BNDRY) {
+        CcsrSetPg ((UINTN)Base, 0);
+      } else {
+        CcsrSetPg ((UINTN)Base, OFFSET_TO_PAGE_IDX (Offset));
+        Offset = OFFSET_TO_PAGE_ADDR (Offset);
+      }
+    }
+  }
 
   //
   // ignore devices > 0 on bus 0

@@ -125,6 +125,52 @@ STATIC CONST EFI_PCI_ROOT_BRIDGE_DEVICE_PATH mEfiPciRootBridgeDevicePath[] = {
         0
       }
     }
+  },
+  {
+    {
+      {
+        ACPI_DEVICE_PATH,
+        ACPI_DP,
+        {
+          (UINT8)(sizeof (ACPI_HID_DEVICE_PATH)),
+          (UINT8)(sizeof (ACPI_HID_DEVICE_PATH) >> 8)
+        }
+      },
+      EISA_PNP_ID (0x0A08), // PCI Express
+      PCI_SEG4_NUM
+    },
+
+    {
+      END_DEVICE_PATH_TYPE,
+      END_ENTIRE_DEVICE_PATH_SUBTYPE,
+      {
+        END_DEVICE_PATH_LENGTH,
+        0
+      }
+    }
+  },
+  {
+    {
+      {
+        ACPI_DEVICE_PATH,
+        ACPI_DP,
+        {
+          (UINT8)(sizeof (ACPI_HID_DEVICE_PATH)),
+          (UINT8)(sizeof (ACPI_HID_DEVICE_PATH) >> 8)
+        }
+      },
+      EISA_PNP_ID (0x0A08), // PCI Express
+      PCI_SEG5_NUM
+    },
+
+    {
+      END_DEVICE_PATH_TYPE,
+      END_ENTIRE_DEVICE_PATH_SUBTYPE,
+      {
+        END_DEVICE_PATH_LENGTH,
+        0
+      }
+    }
   }
 };
 
@@ -146,6 +192,82 @@ CHAR16 *mPciHostBridgeLibAcpiAddressSpaceTypeStr[] = {
 PCI_ROOT_BRIDGE mPciRootBridges[NUM_PCIE_CONTROLLER];
 
 /**
+  Function to select page among the 48 1KB pages for
+  AXI access
+
+  @param  Dbi    GPEX host controller address.
+  @param  PgIdx  The page index to select
+
+**/
+VOID
+CcsrSetPg (
+  IN EFI_PHYSICAL_ADDRESS Dbi,
+  IN UINT8 PgIdx
+  )
+{
+  UINT32 Val;
+  Val = MmioRead32 (Dbi + PAB_CTRL);
+  // Bit 18:13 of Bridge Control Register(PAB) denotes page select
+  // Mask is 6 bits and shift is 13 to select page
+  Val &= ~(PAB_CTRL_PAGE_SEL_MASK << PAB_CTRL_PAGE_SEL_SHIFT);
+  Val |= (PgIdx & PAB_CTRL_PAGE_SEL_MASK) << PAB_CTRL_PAGE_SEL_SHIFT;
+
+  MmioWrite32 (Dbi + PAB_CTRL, Val);
+}
+
+/**
+  Function to read PCIe config address
+
+  @param  Dbi     GPEX host controller address.
+  @param  Offset  Offset to read from
+
+**/
+INTN
+CcsrRead32 (
+ IN EFI_PHYSICAL_ADDRESS Dbi,
+ IN UINT32 Offset
+  )
+{
+
+  // If Offset < 3KB direct addressing
+  // is used
+  if (Offset < INDIRECT_ADDR_BNDRY) {
+    CcsrSetPg (Dbi, 0);
+    return MmioRead32 (Dbi + Offset);
+  } else {
+    // If Offset > 3KB than paging mechanism is used
+    // with indirect address mechanism
+    // Select page index and offset within the page
+    CcsrSetPg (Dbi, OFFSET_TO_PAGE_IDX (Offset));
+    return MmioRead32 (Dbi + OFFSET_TO_PAGE_ADDR (Offset));
+  }
+}
+
+/**
+  Function to write PCIe Controller config address
+
+  @param  Dbi     GPEX host controller address
+  @param  Offset  Offset to read from
+
+**/
+VOID
+CcsrWrite32 (
+ IN EFI_PHYSICAL_ADDRESS Dbi,
+ IN UINT32 Offset,
+ IN UINT32 Value
+  )
+{
+
+  if (Offset < INDIRECT_ADDR_BNDRY) {
+    CcsrSetPg (Dbi, 0);
+    MmioWrite32 (Dbi + Offset, Value);
+  } else {
+    CcsrSetPg (Dbi, OFFSET_TO_PAGE_IDX (Offset));
+    MmioWrite32 (Dbi + OFFSET_TO_PAGE_ADDR (Offset), Value);
+  }
+}
+
+/**
   Function to set-up iATU outbound window for PCIe controller
 
   @param Dbi     Address of PCIe host controller.
@@ -158,7 +280,7 @@ PCI_ROOT_BRIDGE mPciRootBridges[NUM_PCIE_CONTROLLER];
 **/
 STATIC
 VOID
-PcieIatuOutboundSet (
+PcieOutboundSet (
   IN EFI_PHYSICAL_ADDRESS Dbi,
   IN UINT32 Idx,
   IN UINT32 Type,
@@ -167,22 +289,52 @@ PcieIatuOutboundSet (
   IN UINT64 Size
   )
 {
-  MmioWrite32 (Dbi + IATU_VIEWPORT_OFF,
-              (UINT32)(IATU_VIEWPORT_OUTBOUND | Idx));
-  MmioWrite32 (Dbi + IATU_LWR_BASE_ADDR_OFF_OUTBOUND_0,
-              (UINT32)Phys);
-  MmioWrite32 (Dbi + IATU_UPPER_BASE_ADDR_OFF_OUTBOUND_0,
-              (UINT32)(Phys >> 32));
-  MmioWrite32 (Dbi + IATU_LIMIT_ADDR_OFF_OUTBOUND_0,
-              (UINT32)(Phys + Size - BIT0));
-  MmioWrite32 (Dbi + IATU_LWR_TARGET_ADDR_OFF_OUTBOUND_0,
-              (UINT32)BusAddr);
-  MmioWrite32 (Dbi + IATU_UPPER_TARGET_ADDR_OFF_OUTBOUND_0,
-              (UINT32)(BusAddr >> 32));
-  MmioWrite32 (Dbi + IATU_REGION_CTRL_1_OFF_OUTBOUND_0,
-              (UINT32)Type);
-  MmioWrite32 (Dbi + IATU_REGION_CTRL_2_OFF_OUTBOUND_0,
-              IATU_REGION_CTRL_2_OFF_OUTBOUND_0_REGION_EN);
+  if (PcdGetBool (PcdPcieConfigurePex)) {
+    UINT32 Val = 0;
+
+    // Program AXI window base with appropriate PCIe physical address space
+    // values in Bridge Address mapping window Register
+    CcsrWrite32 ((UINTN)Dbi, PAB_AXI_AMAP_AXI_WIN (Idx), (UINT32)Phys);
+    CcsrWrite32 ((UINTN)Dbi, PAB_EXT_AXI_AMAP_AXI_WIN (Idx), Phys >> 32);
+    // Program PEX Address base with appropriate Bus Address values in
+    // Bridge address mapping window
+    CcsrWrite32 ((UINTN)Dbi, PAB_AXI_AMAP_PEX_WIN_L (Idx), (UINT32)BusAddr);
+    CcsrWrite32 ((UINTN)Dbi, PAB_AXI_AMAP_PEX_WIN_H (Idx), BusAddr >> 32);
+    // Program the size of window
+    CcsrWrite32 ((UINTN)Dbi, PAB_EXT_AXI_AMAP_SIZE (Idx), (UINT64)Size >> 32);
+
+    // Mapping AXI transactions to PEX address
+    Val = CcsrRead32 ((UINTN)Dbi, PAB_AXI_AMAP_CTRL (Idx));
+    Val &= ~((AXI_AMAP_CTRL_TYPE_MASK << AXI_AMAP_CTRL_TYPE_SHIFT) |
+             (AXI_AMAP_CTRL_SIZE_MASK << AXI_AMAP_CTRL_SIZE_SHIFT) |
+              AXI_AMAP_CTRL_EN);
+    // Type indicates the type of AXI transaction to the window address is mapped
+    // to CFG/IO/MEM
+    Val |= ((Type & AXI_AMAP_CTRL_TYPE_MASK) << AXI_AMAP_CTRL_TYPE_SHIFT) |
+           (((UINT32)Size >> AXI_AMAP_CTRL_SIZE_SHIFT) <<
+             AXI_AMAP_CTRL_SIZE_SHIFT) | AXI_AMAP_CTRL_EN;
+    // Program Address mapping enable, other fields with desired values in Bridge
+    // control Register
+    // Contols the mapping of address for AXI transactions to PEX address
+    CcsrWrite32 ((UINTN)Dbi, PAB_AXI_AMAP_CTRL (Idx), Val);
+  } else {
+    MmioWrite32 (Dbi + IATU_VIEWPORT_OFF,
+                (UINT32)(IATU_VIEWPORT_OUTBOUND | Idx));
+    MmioWrite32 (Dbi + IATU_LWR_BASE_ADDR_OFF_OUTBOUND_0,
+                (UINT32)Phys);
+    MmioWrite32 (Dbi + IATU_UPPER_BASE_ADDR_OFF_OUTBOUND_0,
+                (UINT32)(Phys >> 32));
+    MmioWrite32 (Dbi + IATU_LIMIT_ADDR_OFF_OUTBOUND_0,
+                (UINT32)(Phys + Size - BIT0));
+    MmioWrite32 (Dbi + IATU_LWR_TARGET_ADDR_OFF_OUTBOUND_0,
+                (UINT32)BusAddr);
+    MmioWrite32 (Dbi + IATU_UPPER_TARGET_ADDR_OFF_OUTBOUND_0,
+                (UINT32)(BusAddr >> 32));
+    MmioWrite32 (Dbi + IATU_REGION_CTRL_1_OFF_OUTBOUND_0,
+                (UINT32)Type);
+    MmioWrite32 (Dbi + IATU_REGION_CTRL_2_OFF_OUTBOUND_0,
+                IATU_REGION_CTRL_2_OFF_OUTBOUND_0_REGION_EN);
+ }
 }
 
 /**
@@ -290,6 +442,60 @@ IsPcieNumEnabled(
   return FALSE;
 }
 
+STATIC
+VOID
+PcieSetupWindow (
+  IN EFI_PHYSICAL_ADDRESS Pcie,
+  IN EFI_PHYSICAL_ADDRESS Cfg0Base,
+  IN EFI_PHYSICAL_ADDRESS Cfg1Base,
+  IN EFI_PHYSICAL_ADDRESS MemBase,
+  IN EFI_PHYSICAL_ADDRESS IoBase
+  )
+{
+  IoBase = Cfg0Base + LX_PEX_CFG_SIZE;
+
+  // ATU 0 : OUTBOUND : CFG0
+  PcieOutboundSet (Pcie, IATU_REGION_INDEX0,
+                         PAB_AXI_TYPE_CFG,
+                         Cfg0Base,
+                         SEG_CFG_BUS,
+                         LX_PEX_CFG_SIZE);
+  // ATU 2 : OUTBOUND : IO
+  PcieOutboundSet (Pcie, IATU_REGION_INDEX1,
+                         PAB_AXI_TYPE_IO,
+                         IoBase,
+                         SEG_CFG_BUS,
+                         SEG_CFG_SIZE);
+
+  // ATU 3 : OUTBOUND : MEM
+  PcieOutboundSet (Pcie, IATU_REGION_INDEX2,
+                         PAB_AXI_TYPE_MEM,
+                         MemBase,
+                         SEG_MEM_BUS,
+                         SEG_MEM_SIZE);
+
+  if (FeaturePcdGet (PcdPciDebug) == TRUE) {
+    INTN Cnt;
+    for (Cnt = 0; Cnt <= IATU_REGION_INDEX2; Cnt++) {
+      DEBUG ((DEBUG_INFO,"AMAP WINDOW%d:\n", Cnt));
+      DEBUG ((DEBUG_INFO,"\tLOWER PHYS 0x%08x\n",
+              CcsrRead32 ((UINTN)Pcie, PAB_AXI_AMAP_AXI_WIN (Cnt))));
+      DEBUG ((DEBUG_INFO,"\tUPPER PHYS 0x%08x\n",
+              CcsrRead32 ((UINTN)Pcie, PAB_EXT_AXI_AMAP_AXI_WIN (Cnt))));
+      DEBUG ((DEBUG_INFO,"\tLOWER BUS  0x%08x\n",
+              CcsrRead32 ((UINTN)Pcie, PAB_AXI_AMAP_PEX_WIN_L (Cnt))));
+      DEBUG ((DEBUG_INFO,"\tUPPER BUS  0x%08x\n",
+              CcsrRead32 ((UINTN)Pcie, PAB_AXI_AMAP_PEX_WIN_H (Cnt))));
+      DEBUG ((DEBUG_INFO,"\tSIZE      0x%08x\n",
+              CcsrRead32 ((UINTN)Pcie, PAB_AXI_AMAP_CTRL (Cnt)) & (AXI_AMAP_CTRL_SIZE_MASK << AXI_AMAP_CTRL_SIZE_SHIFT)));
+      DEBUG ((DEBUG_INFO,"\tEXT_SIZE        0x%08x\n",
+              CcsrRead32 ((UINTN)Pcie, PAB_EXT_AXI_AMAP_SIZE (Cnt))));
+      DEBUG ((DEBUG_INFO,"\tCTRL:        0x%08x\n",
+              CcsrRead32 ((UINTN)Pcie, PAB_AXI_AMAP_CTRL (Cnt))));
+    }
+  }
+}
+
 /**
   Function to set-up iATU outbound window for PCIe controller
 
@@ -313,7 +519,7 @@ PcieSetupAtu (
   //
   // iATU : OUTBOUND WINDOW 0 : CFG0
   //
-  PcieIatuOutboundSet (Pcie, IATU_REGION_INDEX0,
+  PcieOutboundSet (Pcie, IATU_REGION_INDEX0,
                             IATU_REGION_CTRL_1_OFF_OUTBOUND_0_TYPE_CFG0,
                             Cfg0Base,
                             SEG_CFG_BUS,
@@ -321,7 +527,7 @@ PcieSetupAtu (
 
   //
   // iATU : OUTBOUND WINDOW 1 : CFG1
-  PcieIatuOutboundSet (Pcie, IATU_REGION_INDEX1,
+  PcieOutboundSet (Pcie, IATU_REGION_INDEX1,
                             IATU_REGION_CTRL_1_OFF_OUTBOUND_0_TYPE_CFG1,
                             Cfg1Base,
                             SEG_CFG_BUS,
@@ -329,7 +535,7 @@ PcieSetupAtu (
   //
   // iATU 2 : OUTBOUND WINDOW 2 : MEM
   //
-  PcieIatuOutboundSet (Pcie, IATU_REGION_INDEX2,
+  PcieOutboundSet (Pcie, IATU_REGION_INDEX2,
                             IATU_REGION_CTRL_1_OFF_OUTBOUND_0_TYPE_MEM,
                             MemBase,
                             SEG_MEM_BUS,
@@ -338,7 +544,7 @@ PcieSetupAtu (
   //
   // iATU 3 : OUTBOUND WINDOW 3: IO
   //
-  PcieIatuOutboundSet (Pcie, IATU_REGION_INDEX3,
+  PcieOutboundSet (Pcie, IATU_REGION_INDEX3,
                             IATU_REGION_CTRL_1_OFF_OUTBOUND_0_TYPE_IO,
                             IoBase,
                             SEG_IO_BUS,
@@ -366,18 +572,45 @@ PcieSetupCntrl (
   IN EFI_PHYSICAL_ADDRESS IoBase
   )
 {
-  //
-  // iATU outbound set-up
-  //
-  PcieSetupAtu (Pcie, Cfg0Base, Cfg1Base, MemBase, IoBase);
+  if (PcdGetBool (PcdPcieConfigurePex)) {
+    UINT32 Val;
 
-  //
-  // program correct class for RC
-  //
-  MmioWrite32 ((UINTN)Pcie + PCI_BASE_ADDRESS_0, (BIT0 - BIT0));
-  MmioWrite32 ((UINTN)Pcie + PCI_DBI_RO_WR_EN, (UINT32)BIT0);
-  MmioWrite32 ((UINTN)Pcie + PCI_CLASS_DEVICE, (UINT32)PCI_CLASS_BRIDGE_PCI);
-  MmioWrite32 ((UINTN)Pcie + PCI_DBI_RO_WR_EN, (UINT32)(BIT0 - BIT0));
+    // Enable AMBA & PEX PIO
+    // PEX PIO is used to generate PIO traffic from PCIe Link to AXI
+    Val = CcsrRead32 ((UINTN)Pcie, PAB_CTRL);
+    // Enable AXI-PIO/PEX PIO
+    Val |= PAB_CTRL_APIO_EN | PAB_CTRL_PPIO_EN;
+    // Programm APIO/PPIO in Bridge control register
+    CcsrWrite32 ((UINTN)Pcie, PAB_CTRL, Val);
+
+    // Enable APIO and Memory/IO/CFG Wins
+    Val = CcsrRead32 ((UINTN)Pcie, PAB_AXI_PIO_CTRL (0));
+    // AXI PIO programming
+    // AXI PIO is used to generate PIO traffic from AXI to PCIe Link
+    // Enable AXI-PIO/MEM/IO/CFG
+    Val |= APIO_EN | MEM_WIN_EN | IO_WIN_EN | CFG_WIN_EN;
+    // Programm MEM/IO/CFG window in bridge control register
+    CcsrWrite32 ((UINTN)Pcie, PAB_AXI_PIO_CTRL (0), Val);
+
+    if (FeaturePcdGet (PcdPciDebug) == TRUE) {
+      DEBUG ((DEBUG_INFO, "Going to SetUp PCIe Space Windows\n\n"));
+    }
+
+    PcieSetupWindow (Pcie, Cfg0Base, Cfg1Base, MemBase, IoBase);
+  } else {
+    //
+    // iATU outbound set-up
+    //
+    PcieSetupAtu (Pcie, Cfg0Base, Cfg1Base, MemBase, IoBase);
+
+    //
+    // program correct class for RC
+    //
+    MmioWrite32 ((UINTN)Pcie + PCI_BASE_ADDRESS_0, (BIT0 - BIT0));
+    MmioWrite32 ((UINTN)Pcie + PCI_DBI_RO_WR_EN, (UINT32)BIT0);
+    MmioWrite32 ((UINTN)Pcie + PCI_CLASS_DEVICE, (UINT32)PCI_CLASS_BRIDGE_PCI);
+    MmioWrite32 ((UINTN)Pcie + PCI_DBI_RO_WR_EN, (UINT32)(BIT0 - BIT0));
+  }
 }
 
 /**

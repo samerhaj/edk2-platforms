@@ -257,6 +257,12 @@ CpuMemoryServiceRead (
   } else if ((Address >= PCI_SEG3_MMIO32_MIN) &&
              (Address <= PCI_SEG3_MMIO32_MAX)) {
     Address += PCI_SEG3_MMIO_MEMBASE;
+  } else if ((Address >= PCI_SEG4_MMIO32_MIN) &&
+             (Address <= PCI_SEG4_MMIO32_MAX)) {
+    Address += PCI_SEG4_MMIO_MEMBASE;
+  } else if ((Address >= PCI_SEG5_MMIO32_MIN) &&
+             (Address <= PCI_SEG5_MMIO32_MAX)) {
+    Address += PCI_SEG5_MMIO_MEMBASE;
   } else {
     ASSERT (FALSE);
     return EFI_INVALID_PARAMETER;
@@ -354,6 +360,12 @@ CpuMemoryServiceWrite (
   } else if ((Address >= PCI_SEG3_MMIO32_MIN) &&
              (Address <= PCI_SEG3_MMIO32_MAX)) {
     Address += PCI_SEG3_MMIO_MEMBASE;
+  } else if ((Address >= PCI_SEG4_MMIO32_MIN) &&
+             (Address <= PCI_SEG4_MMIO32_MAX)) {
+    Address += PCI_SEG4_MMIO_MEMBASE;
+  } else if ((Address >= PCI_SEG5_MMIO32_MIN) &&
+             (Address <= PCI_SEG5_MMIO32_MAX)) {
+    Address += PCI_SEG5_MMIO_MEMBASE;
   } else {
     ASSERT (FALSE);
     return EFI_INVALID_PARAMETER;
