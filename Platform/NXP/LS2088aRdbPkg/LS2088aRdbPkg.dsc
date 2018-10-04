@@ -52,6 +52,7 @@
   Dpaa2EthernetPhyLib|Silicon/NXP/Library/Dpaa2EthernetPhyLib/Dpaa2EthernetPhyLib.inf
   Dpaa2ManagementComplexLib|Silicon/NXP/Library/Dpaa2ManagementComplexLib/Dpaa2ManagementComplexLib.inf
   Dpaa2McInterfaceLib|Silicon/NXP/Library/Dpaa2McInterfaceLib/Dpaa2McInterfaceLib.inf
+  SecureMonRngLib|Silicon/NXP/Library/SecureMonRngLib/SecureMonRngLib.inf
 
 [PcdsFixedAtBuild.common]
 
@@ -181,7 +182,7 @@
   Silicon/NXP/Drivers/MmcHostDxe/MmcHostDxe.inf
   Silicon/NXP/Drivers/Dpaa2EthernetDxe/Dpaa2EthernetDxe.inf
   Silicon/NXP/Drivers/ExtendedSystemInitDxe/ExtendedSystemInitDxe.inf
-
   Silicon/NXP/Drivers/NandFlashDxe/NandFlashDxe.inf
+  Silicon/NXP/Drivers/RngDxe/RngDxe.inf
 
  ##

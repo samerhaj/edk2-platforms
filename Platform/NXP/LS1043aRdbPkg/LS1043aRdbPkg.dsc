@@ -45,6 +45,7 @@
   PciSegmentLib|Silicon/NXP/Library/PciSegmentLib/PciSegmentLib.inf
   PciHostBridgeLib|Silicon/NXP/Library/PciHostBridgeLib/PciHostBridgeLib.inf
   MmcLib|Silicon/NXP/Library/MmcLib/MmcLib.inf
+  SecureMonRngLib|Silicon/NXP/Library/SecureMonRngLib/SecureMonRngLib.inf
 
 [PcdsFixedAtBuild.common]
 
@@ -127,6 +128,6 @@
   MdeModulePkg/Bus/Pci/PciBusDxe/PciBusDxe.inf
 
   Silicon/NXP/Drivers/MmcHostDxe/MmcHostDxe.inf
-
   Silicon/NXP/Drivers/NandFlashDxe/NandFlashDxe.inf
+  Silicon/NXP/Drivers/RngDxe/RngDxe.inf
  ##
