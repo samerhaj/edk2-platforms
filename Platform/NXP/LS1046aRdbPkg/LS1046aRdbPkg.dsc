@@ -77,6 +77,9 @@
   #
   gNxpQoriqLsTokenSpaceGuid.PcdI2cBus|3
 
+  gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cBus|0
+  gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cAddress|0x53
+
   #
   # RTC Pcds
   #

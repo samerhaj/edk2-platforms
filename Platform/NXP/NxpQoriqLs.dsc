@@ -103,6 +103,8 @@
   NonDiscoverableDeviceRegistrationLib|MdeModulePkg/Library/NonDiscoverableDeviceRegistrationLib/NonDiscoverableDeviceRegistrationLib.inf
   UefiScsiLib|MdePkg/Library/UefiScsiLib/UefiScsiLib.inf
   ItbParseLib|Silicon/NXP/Library/ItbParseLib/ItbParse.inf
+  I2cLib|Silicon/NXP/Library/I2cLib/I2cLib.inf
+  SysEepromLib|Silicon/NXP/Library/SysEepromLib/SysEepromLib.inf
 
 [LibraryClasses.common.SEC]
   PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf

@@ -1,0 +1,45 @@
+#/** @file SysEepromLib.inf
+#
+#  Component description file for SystemID Non-Volatile Memory Device
+#
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = SysEepromLib
+  FILE_GUID                      = 4d5b15b6-4a2b-480c-aa6c-2f07ee34e6a4
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = SysEepromLib
+
+[Sources.common]
+  SysEepromLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[LibraryClasses]
+  BaseLib
+  BaseMemoryLib
+  DebugLib
+  I2cLib
+  MemoryAllocationLib
+  PcdLib
+  UefiBootServicesTableLib
+
+[Pcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cBus
+  gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cAddress
+  gNxpQoriqLsTokenSpaceGuid.PcdI2cSpeed
+

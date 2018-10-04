@@ -51,6 +51,12 @@
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSlaveAddress|0|UINT32|0x00000004
 
   #
+  # Pcd for I2c based devices
+  #
+  gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cBus|0|UINT32|0x0000000A
+  gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cAddress|0|UINT32|0x0000000B
+
+  #
   # Pcds for base address and size
   #
   gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr|0x0|UINT64|0x00000100

@@ -41,7 +41,6 @@
   BeIoLib|Silicon/NXP/Library/BeIoLib/BeIoLib.inf
   SocLib|Silicon/NXP/Chassis/LX2160aSocLib.inf
   RealTimeClockLib|Silicon/NXP/Library/Pcf2129RtcLib/Pcf2129RtcLib.inf
-  I2cLib|Silicon/NXP/Library/I2cLib/I2cLib.inf
   FpgaLib|Platform/NXP/LX2160aRdbPkg/Library/FpgaLib/FpgaLib.inf
   PciSegmentLib|Silicon/NXP/Library/PciSegmentLib/PciSegmentLib.inf
   PciHostBridgeLib|Silicon/NXP/Library/PciHostBridgeLib/PciHostBridgeLib.inf
@@ -96,6 +95,9 @@
   gNxpQoriqLsTokenSpaceGuid.PcdI2cBus|4
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSpeed|100000
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSlaveAddress|0x51
+
+  gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cBus|0
+  gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cAddress|0x57
 
   #
   # NV Storage PCDs.
