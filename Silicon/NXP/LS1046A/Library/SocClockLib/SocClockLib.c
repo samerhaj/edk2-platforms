@@ -49,7 +49,6 @@ SocGetClock (
   UINT64       ClusterGroupA;
   UINT64       ReturnValue;
   UINT64       SysClkHz;
-  UINT16       SysClkFreqMultiplier;
   UINT32       ConfigRegister; // device configuration register. can be used for any device
 
   if (IpModule >= IP_MAX) {
@@ -63,19 +62,17 @@ SocGetClock (
   Rcw = (RCW_FIELDS *)GurBase->RcwSr;
   ReturnValue = 0;
 
-  // First try to get system clock from board
+  // get system clock from board
   SysClkHz = GetBoardSysClk ();
-  if (SysClkHz == 0) {
-    // SysClkFreq comprises of 10 bits. 8 bits SysClkFreqH and 2 bits SysClkFreqL
-    SysClkFreqMultiplier = ((UINT16)Rcw->SysClkFreqH) << 2 | Rcw->SysClkFreqL;
-    // The value in this field is multiplied by 166.667 KHz.
-    SysClkHz = (((UINT64)SysClkFreqMultiplier * 250000) << 1) / 3;
-  }
-
   ASSERT (SysClkHz != 0);
 
   switch (IpModule) {
+    case IP_SYSCLK:
+      ReturnValue = SysClkHz;
+      break;
     case IP_DUART:
+    case IP_ESDHC:
+    case IP_QMAN:
       ReturnValue = ((UINT64)Rcw->SysPllRat * SysClkHz) >> 1;
       break;
     case IP_QSPI:

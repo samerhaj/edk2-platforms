@@ -33,6 +33,8 @@ typedef enum {
   IP_SPI,
   IP_I2C,
   IP_SATA,
+  IP_QMAN,
+  IP_BMAN,
   IP_MAX
 } IP_MODULES;
 
