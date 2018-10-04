@@ -251,7 +251,7 @@
   gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x81000044
 !endif
 
-  gEfiMdePkgTokenSpaceGuid.PcdReportStatusCodePropertyMask|0x07
+  gEfiMdePkgTokenSpaceGuid.PcdReportStatusCodePropertyMask|0x06
   gEmbeddedTokenSpaceGuid.PcdPrePiCpuIoSize|20
 
   #
