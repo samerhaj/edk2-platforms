@@ -43,6 +43,7 @@
   DxeServicesLib
   FdtLib
   MemoryAllocationLib
+  SocClockLib
   UefiBootServicesTableLib
   UefiDriverEntryPoint
 
