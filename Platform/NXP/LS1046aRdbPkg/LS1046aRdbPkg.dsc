@@ -97,7 +97,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdSataErratumA010554|TRUE
   gNxpQoriqLsTokenSpaceGuid.PcdSataErratumA010635|TRUE
 
-  gNxpQoriqLsTokenSpaceGuid.PcdFdtAddress|0x40F00000
+  gNxpQoriqLsTokenSpaceGuid.PcdFmanFwFlashAddr|0x40900000
 
 ################################################################################
 #
@@ -133,5 +133,6 @@
   Silicon/NXP/Drivers/MmcHostDxe/MmcHostDxe.inf
   Silicon/NXP/Drivers/NandFlashDxe/NandFlashDxe.inf
   Silicon/NXP/Drivers/RngDxe/RngDxe.inf
+  Silicon/NXP/Drivers/Dpaa1EthernetDxe/Dpaa1EthernetDxe.inf
 
  ##

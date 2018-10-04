@@ -117,8 +117,6 @@
   # SATA Pcds
   #
   gNxpQoriqLsTokenSpaceGuid.PcdSataErratumA009185|TRUE
-
-  gNxpQoriqLsTokenSpaceGuid.PcdFdtAddress|0x580F00000
   
   #
   # DPAA2 Pcds

@@ -213,6 +213,7 @@ READ_LOCK_STATUS   = TRUE
   #
   INF RuleOverride = DTB Platform/NXP/LS1046aRdbPkg/DeviceTree/DeviceTree.inf
   INF Silicon/NXP/Drivers/DtPlatformDxe/DtPlatformDxe.inf
+  INF Silicon/NXP/Drivers/Dpaa1EthernetDxe/Dpaa1EthernetDxe.inf
 
 [FV.FVMAIN_COMPACT]
 FvAlignment        = 8

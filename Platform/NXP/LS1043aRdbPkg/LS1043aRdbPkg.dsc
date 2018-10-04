@@ -99,7 +99,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPcieLutBase|0x10000
   gNxpQoriqLsTokenSpaceGuid.PcdPcieLutDbg|0x7FC
 
-  gNxpQoriqLsTokenSpaceGuid.PcdFdtAddress|0x60F00000
+  gNxpQoriqLsTokenSpaceGuid.PcdFmanFwFlashAddr|0x60900000
 
 ################################################################################
 #
