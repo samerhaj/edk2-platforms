@@ -316,6 +316,11 @@ DtPlatformDxeEntryPoint (
     goto FreeDtb;
   }
 
+  Status = FdtSocFixup (Dtb);
+  if (EFI_ERROR (Status)) {
+    goto FreeDtb;
+  }
+
   //
   // install a reference to it as the FDT configuration table.
   //
