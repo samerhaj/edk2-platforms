@@ -25,12 +25,6 @@
 #define DPAA2_ETHERNET_DRIVER_VERSION   0x1
 
 /**
- * Bit masks for first byte of a MAC address
- */
-# define MAC_MULTICAST_ADDRESS_MASK 0x1
-# define MAC_PRIVATE_ADDRESS_MASK   0x2
-
-/**
  * DPAA2 Ethernet Device Path
  */
 typedef struct _DPAA2_DEVICE_PATH {

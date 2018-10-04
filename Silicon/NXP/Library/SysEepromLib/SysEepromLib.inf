@@ -27,6 +27,7 @@
 
 [Packages]
   MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
   Silicon/NXP/NxpQoriqLs.dec
 
 [LibraryClasses]
@@ -35,8 +36,10 @@
   DebugLib
   I2cLib
   MemoryAllocationLib
+  NetLib
   PcdLib
   UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
 
 [Pcd]
   gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cBus

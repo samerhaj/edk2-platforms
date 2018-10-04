@@ -37,6 +37,7 @@
   Dpaa2BoardSpecificLib
   Dpaa2ManagementComplexLib
   NetLib
+  SysEepromLib
   UefiDriverEntryPoint
   UefiLib
 

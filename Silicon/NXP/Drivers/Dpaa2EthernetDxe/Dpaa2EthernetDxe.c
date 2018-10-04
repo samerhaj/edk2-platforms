@@ -24,6 +24,7 @@
 #include <Library/MemoryAllocationLib.h>
 #include <Library/NetLib.h>
 #include <Library/PcdLib.h>
+#include <Library/SysEepromLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiRuntimeServicesTableLib.h>
 #include <Protocol/ComponentName2.h>
@@ -37,9 +38,6 @@
  */
 UINT32 gDpaaDebugFlags = 0x0;
 CHAR8  * CONST gDpaaDebugString = "DPAA2";
-
-STATIC CONST CHAR16  mUniqueMacVariableName[] = L"MacUniqueId";
-
 
 STATIC DPAA2_ETHERNET_DRIVER gDpaa2Driver = {
   .DpmacsList = INITIALIZE_LIST_HEAD_VARIABLE (gDpaa2Driver.DpmacsList),
@@ -1182,106 +1180,6 @@ Dpaa2SnpReceive (
   return EFI_SUCCESS;
  }
 
-/**
- * Retrieve the SoC unique ID
- */
-STATIC
-UINT32
-GetSocUniqueId (VOID)
-{
-  /*
-   * TODO: We need to retrieve a SoC unique ID here.
-   * A possiblity is to read the Fresscale Unique ID register (FUIDR) register
-   * in the Security Fuse Processor (SFP)
-   *
-   * For now we just generate a pseudo-randmom number.
-   */
-  STATIC UINT32 SocUniqueId = 0;
-
-  if (SocUniqueId == 0) {
-    SocUniqueId = NET_RANDOM (NetRandomInitSeed());
-  }
-
-  return SocUniqueId;
-}
-
-EFI_STATUS
-GetNVSocUniqueId (
-    OUT UINT32 *UniqueId
-    )
-{
-  EFI_STATUS Status = EFI_SUCCESS;
-  UINT32 SocUniqueId = {0};
-  UINTN       Size;
-
-  /* Get the UniqueID required for MAC address generation */
-  Size = sizeof (UINT32);
-  Status = gRT->GetVariable ((CHAR16 *)mUniqueMacVariableName,
-                            &gEfiCallerIdGuid,
-                            NULL, &Size, (VOID *)UniqueId);
-
-  if (EFI_ERROR (Status)) {
-    ASSERT (Status != EFI_INVALID_PARAMETER);
-    ASSERT (Status != EFI_BUFFER_TOO_SMALL);
-
-    if (Status != EFI_NOT_FOUND)
-      return Status;
-
-    /* The Unique Mac variable does not exist in non-volatile storage,
-     * so create it.
-     */
-    SocUniqueId = GetSocUniqueId ();
-    Status = gRT->SetVariable ((CHAR16 *)mUniqueMacVariableName,
-                    &gEfiCallerIdGuid,
-                    EFI_VARIABLE_NON_VOLATILE |
-                    EFI_VARIABLE_BOOTSERVICE_ACCESS |
-                    EFI_VARIABLE_RUNTIME_ACCESS, Size,
-                    &SocUniqueId);
-
-    if (EFI_ERROR (Status)) {
-      DPAA_ERROR_MSG ("SetVariable Failed, Status=0x%lx \n",Status);
-      return Status;
-    }
-    *UniqueId = SocUniqueId;
-  }
-
-  return Status;
-}
-
-/**
- * Generate an Ethernet address (MAC) that is not multicast
- * and has the local assigned bit set.
- */
-STATIC
-VOID
-GenerateMacAddress (
-  IN  UINT32 SocUniqueId,
-  IN  WRIOP_DPMAC_ID DpmacId,
-  OUT EFI_MAC_ADDRESS *MacAddrBuf)
-{
-  /*
-   * Build MAC address from SoC's unique hardware identifier:
-   */
-  CopyMem (MacAddrBuf->Addr, &SocUniqueId, sizeof (UINT32));
-  MacAddrBuf->Addr[4] = ((UINT16)DpmacId + 1) >> 8;
-  MacAddrBuf->Addr[5] = (UINT8)DpmacId + 1;
-
-  /*
-   * Ensure special bits of first byte of the MAC address are properly
-   * set:
-   */
-  MacAddrBuf->Addr[0] &= ~MAC_MULTICAST_ADDRESS_MASK;
-  MacAddrBuf->Addr[0] |= MAC_PRIVATE_ADDRESS_MASK;
-
-  DPAA_DEBUG_MSG ("MAC addr: %02X:%02X:%02X:%02X:%02X:%02X\n",
-                  MacAddrBuf->Addr[0],
-                  MacAddrBuf->Addr[1],
-                  MacAddrBuf->Addr[2],
-                  MacAddrBuf->Addr[3],
-                  MacAddrBuf->Addr[4],
-                  MacAddrBuf->Addr[5]);
-}
-
 STATIC
 EFI_STATUS
 EFIAPI
@@ -1292,13 +1190,6 @@ CreateDpaa2EthernetDevice (
 {
   EFI_STATUS Status;
   DPAA2_ETHERNET_DEVICE *Dpaa2EthDev;
-  UINT32 SocUniqueId = 0;
-
-  Status = GetNVSocUniqueId (&SocUniqueId);
-  if (Status != EFI_SUCCESS) {
-    DPAA_ERROR_MSG ("Failed to get SocUniqueId \n");
-    return Status;
-  }
 
   DPAA_INFO_MSG ("Creating DPAA2 Ethernet device object for %a ...\n",
                  gWriopDpmacStrings[Dpmac->Id]);
@@ -1320,7 +1211,22 @@ CreateDpaa2EthernetDevice (
   /*
    * Set MAC address for the DPAA2 Ethernet device:
    */
-  GenerateMacAddress (SocUniqueId, Dpmac->Id, &Dpaa2EthDev->SnpMode.CurrentAddress);
+  Status = MacReadFromEeprom (Dpmac->Id, &Dpaa2EthDev->SnpMode.CurrentAddress.Addr);
+  if (EFI_ERROR (Status)) {
+    Status = GenerateMacAddress (Dpmac->Id, &Dpaa2EthDev->SnpMode.CurrentAddress.Addr);
+  }
+  if (EFI_ERROR (Status)) {
+    DPAA_ERROR_MSG ("Error getting mac address for dpmac id %d status %r\n", Dpmac->Id, Status);
+    return EFI_DEVICE_ERROR;
+  } else {
+    DPAA_DEBUG_MSG ("MAC addr: %02X:%02X:%02X:%02X:%02X:%02X\n",
+                    MacAddrBuf->Addr[0],
+                    MacAddrBuf->Addr[1],
+                    MacAddrBuf->Addr[2],
+                    MacAddrBuf->Addr[3],
+                    MacAddrBuf->Addr[4],
+                    MacAddrBuf->Addr[5]);
+  }
 
   /*
    * Copy MAC address to the UEFI device path for the DPAA2 Ethernet device:

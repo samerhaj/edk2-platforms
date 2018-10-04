@@ -41,5 +41,20 @@ MacReadFromEeprom (
   OUT  VOID    *MacAddress
   );
 
+/**
+  Generate an Ethernet address (MAC) that is not multicast
+  and has the local assigned bit set.
+
+  @param[in]  EthernetId   EthernetId for which Mac address is to be generated
+                           Last two bytes (5th and 6th octet) of mac address are EthernetId
+  @param[out] MacAddress   Buffer of at least 6 bytes to hold Mac address
+                           (Must not be NULL)
+ **/
+EFI_STATUS
+GenerateMacAddress (
+  IN  UINT16     EthernetId,
+  OUT VOID       *MacAddress
+  );
+
 #endif  /* SYS_EEPROM_LIB_H__ */
 

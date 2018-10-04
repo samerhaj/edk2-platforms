@@ -20,13 +20,16 @@
 #include <Library/DebugLib.h>
 #include <Library/I2c.h>
 #include <Library/MemoryAllocationLib.h>
+#include <Library/NetLib.h>
 #include <Library/SysEepromLib.h>
 #include <Library/PcdLib.h>
 #include <Library/UefiBootServicesTableLib.h>
+#include <Library/UefiRuntimeServicesTableLib.h>
 
 #include "SysEeprom.h"
 
 SYSTEM_ID  *SystemID;
+STATIC CONST CHAR16  mUniqueMacVariableName[] = L"MacUniqueId";
 
 /**
   Read EEPROM data
@@ -173,3 +176,118 @@ MacReadFromEeprom (
   return EFI_SUCCESS;
 }
 
+/**
+ * Retrieve the SoC unique ID
+ */
+STATIC
+UINT32
+GetSocUniqueId (VOID)
+{
+  /*
+   * TODO: We need to retrieve a SoC unique ID here.
+   * A possiblity is to read the Fresscale Unique ID register (FUIDR) register
+   * in the Security Fuse Processor (SFP)
+   *
+   * For now we just generate a pseudo-randmom number.
+   */
+  STATIC UINT32 SocUniqueId = 0;
+
+  if (SocUniqueId == 0) {
+    SocUniqueId = NET_RANDOM (NetRandomInitSeed());
+  }
+
+  return SocUniqueId;
+}
+
+/**
+  Retrieve the SocUniqueId from Non volatile memory
+
+  if not found in Non volatile memory then use GetSocUniqueId and
+  save its value in Non volatile memory
+**/
+STATIC
+EFI_STATUS
+GetNVSocUniqueId (
+  OUT UINT32 *UniqueId
+  )
+{
+  EFI_STATUS Status = EFI_SUCCESS;
+  UINT32 SocUniqueId = {0};
+  UINTN       Size;
+
+  /* Get the UniqueID required for MAC address generation */
+  Size = sizeof (UINT32);
+  Status = gRT->GetVariable ((CHAR16 *)mUniqueMacVariableName,
+                            &gEfiCallerIdGuid,
+                            NULL, &Size, (VOID *)UniqueId);
+
+  if (EFI_ERROR (Status)) {
+    ASSERT (Status != EFI_INVALID_PARAMETER);
+    ASSERT (Status != EFI_BUFFER_TOO_SMALL);
+
+    if (Status != EFI_NOT_FOUND)
+      return Status;
+
+    /* The Unique Mac variable does not exist in non-volatile storage,
+     * so create it.
+     */
+    SocUniqueId = GetSocUniqueId ();
+    Status = gRT->SetVariable ((CHAR16 *)mUniqueMacVariableName,
+                    &gEfiCallerIdGuid,
+                    EFI_VARIABLE_NON_VOLATILE |
+                    EFI_VARIABLE_BOOTSERVICE_ACCESS |
+                    EFI_VARIABLE_RUNTIME_ACCESS, Size,
+                    &SocUniqueId);
+
+    if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "SetVariable Failed, Status %r \n", Status));
+      return Status;
+    }
+    *UniqueId = SocUniqueId;
+  }
+
+  return Status;
+}
+
+/**
+  Generate an Ethernet address (MAC) that is not multicast
+  and has the local assigned bit set.
+
+  @param[in]  EthernetId   EthernetId for which Mac address is to be generated
+                           Last two bytes (5th and 6th octet) of mac address are EthernetId
+  @param[out] MacAddress   Buffer of at least 6 bytes to hold Mac address
+                           (Must not be NULL)
+ **/
+EFI_STATUS
+GenerateMacAddress (
+  IN  UINT16     EthernetId,
+  OUT VOID       *MacAddress
+  )
+{
+  UINT32 SocUniqueId;
+  EFI_STATUS Status;
+
+  if (!MacAddress) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  Status = GetNVSocUniqueId (&SocUniqueId);
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  /*
+   * Build MAC address from SoC's unique hardware identifier:
+   */
+  CopyMem (MacAddress, &SocUniqueId, sizeof (UINT32));
+  CopyMem (MacAddress + sizeof (UINT32), &EthernetId, sizeof (UINT16));
+
+  /*
+   * Ensure special bits of first byte of the MAC address are properly
+   * set:
+   */
+  ((UINT8 *)MacAddress)[0] &= ~MAC_MULTICAST_ADDRESS_MASK;
+  ((UINT8 *)MacAddress)[0] |= MAC_PRIVATE_ADDRESS_MASK;
+
+  return EFI_SUCCESS;
+}

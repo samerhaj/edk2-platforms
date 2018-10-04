@@ -69,5 +69,11 @@ typedef union SYSTEM_ID {
   NX_SYSTEM_ID  NXSystemID;
 } SYSTEM_ID;
 
+/**
+ * Bit masks for first byte of a MAC address
+ */
+# define MAC_MULTICAST_ADDRESS_MASK 0x1
+# define MAC_PRIVATE_ADDRESS_MASK   0x2
+
 #endif /* SYS_EEPROM_H_ */
 
