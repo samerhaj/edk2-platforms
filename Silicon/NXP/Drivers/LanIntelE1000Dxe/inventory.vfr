@@ -1,0 +1,138 @@
+// *++
+//
+// Copyright (c) 2007, Intel Corporation
+// All rights reserved. This program and the accompanying materials
+// are licensed and made available under the terms and conditions of the BSD License
+// which accompanies this distribution.  The full text of the license may be found at
+// http://opensource.org/licenses/bsd-license.php
+//
+// THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+// WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+//
+// Module Name:
+//
+//   Inventory.vfr
+//
+// Abstract:
+//
+//   Sample Inventory Data.
+//
+// Revision History:
+//
+// --*/
+
+#include "LanIntelE1000DxeStrDefs.h"
+#include "NVDataStruc.h"
+
+//
+// Formset class used by Device Manager
+//
+#define EFI_NON_DEVICE_CLASS              0x00
+#define EFI_DISK_DEVICE_CLASS             0x01
+#define EFI_VIDEO_DEVICE_CLASS            0x02
+#define EFI_NETWORK_DEVICE_CLASS          0x04
+#define EFI_INPUT_DEVICE_CLASS            0x08
+#define EFI_ON_BOARD_DEVICE_CLASS         0x10
+#define EFI_OTHER_DEVICE_CLASS            0x20
+
+//
+// Formset subclass
+//
+#define EFI_SETUP_APPLICATION_SUBCLASS    0x00
+#define EFI_GENERAL_APPLICATION_SUBCLASS  0x01
+#define EFI_FRONT_PAGE_SUBCLASS           0x02
+#define EFI_SINGLE_USE_SUBCLASS           0x03
+
+//
+// EFI Variable attributes
+//
+#define EFI_VARIABLE_NON_VOLATILE       0x00000001
+#define EFI_VARIABLE_BOOTSERVICE_ACCESS 0x00000002
+#define EFI_VARIABLE_RUNTIME_ACCESS     0x00000004
+#define EFI_VARIABLE_READ_ONLY          0x00000008
+
+formset
+  guid     = E1000_HII_FORM_GUID,
+  title    = STRING_TOKEN(STR_INV_FORM_SET_TITLE),
+  help     = STRING_TOKEN(STR_INV_EMPTY_STRING),
+  class    = EFI_NETWORK_DEVICE_CLASS,
+  subclass = EFI_SETUP_APPLICATION_SUBCLASS,
+
+  //
+  // Define a Buffer Storage (EFI_IFR_VARSTORE)
+  //
+  varstore GIG_DRIVER_CONFIGURATION,        // This is the data structure type
+    varid = 0x1234,                         // Optional VarStore ID
+    name  = GigNVData,                      // Define referenced name in vfr
+    guid  = E1000_HII_DATA_GUID;            // GUID of this buffer storage
+
+  form formid = 1,
+       title  = STRING_TOKEN(STR_INV_FORM1_TITLE);  // note formid is a variable (for readability) (UINT16) - also added Form to the line to signify the Op-Code
+
+    goto 0x1235,
+      prompt  = STRING_TOKEN(STR_PORT_CONFIG_MENU_REF),
+      help    = STRING_TOKEN(STR_INV_EMPTY_STRING);
+
+    subtitle text = STRING_TOKEN(STR_INV_EMPTY_STRING);
+    
+    subtitle text = STRING_TOKEN(STR_PORT_CONFIGURATION_INFO);
+    
+    subtitle text = STRING_TOKEN(STR_INV_EMPTY_STRING);
+    
+    text
+      help   = STRING_TOKEN(STR_MAC_ADDR_HELP),
+      text   = STRING_TOKEN(STR_MAC_ADDR_PROMPT),
+      text   = STRING_TOKEN(STR_MAC_ADDR_TEXT),
+      flags  = 0,
+      key    = 0;
+
+    text
+      help   = STRING_TOKEN(STR_ALT_MAC_ADDR_HELP),
+      text   = STRING_TOKEN(STR_ALT_MAC_ADDR_PROMPT),
+      text   = STRING_TOKEN(STR_ALT_MAC_ADDR_TEXT),
+      flags  = 0,
+      key    = 0;
+
+    text
+      help   = STRING_TOKEN(STR_INV_EMPTY_STRING),
+      text   = STRING_TOKEN(STR_EFI_DRIVER_VER_PROMPT),
+      text   = STRING_TOKEN(STR_EFI_DRIVER_VER_TEXT),
+      flags  = 0,
+      key    = 0;
+
+    text
+      help   = STRING_TOKEN(STR_PCI_BUS_DEV_FUNC_HELP),
+      text   = STRING_TOKEN(STR_PCI_BUS_DEV_FUNC_PROMPT),
+      text   = STRING_TOKEN(STR_PCI_BUS_DEV_FUNC_TEXT),
+      flags  = 0,
+      key    = 0;
+
+    text
+      help   = STRING_TOKEN(STR_CONTROLER_ID_HELP),
+      text   = STRING_TOKEN(STR_CONTROLER_ID_PROMPT),
+      text   = STRING_TOKEN(STR_CONTROLER_ID_TEXT),
+      flags  = 0,
+      key    = 0;
+
+    text
+      help   = STRING_TOKEN(STR_INV_EMPTY_STRING),
+      text   = STRING_TOKEN(STR_ADAPTER_PBA_PROMPT),
+      text   = STRING_TOKEN(STR_ADAPTER_PBA_TEXT),
+      flags  = 0,
+      key    = 0;
+
+  endform;
+
+  form formid = FORM_2,
+
+    title  = STRING_TOKEN(STR_PORT_CONFIG_MENU);
+
+    subtitle text = STRING_TOKEN(STR_INV_EMPTY_STRING);
+
+    label LABEL_START; // Placeholder for opcodes that are dynamically created during driver initialization
+       
+    label LABEL_END;
+
+  endform;
+
+endformset;

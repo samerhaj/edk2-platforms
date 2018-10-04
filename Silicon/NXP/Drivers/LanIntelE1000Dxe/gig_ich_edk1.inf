@@ -1,0 +1,98 @@
+#/*++
+#
+# Copyright (c) 2008, Intel Corporation
+# All rights reserved. This program and the accompanying materials
+# are licensed and made available under the terms and conditions of the BSD License
+# which accompanies this distribution.  The full text of the license may be found at
+# http://opensource.org/licenses/bsd-license.php
+#
+# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#  Module Name:
+#
+#    gig_ich_edk1.inf
+#
+#  Abstract:
+#
+#    Component description file for the Intel gigabit ethernet driver.  This make file
+#  includes only support from ICH8 and ICH9 controllers to reduce driver size.
+#
+#--*/
+
+[defines]
+BASE_NAME            = GigUndi
+FILE_GUID            = BB801A52-C90F-4EDE-91B2-82520888CBC3
+COMPONENT_TYPE       = RT_DRIVER
+
+[sources.common]
+  inventorystrings.uni
+  inventory.vfr
+  brand.h
+  clp.h
+  clp.c
+  componentname.c
+  decode.c
+  driverconfiguration.c
+  driverdiagnostics.c
+  e1000.h
+  e1000.c
+  e1000_80003es2lan.h
+  e1000_82571.h
+  e1000_82575.h
+  e1000_api.h
+  e1000_api.c
+  e1000_defines.h
+  e1000_hw.h
+  e1000_ich8lan.h
+  e1000_ich8lan.c
+  e1000_mac.h
+  e1000_mac.c
+  e1000_manage.h
+  e1000_manage.c
+  e1000_nvm.h
+  e1000_nvm.c
+  e1000_osdep.h
+  e1000_osdep.c
+  e1000_phy.h
+  e1000_phy.c
+  e1000_regs.h
+  FirmwareManagement.h
+  FirmwareManagement.c
+  hii.h
+  hii.c
+  ieee_define.h
+  init.c
+  nvdatastruc.h
+  startstop.h
+  startstop.c
+  vlan.h
+  vlan.c
+
+[includes.common]
+  $(EDK_SOURCE)\Foundation
+  $(EDK_SOURCE)\Foundation\Include
+  $(EDK_SOURCE)\Foundation\Include\$(ARCH)
+  $(EDK_SOURCE)\Foundation\Include\IndustryStandard
+  $(EDK_SOURCE)\Foundation\Efi\Include
+  $(EDK_SOURCE)\Foundation\Efi
+  $(EDK_SOURCE)\Foundation\Framework
+  $(EDK_SOURCE)\Foundation\Framework\Include
+  $(EDK_SOURCE)\Foundation\Library\Dxe\Include
+  $(EDK_SOURCE)\Foundation\Library\Dxe\UefiEfiIfrSupportLib
+  $(DEST_DIR)
+  .
+
+[libraries.common]
+  EfiDriverLib
+  PrintLib
+  UefiEfiIfrSupportLib
+
+[nmake.common]
+  IMAGE_ENTRY_POINT=InitializeGigUNDIDriver
+  C_STD_FLAGS = $(C_STD_FLAGS) /DNO_80003ES2LAN_SUPPORT
+  C_STD_FLAGS = $(C_STD_FLAGS) /DNO_82571_SUPPORT
+  C_STD_FLAGS = $(C_STD_FLAGS) /DNO_82575_SUPPORT
+  C_STD_FLAGS = $(C_STD_FLAGS) /DNO_BRANDING_SUPPORT
+
+

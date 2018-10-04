@@ -161,6 +161,8 @@ READ_LOCK_STATUS   = TRUE
   INF  MdeModulePkg/Universal/Network/Tcp4Dxe/Tcp4Dxe.inf
 !endif
 
+  INF Silicon/NXP/Drivers/LanIntelE1000Dxe/LanIntelE1000Dxe.inf
+
   INF ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
 
   #

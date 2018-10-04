@@ -1,0 +1,63 @@
+Tiano EDK1 Build Instructions for Intel(R) PRO/1000 Network Connections Driver
+Copyright 2008-2010, Intel Corporation, All Rights Reserved
+
+
+INSTRUCTIONS
+============
+  The make files included in this source package allow the PRO/1000 driver
+  binary to be built as part of the Tiano Core EDK1 source tree.  Before
+  building the driver you must download the Tiano Core EDK1 release source
+  from www.tianocore.org and build the tree for your target architecture
+  following the instructions from that site.
+  Follow the below steps to integrate the PRO/1000 driver into the Tiano Core
+  source tree:
+
+  1. Unzip all files into the following EDK1 sub-directory:
+     \Sample\Bus\Pci\GigUndi
+
+  2a. (x86-64 or x86 UEFI builds) Open the file X64.dsc in the sub-directory
+  \Sample\Platform\X64\Build.   Add the following line to the file in the
+  section labeled "# Network Boot": Sample\Bus\Pci\GigUndi\gig_edk1.inf
+  This will add the PRO/1000 driver to the list of targets for the EDK1 build
+  process. The X64.dsc file has separate sections for x86 and x86-64 builds.
+  The reference to the gig_edk1.inf file must be placed in the correct section
+  for the target architecture, or placed in both sections to build for both
+  x86 and x86-64 architectures.
+
+  2b. (Itanium IPF Build) Open the file IPF.dsc in the sub-directory
+  \Sample\Platform\IPF\Build.  Add the following line to the list of targets in
+  the file: Sample\Bus\Pci\GigUndi\gig_edk1.inf
+
+  3. Run "nmake" from the platform \Sample\Platform\<ARCH> directory.  This 
+  will build the EDK1 source tree including the PRO/1000 driver.  The resultant
+  executable, gigundi.efi, will be created in the .UEFI\IPF, .UEFI\X64, or 
+  .UEFI\IA32 sub-directory depending on the target architecture.
+
+
+CONTROLLER SPECIFIC BUILD INSTRUCTIONS (OPTIONAL)
+=================================================
+  Two example *.inf build files are included with the PRO/1000 source which
+  create a driver binary supporting only a specific network controller family.
+  These *.inf file will result in a smaller binary size by excluding code not
+  needed by the controller.
+
+  gig_82575_edk1.inf: This file will generate a driver specific to the 82575
+  family of network controllers.  To build a driver specific to the 82575
+  controller, follow the build instructions in the previous section, but
+  replace "gig_edk1.inf" with "gig_82575_edk1.inf".
+
+  gig_ich_edk1.inf:  This file will generate a driver specific to the ICH
+  LAN-On-Motherboard network connections such as ICH8, and ICH9.  To build a
+  driver specific to ICH network connections, follow the build instructions in
+  the previous section, but replace "gig_edk1.inf" with "gig_ich_edk1.inf".
+
+  gig_edk1.inf: This file will generate a driver supporting all Intel PRO/1000
+  network connections.  To generate this driver binary follow the build
+  instructions in the previous section.
+
+
+
+
+
+
+
