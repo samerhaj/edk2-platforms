@@ -600,6 +600,7 @@
       reg-names = "ahci", "sata-ecc";
       interrupts = <0 69 4>;
       clocks = <&clockgen 4 1>;
+      status = "disabled";
     };
 
     qdma: qdma@8380000 {
@@ -678,6 +679,7 @@
           <0000 0 0 2 &gic 0 110 4>,
           <0000 0 0 3 &gic 0 110 4>,
           <0000 0 0 4 &gic 0 110 4>;
+      status = "disabled";
     };
 
     pcie@3500000 {
@@ -705,6 +707,7 @@
           <0000 0 0 2 &gic 0 120 4>,
           <0000 0 0 3 &gic 0 120 4>,
           <0000 0 0 4 &gic 0 120 4>;
+      status = "disabled";
     };
 
     pcie@3600000 {
@@ -732,6 +735,7 @@
           <0000 0 0 2 &gic 0 154 4>,
           <0000 0 0 3 &gic 0 154 4>,
           <0000 0 0 4 &gic 0 154 4>;
+      status = "disabled";
     };
 
     serdes1: serdes@1ea0000 {

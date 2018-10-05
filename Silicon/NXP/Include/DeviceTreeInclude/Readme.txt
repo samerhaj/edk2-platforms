@@ -23,3 +23,6 @@ Following changes have been done in these files
 8. "big-endian" property has been added to crypto, qman and bman nodes
 9. The spi peripherals' maximum clock frequency has been increased to 50Mhz.
 10. uefi-runtime property added to the qspi controller node and chip select 0 flash.
+11. The devices that are controlled by serdes protocol like mac devices and pcie and sata device have been
+    disabled using status = "disabled"; property in main SOC dtsi file and have been enabled in board dts
+    file.

@@ -25,6 +25,20 @@
   chosen {
     stdout-path = "serial0:115200n8";
   };
+
+  soc {
+    pcie@3400000 {
+      status = "okay";
+    };
+
+    pcie@3500000 {
+      status = "okay";
+    };
+
+    pcie@3600000 {
+      status = "okay";
+    };
+  };
 };
 
 &duart0 {
@@ -98,6 +112,10 @@
   };
 };
 
+&sata {
+  status = "okay";
+};
+
 &qspi {
   num-cs = <2>;
   bus-num = <0>;
@@ -132,17 +150,20 @@
 &fman0 {
   ethernet@e4000 {
     phy-handle = <&rgmii_phy1>;
-    phy-connection-type = "rgmii";
+    phy-connection-type = "rgmii-txid";
+    status = "okay";
   };
 
   ethernet@e6000 {
     phy-handle = <&rgmii_phy2>;
-    phy-connection-type = "rgmii";
+    phy-connection-type = "rgmii-txid";
+    status = "okay";
   };
 
   ethernet@e8000 {
     phy-handle = <&sgmii_phy1>;
     phy-connection-type = "sgmii";
+    status = "okay";
   };
 
   ethernet@ea000 {
@@ -153,11 +174,13 @@
   ethernet@f0000 { /* 10GEC1 */
     phy-handle = <&aqr106_phy>;
     phy-connection-type = "xgmii";
+    status = "okay";
   };
 
   ethernet@f2000 { /* 10GEC2 */
     fixed-link = <0 1 1000 0 0>;
     phy-connection-type = "xgmii";
+    status = "okay";
   };
 
   mdio@fc000 {
