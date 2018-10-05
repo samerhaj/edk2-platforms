@@ -21,6 +21,7 @@
   LIBRARY_CLASS                  = SocLib
 
 [Packages]
+  ArmPkg/ArmPkg.dec
   MdeModulePkg/MdeModulePkg.dec
   MdePkg/MdePkg.dec
   Silicon/NXP/NxpQoriqLs.dec
@@ -28,6 +29,7 @@
   Silicon/NXP/LS2088A/LS2088A.dec
 
 [LibraryClasses]
+  ArmSmcLib
   BaseLib
   BeIoLib
   DebugLib
@@ -49,3 +51,5 @@
   gNxpQoriqLsTokenSpaceGuid.PcdGurBigEndian
   gNxpQoriqLsTokenSpaceGuid.PcdClkBaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdDdrClk
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McHighRamSize
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLowRamSize

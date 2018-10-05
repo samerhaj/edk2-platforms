@@ -15,6 +15,7 @@
 
 #include <Base.h>
 #include <Chassis.h>
+#include <DramInfo.h>
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib/MemLibInternals.h>
 #include <Library/DebugLib.h>
@@ -192,3 +193,25 @@ SocInit (
   PrintBoardPersonality ();
 }
 
+VOID
+UpdateDpaaDram (
+  IN OUT DRAM_INFO *DramInfo
+  )
+{
+  UINT8            I;
+
+  if (FixedPcdGet64 (PcdDpaa2McLowRamSize) || FixedPcdGet64 (PcdDpaa2McHighRamSize)) {
+    DramInfo->DramRegion[0].BaseAddress += FixedPcdGet64 (PcdDpaa2McLowRamSize);
+    DramInfo->DramRegion[0].Size -= FixedPcdGet64 (PcdDpaa2McLowRamSize);
+    if (DramInfo->NumOfDrams >= 2) {
+      DramInfo->DramRegion[1].Size -= FixedPcdGet64 (PcdDpaa2McHighRamSize);
+    }
+  }
+
+  for (I = 0;  I < DramInfo->NumOfDrams; I++) {
+    DEBUG ((DEBUG_INFO, "BANK[%d]: start 0x%lx, size 0x%lx\n",
+      I, DramInfo->DramRegion[I].BaseAddress, DramInfo->DramRegion[I].Size));
+  }
+
+  return;
+}
