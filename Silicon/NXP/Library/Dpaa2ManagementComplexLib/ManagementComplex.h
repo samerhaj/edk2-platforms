@@ -42,13 +42,6 @@
 
 #define MC_FIXED_SIZE_512MB 0x20000000
 
-// MC_ADDR should be the top 512MB from memory region allocated for MC
-#if FixedPcdGetBool (PcdMcHighMemSupport)
-#define MC_ADDR     FixedPcdGet64 (PcdDram2BaseAddr) + FixedPcdGet64 (PcdDramMemSize) - MC_FIXED_SIZE_512MB
-#else
-#define MC_ADDR     FixedPcdGet64 (PcdDram1BaseAddr) - FixedPcdGet64 (PcdDpaa2McRamSize)
-#endif
-
 /**
  * DPAA2 Management complex CCSR registers
  */

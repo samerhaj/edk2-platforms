@@ -54,11 +54,10 @@
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLogMcDramOffset
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLogLevel
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McPortalBaseAddr
-  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McRamSize
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McHighRamSize
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLowRamSize
   gNxpQoriqLsTokenSpaceGuid.PcdMcHighMemSupport
-  gNxpQoriqLsTokenSpaceGuid.PcdDramMemSize
-  gNxpQoriqLsTokenSpaceGuid.PcdDram1BaseAddr
-  gNxpQoriqLsTokenSpaceGuid.PcdDram2BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdBypassAmqMask
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2QBmanPortalsBaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdDisableMcLogging
+  gArmTokenSpaceGuid.PcdSystemMemoryBase

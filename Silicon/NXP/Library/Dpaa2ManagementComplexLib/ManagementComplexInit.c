@@ -28,6 +28,7 @@
 #include <libfdt.h>
 
 #include "ManagementComplex.h"
+#include <DramInfo.h>
 
 /**
  * Global control block for the DPPA2 Management Complex (MC)
@@ -100,13 +101,13 @@ Dpaa2McAllocatePrivateMem (
   UINT8                    *Num256MbBlocks
   )
 {
-  VOID *McRamBlock;
-  UINT32 McRamSize;
+  VOID                     *McRamBlock;
+  UINT32                   McRamSize;
+  DRAM_INFO                DramInfo;
 
-  McRamSize = FixedPcdGet64 (PcdDpaa2McRamSize);
+  McRamSize = FixedPcdGet64 (PcdDpaa2McHighRamSize) + FixedPcdGet64 (PcdDpaa2McLowRamSize);
 
   ASSERT (Mc->McPrivateMemoryBaseAddr == 0x0);
-  ASSERT (McRamSize != 0);
 
 # ifdef DPAA2_USE_UEFI_ALLOCATOR_FOR_MC_MEM
   UINTN Pages = EFI_SIZE_TO_PAGES (McRamSize);
@@ -125,7 +126,15 @@ Dpaa2McAllocatePrivateMem (
 #else
 
   /* MC address sould be the top 512 MB aligned address from MC allocated region */
-  McRamBlock = (VOID *)MC_ADDR;
+  GetDramBankInfo (&DramInfo);
+
+  if (FixedPcdGetBool (PcdMcHighMemSupport)) {
+    McRamBlock = (VOID *)(DramInfo.DramRegion[1].BaseAddress + DramInfo.DramRegion[1].Size +
+                   FixedPcdGet64 (PcdDpaa2McHighRamSize) - MC_FIXED_SIZE_512MB);
+  } else {
+    McRamBlock = (VOID *)(DramInfo.DramRegion[0].BaseAddress - FixedPcdGet64 (PcdDpaa2McLowRamSize));
+  }
+  DEBUG ((DEBUG_INFO, " McRamBlock 0x%lx, McRamSize 0x%lx \n", McRamBlock, McRamSize));
 
 # ifdef DPAA2_MC_IN_LOW_MEM
   /* 512MB is fixed reserved size in MC Low Mem */
