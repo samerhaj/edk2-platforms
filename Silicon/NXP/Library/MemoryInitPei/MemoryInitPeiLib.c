@@ -1,6 +1,7 @@
 /** @file
 *
 *  Copyright (c) 2011-2015, ARM Limited. All rights reserved.
+*  Copyright 2018 NXP
 *
 *  This program and the accompanying materials
 *  are licensed and made available under the terms and conditions of the BSD License
@@ -16,10 +17,13 @@
 
 #include <Library/ArmMmuLib.h>
 #include <Library/ArmPlatformLib.h>
+#include <Library/BaseMemoryLib.h>
 #include <Library/DebugLib.h>
 #include <Library/HobLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/PcdLib.h>
+
+#include <DramInfo.h>
 
 VOID
 BuildMemoryTypeInformationHob (
@@ -71,12 +75,16 @@ MemoryPeim (
   EFI_RESOURCE_ATTRIBUTE_TYPE  ResourceAttributes;
   EFI_PEI_HOB_POINTERS         NextHob;
   BOOLEAN                      Found;
+  DRAM_INFO                    DramInfo;
 
   // Get Virtual Memory Map from the Platform Library
   ArmPlatformGetVirtualMemoryMap (&MemoryTable);
 
-  // Ensure PcdSystemMemorySize has been set
-  ASSERT (PcdGet64 (PcdSystemMemorySize) != 0);
+  //
+  // Ensure MemoryTable[0].Length which is size of DRAM has been set
+  // by ArmPlatformGetVirtualMemoryMap ()
+  //
+  ASSERT (MemoryTable[0].Length != 0);
 
   //
   // Now, the permanent memory has been installed, we can call AllocatePages()
@@ -90,30 +98,38 @@ MemoryPeim (
       EFI_RESOURCE_ATTRIBUTE_TESTED
   );
 
-  //
-  // Check if the resource for the main system memory has been declared
-  //
-  Found = FALSE;
-  NextHob.Raw = GetHobList ();
-  while ((NextHob.Raw = GetNextHob (EFI_HOB_TYPE_RESOURCE_DESCRIPTOR, NextHob.Raw)) != NULL) {
-    if ((NextHob.ResourceDescriptor->ResourceType == EFI_RESOURCE_SYSTEM_MEMORY) &&
-        (PcdGet64 (PcdSystemMemoryBase) >= NextHob.ResourceDescriptor->PhysicalStart) &&
-        (NextHob.ResourceDescriptor->PhysicalStart + NextHob.ResourceDescriptor->ResourceLength <= PcdGet64 (PcdSystemMemoryBase) + PcdGet64 (PcdSystemMemorySize)))
-    {
-      Found = TRUE;
-      break;
-    }
-    NextHob.Raw = GET_NEXT_HOB (NextHob);
+  if (GetDramBankInfo (&DramInfo)) {
+    DEBUG ((DEBUG_ERROR, "Failed to get DRAM information, exiting...\n"));
+    return EFI_UNSUPPORTED;
   }
 
-  if (!Found) {
-    // Reserved the memory space occupied by the firmware volume
-    BuildResourceDescriptorHob (
-        EFI_RESOURCE_SYSTEM_MEMORY,
-        ResourceAttributes,
-        PcdGet64 (PcdSystemMemoryBase),
-        PcdGet64 (PcdSystemMemorySize)
-    );
+  while (DramInfo.NumOfDrams--) {
+    //
+    // Check if the resource for the main system memory has been declared
+    //
+    Found = FALSE;
+    NextHob.Raw = GetHobList ();
+    while ((NextHob.Raw = GetNextHob (EFI_HOB_TYPE_RESOURCE_DESCRIPTOR, NextHob.Raw)) != NULL) {
+      if ((NextHob.ResourceDescriptor->ResourceType == EFI_RESOURCE_SYSTEM_MEMORY) &&
+          (DramInfo.DramRegion[DramInfo.NumOfDrams].BaseAddress >= NextHob.ResourceDescriptor->PhysicalStart) &&
+          (NextHob.ResourceDescriptor->PhysicalStart + NextHob.ResourceDescriptor->ResourceLength <=
+           DramInfo.DramRegion[DramInfo.NumOfDrams].BaseAddress + DramInfo.DramRegion[DramInfo.NumOfDrams].Size))
+      {
+        Found = TRUE;
+        break;
+      }
+      NextHob.Raw = GET_NEXT_HOB (NextHob);
+    }
+
+    if (!Found) {
+      // Reserved the memory space occupied by the firmware volume
+      BuildResourceDescriptorHob (
+          EFI_RESOURCE_SYSTEM_MEMORY,
+          ResourceAttributes,
+          DramInfo.DramRegion[DramInfo.NumOfDrams].BaseAddress,
+          DramInfo.DramRegion[DramInfo.NumOfDrams].Size
+      );
+    }
   }
 
   // Build Memory Allocation Hob
