@@ -85,28 +85,21 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp3BaseSize|0x0|UINT64|0x00000117
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp4BaseAddr|0x0|UINT64|0x0000118
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp4BaseSize|0x0|UINT64|0x0000119
-  gNxpQoriqLsTokenSpaceGuid.PcdDram1BaseAddr|0x0|UINT64|0x0000011A
-  gNxpQoriqLsTokenSpaceGuid.PcdDram1Size|0x0|UINT64|0x0000011B
-  gNxpQoriqLsTokenSpaceGuid.PcdDram2BaseAddr|0x0|UINT64|0x0000011C
-  gNxpQoriqLsTokenSpaceGuid.PcdDram2Size|0x0|UINT64|0x0000011D
-  gNxpQoriqLsTokenSpaceGuid.PcdDram3BaseAddr|0x0|UINT64|0x0000011E
-  gNxpQoriqLsTokenSpaceGuid.PcdDram3Size|0x0|UINT64|0x0000011F
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp5BaseAddr|0x0|UINT64|0x0000011A
+  gNxpQoriqLsTokenSpaceGuid.PcdPciExp6BaseAddr|0x0|UINT64|0x0000011B
+
   gNxpQoriqLsTokenSpaceGuid.PcdQspiRegionBaseAddr|0x0|UINT64|0x00000120
   gNxpQoriqLsTokenSpaceGuid.PcdQspiRegionSize|0x0|UINT64|0x00000121
   gNxpQoriqLsTokenSpaceGuid.PcdQspiRegion2BaseAddr|0x0|UINT64|0x00000122
   gNxpQoriqLsTokenSpaceGuid.PcdQspiRegion2Size|0x0|UINT64|0x00000123
-  gNxpQoriqLsTokenSpaceGuid.PcdSystemMemoryExBase|0x0|UINT64|0x00000124
-  gNxpQoriqLsTokenSpaceGuid.PcdSystemMemoryExSize|0x0|UINT64|0x00000125
+
   gNxpQoriqLsTokenSpaceGuid.PcdUsbBaseAddr|0x0|UINT32|0x00000126
   gNxpQoriqLsTokenSpaceGuid.PcdUsbSize|0x0|UINT32|0x00000127
   gNxpQoriqLsTokenSpaceGuid.PcdCcsrBaseAddr|0x0|UINT64|0x00000128
   gNxpQoriqLsTokenSpaceGuid.PcdCcsrSize|0x0|UINT64|0x00000129
-  gNxpQoriqLsTokenSpaceGuid.PcdDramMemSize|0x0|UINT64|0x0000012A
-  gNxpQoriqLsTokenSpaceGuid.PcdIfcBaseAddr|0x0|UINT64|0x0000012B
-  gNxpQoriqLsTokenSpaceGuid.PcdRomBaseAddr|0x0|UINT64|0x0000012C
-  gNxpQoriqLsTokenSpaceGuid.PcdRomSize|0x0|UINT64|0x0000012D
-  gNxpQoriqLsTokenSpaceGuid.PcdPciExp5BaseAddr|0x0|UINT64|0x0000012E
-  gNxpQoriqLsTokenSpaceGuid.PcdPciExp6BaseAddr|0x0|UINT64|0x0000012F
+  gNxpQoriqLsTokenSpaceGuid.PcdIfcBaseAddr|0x0|UINT64|0x0000012A
+  gNxpQoriqLsTokenSpaceGuid.PcdRomBaseAddr|0x0|UINT64|0x0000012B
+  gNxpQoriqLsTokenSpaceGuid.PcdRomSize|0x0|UINT64|0x0000012C
 
   #
   # USB PCDs
@@ -142,7 +135,6 @@
   #
   # DPAA2 PCDs
   #
-  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McRamSize|0x0|UINT64|0x000001E0
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McPortalBaseAddr|0x0|UINT64|0x000001E1
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McPortalSize|0x0|UINT64|0x000001E2
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2NiPortalsBaseAddr|0x0|UINT64|0x000001E3
