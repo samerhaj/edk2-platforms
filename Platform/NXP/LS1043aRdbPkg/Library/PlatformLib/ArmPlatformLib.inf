@@ -59,11 +59,5 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp2BaseSize
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp3BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp3BaseSize
-  gNxpQoriqLsTokenSpaceGuid.PcdDram1BaseAddr
-  gNxpQoriqLsTokenSpaceGuid.PcdDram1Size
-  gNxpQoriqLsTokenSpaceGuid.PcdDram2BaseAddr
-  gNxpQoriqLsTokenSpaceGuid.PcdDram2Size
-  gNxpQoriqLsTokenSpaceGuid.PcdDram3BaseAddr
-  gNxpQoriqLsTokenSpaceGuid.PcdDram3Size
   gNxpQoriqLsTokenSpaceGuid.PcdQspiRegionBaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdQspiRegionSize

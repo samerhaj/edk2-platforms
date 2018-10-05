@@ -15,6 +15,7 @@
 
 #include <Base.h>
 #include <Chassis.h>
+#include <DramInfo.h>
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib/MemLibInternals.h>
 #include <Library/BeIoLib.h>
@@ -223,3 +224,12 @@ SocInit (
 
   return;
 }
+
+VOID
+UpdateDpaaDram (
+  IN OUT DRAM_INFO *DramInfo
+  )
+{
+  return;
+}
+
