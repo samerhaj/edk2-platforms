@@ -1,0 +1,39 @@
+#/** Dpaa1BoardLib.inf
+#
+#  Component description file for Dpaa1BoardLib module
+#
+#  Copyright (c) 2016, Freescale Semiconductor, Inc. All rights reserved.
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = Dpaa1BoardLib
+  FILE_GUID                      = 1a103f83-40e6-4852-8e92-eff5219c4af4
+  MODULE_TYPE                    = BASE
+  VERSION_STRING                 = 1.0
+  LIBRARY_CLASS                  = Dpaa1BoardLib
+
+[Sources.common]
+ Dpaa1Rdb.c
+# Dpaa1Fixup.c
+
+[Packages]
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdePkg/MdePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+  Silicon/NXP/Chassis/Chassis2/Chassis2.dec
+
+[FixedPcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1FmanMdio1Addr
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1FmanMdio2Addr

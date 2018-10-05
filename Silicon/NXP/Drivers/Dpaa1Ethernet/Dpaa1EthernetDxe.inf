@@ -1,0 +1,63 @@
+#/** @file
+#
+#  Component description file for the Dpaa1EthernetDxe module
+#
+#  Copyright (c) 2016, Freescale Semiconductor, Inc. All rights reserved.
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010005
+  BASE_NAME                      = Dpaa1EthernetDxe
+  FILE_GUID                      = 361f3b5c-4974-4158-9fd8-9cb70291f6e1
+  MODULE_TYPE                    = UEFI_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = Dpaa1EthernetInitialize
+  UNLOAD_IMAGE                   = Dpaa1EthernetUnload
+
+[Sources.common]
+  Dpaa1EthernetDxe.c
+
+[Packages]
+  MdeModulePkg/MdeModulePkg.dec
+  MdePkg/MdePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[LibraryClasses]
+  DebugLib
+  DevicePathLib
+  Dpaa1BoardLib
+  Dpaa1EthernetMacLib
+  Dpaa1EthernetPhyLib
+  Dpaa1Lib
+  DebugLib
+  HobLib
+  NetLib
+  PcdLib
+  UefiDriverEntryPoint
+#  SysEepromLib
+
+[Guids]
+
+[Protocols]
+  gEfiBlockIoProtocolGuid
+  gEfiDiskIoProtocolGuid
+  gEfiSimpleFileSystemProtocolGuid
+  gEfiCpuArchProtocolGuid
+
+[Pcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1DebugFlags
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1Initialize
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1UsedMemacsMask
+  gNxpQoriqLsTokenSpaceGuid.PcdSgmiiPrtclInit
+
+[depex]
+  TRUE

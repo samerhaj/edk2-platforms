@@ -133,6 +133,31 @@
   gNxpQoriqLsTokenSpaceGuid.PcdFlashReservedRegionBase64|0x0|UINT64|0x00000196
 
   #
+  # SoC specific DPAA1 PCDs
+  #
+  # Valid values for PcdDpaa1DebugFlags:
+  # - 0x1      Enable DPAA1 debugging messages
+  # - 0x2      Dump values of RAM words or registers
+  # - 0x4      Perform extra checks
+  # - 0x8      Trace sent/received network packets
+  #
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1Initialize|FALSE|BOOLEAN|0x000001C0
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1DebugFlags|0x0|UINT32|0x000001C1
+  gNxpQoriqLsTokenSpaceGuid.PcdFManFwFlashAddr|0x0|UINT32|0x000001C2
+
+  #
+  # Bit mask to indicate the DPAA1 MEMACs to be used.
+  # MeMaci is selected to be used, if bit 'i - 1' is set in the bit mask,
+  # where i is the range '1 .. #Memacs'. For example, if we want MEMAC5
+  # to be used, the value of the mask needs to be 0x10 (bit 4 set)
+  #
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1UsedMemacsMask|0x0|UINT64|0x000001C3
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1FmanMdio1Addr|0x0|UINT64|0x000001C4
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1FmanMdio2Addr|0x0|UINT64|0x000001C5
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1FmanAddr|0x0|UINT64|0x000001C6
+  gNxpQoriqLsTokenSpaceGuid.PcdSgmiiPrtclInit|FALSE|BOOLEAN|0x000001C7
+
+  #
   # DPAA2 PCDs
   #
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McPortalBaseAddr|0x0|UINT64|0x000001E1

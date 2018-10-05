@@ -47,6 +47,14 @@
   SecureMonRngLib|Silicon/NXP/Library/SecureMonRngLib/SecureMonRngLib.inf
   MemoryInitPeiLib|Silicon/NXP/Library/MemoryInitPei/MemoryInitPeiLib.inf
 
+  #
+  # DPAA1
+  #
+  Dpaa1Lib|Silicon/NXP/Library/Dpaa1Lib/Dpaa1Lib.inf
+  Dpaa1EthernetMacLib|Silicon/NXP/Library/Dpaa1EthernetMacLib/Dpaa1EthernetMacLib.inf
+  Dpaa1EthernetPhyLib|Silicon/NXP/Library/Dpaa1EthernetPhyLib/Dpaa1EthernetPhyLib.inf
+  Dpaa1BoardLib|Platform/NXP/LS1046aRdbPkg/Library/Dpaa1BoardLib/Dpaa1BoardLib.inf
+
 [PcdsFixedAtBuild.common]
 
   #
@@ -103,6 +111,20 @@
 
   gNxpQoriqLsTokenSpaceGuid.PcdFmanFwFlashAddr|0x40900000
 
+ #
+ # DPAA1 Pcds
+ #
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1Initialize|TRUE
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1DebugFlags|0x0
+  gNxpQoriqLsTokenSpaceGuid.PcdFManFwFlashAddr|0x40900000
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1UsedMemacsMask|0x33C
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1FmanMdio1Addr|0x01AFC000
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1FmanMdio2Addr|0x01AFD000
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1FmanAddr|0x01a00000
+  gNxpQoriqLsTokenSpaceGuid.PcdFManFwFlashAddr|0x40900000
+  gNxpQoriqLsTokenSpaceGuid.PcdSgmiiPrtclInit|TRUE
+
+
 ################################################################################
 #
 # Components Section - list of all EDK II Modules needed by this Platform
@@ -131,6 +153,12 @@
   Silicon/NXP/Drivers/SpiConfigurationDxe/SpiConfigurationDxe.inf
 
   Silicon/NXP/Drivers/SataInitDxe/SataInitDxe.inf
+
+  #
+  # DPAA1 Ethernet driver
+  #
+  Silicon/NXP/Drivers/Dpaa1Ethernet/Dpaa1EthernetDxe.inf
+
   #
   # DT support
   #

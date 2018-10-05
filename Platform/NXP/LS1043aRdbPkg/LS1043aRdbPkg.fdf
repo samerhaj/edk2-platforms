@@ -165,6 +165,12 @@ READ_LOCK_STATUS   = TRUE
 
   INF ShellPkg/DynamicCommand/TftpDynamicCommand/TftpDynamicCommand.inf
 
+
+  #
+  # DPAA1 Ethernet driver
+  #
+  INF Silicon/NXP/Drivers/Dpaa1Ethernet/Dpaa1EthernetDxe.inf
+
   #
   # FAT filesystem + GPT/MBR partitioning
   #
