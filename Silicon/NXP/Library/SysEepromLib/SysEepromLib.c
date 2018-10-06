@@ -276,6 +276,8 @@ GenerateMacAddress (
     return Status;
   }
 
+  // The mac address is displayed as big endian
+  EthernetId = SwapBytes16 (EthernetId);
   /*
    * Build MAC address from SoC's unique hardware identifier:
    */

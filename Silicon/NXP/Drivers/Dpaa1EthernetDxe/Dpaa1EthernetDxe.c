@@ -104,7 +104,7 @@ FdtFixupFmanFirmware (
     return EFI_DEVICE_ERROR;
   }
 
-  FdtStatus = fdt_setprop_string (Dtb, FmanNode, "compatible", "fsl,fman-firmware");
+  FdtStatus = fdt_setprop_string (Dtb, FirmwareNode, "compatible", "fsl,fman-firmware");
   if (FdtStatus < 0) {
     DEBUG ((DEBUG_ERROR, "Could not add compatible property : %s\n", fdt_strerror (FdtStatus)));
     return EFI_DEVICE_ERROR;
@@ -250,7 +250,7 @@ FdtFixupBmanVersion (
   UINT32     BmanRev1, BmanRev2;
   CHAR8      CompatStr[64];
 
-  NodeOffset = fdt_node_offset_by_compatible (Dtb, -1, "fsl,qman");
+  NodeOffset = fdt_node_offset_by_compatible (Dtb, -1, "fsl,bman");
   if (NodeOffset < 0) {
     // Exit silently if there are no Qman devices
     return EFI_SUCCESS;
@@ -299,6 +299,8 @@ FdtFixupBmanVersion (
 
 /**
   insert the mac addresses into the device tree
+  NOTE : the ethernet node enable/disable depending on serdes protocol
+  should have been done before calling this function
 
   @param[in] Dtb     Dtb Image into which mac addresses are to be inserted.
 
@@ -310,13 +312,15 @@ FdtFixupMacAddresses (
   IN   VOID    *Dtb
   )
 {
-  UINT32 I, Prop;
-  CONST CHAR8 *Path, *Name;
-  UINT8  MacAddr[6];
-  INT32 NodeOffset;
-  EFI_STATUS Status;
-  INT32  FdtStatus;
-  UINT32 EthernetId;
+  UINT32             I, Prop;
+  CONST CHAR8        *Path, *Name;
+  UINT8              MacAddr[6];
+  INT32              NodeOffset;
+  EFI_STATUS         Status;
+  INT32              FdtStatus;
+  UINT32             EthernetId;
+  INT32              PropLen;
+  CONST fdt32_t      *PropCompatible;
 
   EthernetId = 0;
 
@@ -333,26 +337,45 @@ FdtFixupMacAddresses (
       NodeOffset = fdt_next_property_offset(Dtb, NodeOffset);
     }
 
+    // No property left, get out of loop
     if (NodeOffset < 0) {
       break;
     }
 
     Path = fdt_getprop_by_offset(Dtb, NodeOffset, &Name, NULL);
-    if (!AsciiStrnCmp(Name, "ethernet", AsciiStrLen("ethernet"))) {
+    // Check if tha alias points to an ethernet node
+    if (!AsciiStrnCmp(Name, "ethernet", AsciiStrLen("ethernet")) ) {
+      // check the node in device tree
+      NodeOffset = fdt_path_offset (Dtb, Path);
+      if (NodeOffset < 0) {
+        DEBUG ((DEBUG_ERROR, "Did not find path %a for alias %a\n", Path, Name));
+      }
+      // check if the ethernet is enabled or not?
+      // if not enable, no need to add mac address
+      PropCompatible = fdt_getprop (Dtb, NodeOffset, "status", &PropLen);
+      if (PropCompatible == NULL) {
+        DEBUG ((DEBUG_WARN, "status property not found\n"));
+      } else if (PropLen != (AsciiStrLen ("okay") + 1)
+               || !fdt_stringlist_contains ( (CHAR8 *)PropCompatible, PropLen, "okay"))
+      {
+
+        // It should say "okay", so only allow that. Some fdts use "ok" but
+        // this is a bug. Please fix your device tree source file. See here
+        // for discussion:
+        //
+        // http://www.mail-archive.com/u-boot@lists.denx.de/msg71598.html
+
+        continue;
+      }
       Status = MacReadFromEeprom (EthernetId, MacAddr);
       if (EFI_ERROR (Status)) {
         Status = GenerateMacAddress (EthernetId, MacAddr);
       }
       if (EFI_ERROR (Status)) {
-        DEBUG ((DEBUG_ERROR, "Error getting mac address for Ethernet %d status %r\n", EthernetId, Status));
+        DEBUG ((DEBUG_ERROR, "Error getting mac address status %r\n", Status));
         return EFI_DEVICE_ERROR;
       }
       EthernetId++;
-
-      NodeOffset = fdt_path_offset (Dtb, Path);
-      if (NodeOffset < 0) {
-        DEBUG ((DEBUG_ERROR, "Did not find path %a for alias %a\n", Path, Name));
-      }
 
       if (fdt_getprop (Dtb, NodeOffset, "mac-address", NULL) != NULL) {
         FdtStatus = fdt_setprop (Dtb, NodeOffset, "mac-address", MacAddr, sizeof(MacAddr));
@@ -436,4 +459,3 @@ Dpaa1EthernetDxeEntryPoint (
 
   return Status;
 }
-
