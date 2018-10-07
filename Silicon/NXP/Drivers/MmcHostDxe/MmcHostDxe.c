@@ -459,7 +459,7 @@ MmcHostDxeEntryPoint (
   Status = EfiGetSystemConfigurationTable (&gFdtTableGuid, &Dtb);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "Did not find the Dtb Blob.\n"));
-    return EFI_NOT_FOUND;
+    return EFI_SUCCESS;
   }
 
   Status = FdtFixupMmc (Dtb);
