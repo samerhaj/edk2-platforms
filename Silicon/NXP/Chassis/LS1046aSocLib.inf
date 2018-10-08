@@ -21,6 +21,7 @@
   LIBRARY_CLASS                  = SocLib
 
 [Packages]
+  ArmPkg/ArmPkg.dec
   MdeModulePkg/MdeModulePkg.dec
   MdePkg/MdePkg.dec
   Silicon/NXP/NxpQoriqLs.dec
@@ -28,6 +29,7 @@
   Silicon/NXP/LS1046A/LS1046A.dec
 
 [LibraryClasses]
+  ArmSmcLib
   BaseLib
   BeIoLib
   DebugLib

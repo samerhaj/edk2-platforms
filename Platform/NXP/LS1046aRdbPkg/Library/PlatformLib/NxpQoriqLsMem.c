@@ -23,6 +23,8 @@
 #include <Library/PcdLib.h>
 #include <Library/MemoryAllocationLib.h>
 
+#include <DramInfo.h>
+
 #define MAX_VIRTUAL_MEMORY_MAP_DESCRIPTORS          25
 
 /**
@@ -44,6 +46,7 @@ ArmPlatformGetVirtualMemoryMap (
   ARM_MEMORY_REGION_ATTRIBUTES     CacheAttributes;
   UINTN                            Index;
   ARM_MEMORY_REGION_DESCRIPTOR     *VirtualMemoryTable;
+  DRAM_INFO                        DramInfo;
 
   Index = 0;
 
@@ -56,16 +59,24 @@ ArmPlatformGetVirtualMemoryMap (
     return;
   }
 
+  if (GetDramBankInfo (&DramInfo)) {
+    DEBUG ((DEBUG_ERROR, "Failed to get DRAM information, exiting...\n"));
+    return;
+  }
+
+
   CacheAttributes = ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK;
 
-  // DRAM1 (Must be 1st entry)
-  VirtualMemoryTable[Index].PhysicalBase = FixedPcdGet64 (PcdDram1BaseAddr);
-  VirtualMemoryTable[Index].VirtualBase  = FixedPcdGet64 (PcdDram1BaseAddr);
-  VirtualMemoryTable[Index].Length       = FixedPcdGet64 (PcdDram1Size);
-  VirtualMemoryTable[Index].Attributes   = CacheAttributes;
+  for (Index = 0; Index < DramInfo.NumOfDrams; Index++) {
+    // DRAM1 (Must be 1st entry)
+    VirtualMemoryTable[Index].PhysicalBase = DramInfo.DramRegion[Index].BaseAddress;
+    VirtualMemoryTable[Index].VirtualBase  = DramInfo.DramRegion[Index].BaseAddress;
+    VirtualMemoryTable[Index].Length       = DramInfo.DramRegion[Index].Size;
+    VirtualMemoryTable[Index].Attributes   = CacheAttributes;
+  }
 
   // CCSR Space
-  VirtualMemoryTable[++Index].PhysicalBase = FixedPcdGet64 (PcdCcsrBaseAddr);
+  VirtualMemoryTable[Index].PhysicalBase = FixedPcdGet64 (PcdCcsrBaseAddr);
   VirtualMemoryTable[Index].VirtualBase  = FixedPcdGet64 (PcdCcsrBaseAddr);
   VirtualMemoryTable[Index].Length       = FixedPcdGet64 (PcdCcsrSize);
   VirtualMemoryTable[Index].Attributes   = ARM_MEMORY_REGION_ATTRIBUTE_DEVICE;
@@ -113,12 +124,6 @@ ArmPlatformGetVirtualMemoryMap (
   VirtualMemoryTable[Index].Length       = FixedPcdGet64 (PcdIfcRegion2Size);
   VirtualMemoryTable[Index].Attributes   = ARM_MEMORY_REGION_ATTRIBUTE_DEVICE;
 
-  // DRAM2
-  VirtualMemoryTable[++Index].PhysicalBase = FixedPcdGet64 (PcdDram2BaseAddr);
-  VirtualMemoryTable[Index].VirtualBase  = FixedPcdGet64 (PcdDram2BaseAddr);
-  VirtualMemoryTable[Index].Length       = FixedPcdGet64 (PcdDram2Size);
-  VirtualMemoryTable[Index].Attributes   = CacheAttributes;
-
   // PCIe1
   VirtualMemoryTable[++Index].PhysicalBase = FixedPcdGet64 (PcdPciExp1BaseAddr);
   VirtualMemoryTable[Index].VirtualBase  = FixedPcdGet64 (PcdPciExp1BaseAddr);
@@ -136,12 +141,6 @@ ArmPlatformGetVirtualMemoryMap (
   VirtualMemoryTable[Index].VirtualBase  = FixedPcdGet64 (PcdPciExp3BaseAddr);
   VirtualMemoryTable[Index].Length       = FixedPcdGet64 (PcdPciExp3BaseSize);
   VirtualMemoryTable[Index].Attributes   = ARM_MEMORY_REGION_ATTRIBUTE_DEVICE;
-
-  // DRAM3
-  VirtualMemoryTable[++Index].PhysicalBase = FixedPcdGet64 (PcdDram3BaseAddr);
-  VirtualMemoryTable[Index].VirtualBase  = FixedPcdGet64 (PcdDram3BaseAddr);
-  VirtualMemoryTable[Index].Length       = FixedPcdGet64 (PcdDram3Size);
-  VirtualMemoryTable[Index].Attributes   = CacheAttributes;
 
   // QSPI region
   VirtualMemoryTable[++Index].PhysicalBase = FixedPcdGet64 (PcdQspiRegionBaseAddr);

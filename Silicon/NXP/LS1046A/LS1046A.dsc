@@ -52,12 +52,6 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp2BaseSize|0x800000000
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp3BaseAddr|0x5000000000
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp3BaseSize|0x800000000
-  gNxpQoriqLsTokenSpaceGuid.PcdDram1BaseAddr|0x0080000000
-  gNxpQoriqLsTokenSpaceGuid.PcdDram1Size|0x0080000000
-  gNxpQoriqLsTokenSpaceGuid.PcdDram2BaseAddr|0x0880000000
-  gNxpQoriqLsTokenSpaceGuid.PcdDram2Size|0x0780000000
-  gNxpQoriqLsTokenSpaceGuid.PcdDram3BaseAddr|0x8800000000
-  gNxpQoriqLsTokenSpaceGuid.PcdDram3Size|0x7800000000
   gNxpQoriqLsTokenSpaceGuid.PcdScfgBaseAddr|0x1570000
   gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr|0x01EE0000
   gNxpQoriqLsTokenSpaceGuid.PcdWdog1BaseAddr|0x02AD0000
