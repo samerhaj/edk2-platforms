@@ -105,7 +105,9 @@ typedef struct {
     UINT32     Upper;
     UINT32     Lower;
   } TpCluster[3];
-  UINT8      Res858[0x1000-0x858];
+  UINT8      Res858[0x900-0x858];
+  UINT32     QspiCR1;
+  UINT8      Res904[0x1000-0x904];
 } CCSR_GUR;
 
 ///

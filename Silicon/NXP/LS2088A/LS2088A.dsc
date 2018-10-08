@@ -26,6 +26,10 @@
   gArmTokenSpaceGuid.PcdGicRedistributorsBase|0x6100000
   gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0x00
 
+[LibraryClasses.common]
+  SocClockLib|Silicon/NXP/LS2088A/Library/SocClockLib/SocClockLib.inf
+  SocFixupLib|Silicon/NXP/Library/SocFixupLibNull/SocFixupLibNull.inf
+
 [PcdsFixedAtBuild.common]
 
   gArmPlatformTokenSpaceGuid.PcdSP805WatchdogBase|0x0C000000
