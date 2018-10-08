@@ -49,8 +49,6 @@
   gArmTokenSpaceGuid.PcdArmPrimaryCore
   gNxpQoriqLsTokenSpaceGuid.PcdCcsrBaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdCcsrSize
-  gNxpQoriqLsTokenSpaceGuid.PcdRomBaseAddr
-  gNxpQoriqLsTokenSpaceGuid.PcdRomSize
   gNxpQoriqLsTokenSpaceGuid.PcdQspiRegionBaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdQspiRegionSize
   gNxpQoriqLsTokenSpaceGuid.PcdQspiRegion2BaseAddr
@@ -63,11 +61,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp3BaseSize
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp4BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp4BaseSize
-  gNxpQoriqLsTokenSpaceGuid.PcdDramMemSize
-  gNxpQoriqLsTokenSpaceGuid.PcdDram2BaseAddr
-  gNxpQoriqLsTokenSpaceGuid.PcdDram2Size
   gNxpQoriqLsTokenSpaceGuid.PcdMcHighMemSupport
-  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McRamSize
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McPortalBaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McPortalSize
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2NiPortalsBaseAddr
@@ -75,5 +69,5 @@
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2QBmanPortalsBaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2QBmanPortalSize
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2QBmanPortalsCacheSize
-  gNxpQoriqLsTokenSpaceGuid.PcdOcram1Size
-  gNxpQoriqLsTokenSpaceGuid.PcdOcram1BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McHighRamSize
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLowRamSize

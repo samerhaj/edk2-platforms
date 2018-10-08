@@ -27,10 +27,3 @@
 ################################################################################
 [Includes.common]
   Include                        # Root include for the package
-
-[PcdsFixedAtBuild.common]
-  gNxpQoriqLsTokenSpaceGuid.PcdFvNorSize|0x0|UINT32|0x0000409
-  gNxpQoriqLsTokenSpaceGuid.PcdFvNorBaseAddress|0x0|UINT64|0x000040A
-  gNxpQoriqLsTokenSpaceGuid.PcdOcram1BaseAddr|0x18000000|UINT64|0x000040B
-  gNxpQoriqLsTokenSpaceGuid.PcdOcram1Size|0x00200000|UINT64|0x0000040C
-

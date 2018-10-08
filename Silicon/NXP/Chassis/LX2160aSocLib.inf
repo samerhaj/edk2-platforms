@@ -56,3 +56,5 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPcieExp4SysAddr
   gNxpQoriqLsTokenSpaceGuid.PcdPcieExp5SysAddr
   gNxpQoriqLsTokenSpaceGuid.PcdPcieExp6SysAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McHighRamSize
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLowRamSize

@@ -52,27 +52,23 @@
   Dpaa2ManagementComplexLib|Silicon/NXP/Library/Dpaa2ManagementComplexLib/Dpaa2ManagementComplexLib.inf
   Dpaa2McInterfaceLib|Silicon/NXP/Library/Dpaa2McInterfaceLib/Dpaa2McInterfaceLib.inf
   SecureMonRngLib|Silicon/NXP/Library/SecureMonRngLib/SecureMonRngLib.inf
+  MemoryInitPeiLib|Silicon/NXP/Library/MemoryInitPei/MemoryInitPeiLib.inf
 
 [PcdsFixedAtBuild.common]
 
 !if $(MC_HIGH_MEM) == TRUE                                        # Management Complex loaded at the end of DDR2
-  gNxpQoriqLsTokenSpaceGuid.PcdDram1BaseAddr|0x0080000000         # Actual base address (0x0080000000)
-  gNxpQoriqLsTokenSpaceGuid.PcdDram1Size|0x0080000000             # 2 GB
-  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McRamSize|0x80000000          # 2GB (PcdDpaa2McRamSize must be 512MB aligned)
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McHighRamSize|0x80000000      # 2GB (must be 512MB aligned)
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLowRamSize|0x0
   gNxpQoriqLsTokenSpaceGuid.PcdMcHighMemSupport|1
   gArmTokenSpaceGuid.PcdSystemMemoryBase|0x0080000000             # Actual base
   gArmTokenSpaceGuid.PcdSystemMemorySize|0x007BE00000             # 2G - 66MB (ATF)
 !else
-  gNxpQoriqLsTokenSpaceGuid.PcdDram1BaseAddr|0x00A0000000         # Actual base address (0x0080000000) + 512MB
-  gNxpQoriqLsTokenSpaceGuid.PcdDram1Size|0x0060000000             # 2GB - 512MB
-  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McRamSize|0x20000000          # 512MB (Fixed)
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McHighRamSize|0x0             # 512MB (Fixed)
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLowRamSize|0x20000000       # 512MB (Fixed)
   gNxpQoriqLsTokenSpaceGuid.PcdMcHighMemSupport|0
   gArmTokenSpaceGuid.PcdSystemMemoryBase|0x00A0000000             # Actual base + 512MB
   gArmTokenSpaceGuid.PcdSystemMemorySize|0x005BE00000             # 2G - 512MB - 66MB (ATF)
 !endif
-  gNxpQoriqLsTokenSpaceGuid.PcdDramMemSize|0x380000000            # 14 GB
-  gNxpQoriqLsTokenSpaceGuid.PcdDram2BaseAddr|0x2080000000
-  gNxpQoriqLsTokenSpaceGuid.PcdDram2Size|0x8800000000             # 512 GB
   gArmPlatformTokenSpaceGuid.PcdSystemMemoryUefiRegionSize|0x02000000
 
   #
@@ -185,7 +181,6 @@
   Silicon/NXP/Drivers/SataInitDxe/SataInitDxe.inf
   Silicon/NXP/Drivers/MmcHostDxe/MmcHostDxe.inf
   Silicon/NXP/Drivers/Dpaa2EthernetDxe/Dpaa2EthernetDxe.inf
-  Silicon/NXP/Drivers/ExtendedSystemInitDxe/ExtendedSystemInitDxe.inf
   Silicon/NXP/Drivers/RngDxe/RngDxe.inf
 
  ##
