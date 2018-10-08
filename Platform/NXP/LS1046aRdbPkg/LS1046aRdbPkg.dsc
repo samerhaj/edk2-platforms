@@ -122,6 +122,8 @@
   }
   MdeModulePkg/Bus/Pci/PciBusDxe/PciBusDxe.inf
 
+  Silicon/NXP/Drivers/LanIntelE1000Dxe/LanIntelE1000Dxe.inf
+
   Silicon/NXP/Drivers/QspiDxe/QspiDxe.inf
   Silicon/NXP/Drivers/SpiBusDxe/SpiBusDxe.inf
   Silicon/NXP/Drivers/SpiNorFlashDxe/SpiNorFlashDxe.inf
