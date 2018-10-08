@@ -1220,12 +1220,12 @@ CreateDpaa2EthernetDevice (
     return EFI_DEVICE_ERROR;
   } else {
     DPAA_DEBUG_MSG ("MAC addr: %02X:%02X:%02X:%02X:%02X:%02X\n",
-                    MacAddrBuf->Addr[0],
-                    MacAddrBuf->Addr[1],
-                    MacAddrBuf->Addr[2],
-                    MacAddrBuf->Addr[3],
-                    MacAddrBuf->Addr[4],
-                    MacAddrBuf->Addr[5]);
+                    Dpaa2EthDev->SnpMode.CurrentAddress.Addr[0],
+                    Dpaa2EthDev->SnpMode.CurrentAddress.Addr[1],
+                    Dpaa2EthDev->SnpMode.CurrentAddress.Addr[2],
+                    Dpaa2EthDev->SnpMode.CurrentAddress.Addr[3],
+                    Dpaa2EthDev->SnpMode.CurrentAddress.Addr[4],
+                    Dpaa2EthDev->SnpMode.CurrentAddress.Addr[5]);
   }
 
   /*
