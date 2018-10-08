@@ -22,6 +22,7 @@ typedef enum {
   IP_FMAN,
   IP_ESDHC,
   IP_QSPI,
+  IP_FLEX_SPI,
   IP_IFC,
   IP_USB,
   IP_USB_PHY,

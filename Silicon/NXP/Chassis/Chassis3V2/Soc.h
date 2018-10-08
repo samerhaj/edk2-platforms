@@ -109,8 +109,10 @@ typedef struct {
   struct {
     UINT32     Upper;
     UINT32     Lower;
-  } TpCluster[7];
-  UINT8      Res858[0x1000-0x880];
+  } TpCluster[8];
+  UINT8     Res880[0x900-0x880];
+  UINT32    FlexSPICR1;
+  UINT8     Res904[0x1000-0x904];
 } CCSR_GUR;
 
 ///

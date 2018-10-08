@@ -26,6 +26,10 @@
   gArmTokenSpaceGuid.PcdGicRedistributorsBase|0x6200000
   gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0x0c0c0000
 
+[LibraryClasses.common]
+  SocClockLib|Silicon/NXP/LX2160A/Library/SocClockLib/SocClockLib.inf
+  SocFixupLib|Silicon/NXP/Library/SocFixupLibNull/SocFixupLibNull.inf
+
 [PcdsFixedAtBuild.common]
   gArmTokenSpaceGuid.PcdGenericWatchdogControlBase|0x23A0000
   gArmTokenSpaceGuid.PcdGenericWatchdogRefreshBase|0x2390000
