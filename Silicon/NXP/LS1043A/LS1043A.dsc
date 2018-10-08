@@ -25,6 +25,10 @@
   gArmTokenSpaceGuid.PcdGicDistributorBase|0x01401000
   gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase|0x01402000
 
+[LibraryClasses.common]
+  SocClockLib|Silicon/NXP/LS1043A/Library/SocClockLib/SocClockLib.inf
+  SocFixupLib|Silicon/NXP/Library/SocFixupLibNull/SocFixupLibNull.inf
+
 [PcdsFixedAtBuild.common]
 
   #
