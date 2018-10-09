@@ -135,6 +135,46 @@ FdtSocFixup (
     }
   }
 
+  //
+  // if overlay is applied, check if gic address are changed too
+  //
+  if (Index > 1) {
+    CONST UINT64  *RegProp;
+    INTN Offset;
+    UINT64 GicDistributorBase;
+    UINT64 GicInterruptInterfaceBase;
+
+    //
+    // Check for Gic node , DT must have gic
+    // 
+    Offset =  fdt_node_offset_by_compatible (Dtb, -1, "arm,gic-400");
+
+    ASSERT (Offset != -FDT_ERR_NOTFOUND);
+
+    RegProp = fdt_getprop (Dtb, Offset, "reg", &PropLen);
+    ASSERT (PropLen == 64);
+
+    //
+    // Get the Gic Distributor Base
+    //
+    GicDistributorBase = fdt64_to_cpu (ReadUnaligned64 (RegProp));
+
+    //
+    // Move to Interrupt Interface Base
+    //
+    RegProp +=2;
+    //
+    // Get the Gic Distributor Base
+    //
+    GicInterruptInterfaceBase = fdt64_to_cpu (ReadUnaligned64 (RegProp));
+    DEBUG ((DEBUG_INFO, "Gic DistBase %x Interrupt Base %x \n", GicDistributorBase, GicInterruptInterfaceBase));
+
+    //
+    // Changed GIC base addresses
+    //
+    PcdSet64S (PcdGicDistributorBase, GicDistributorBase);
+    PcdSet64S (PcdGicInterruptInterfaceBase, GicInterruptInterfaceBase);
+  }
   return Status;
 }
 

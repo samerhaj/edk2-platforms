@@ -92,6 +92,12 @@ READ_LOCK_STATUS   = TRUE
   INF MdeModulePkg/Universal/PCD/Dxe/Pcd.inf
 
   #
+  # DT support
+  #
+  INF RuleOverride = DTB Platform/NXP/LS1043aRdbPkg/DeviceTree/DeviceTree.inf
+  INF Silicon/NXP/Drivers/DtPlatformDxe/DtPlatformDxe.inf
+
+  #
   # PI DXE Drivers producing Architectural Protocols (EFI Services)
   #
   INF ArmPkg/Drivers/CpuDxe/CpuDxe.inf
@@ -207,11 +213,6 @@ READ_LOCK_STATUS   = TRUE
   INF MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
   INF MdeModulePkg/Application/UiApp/UiApp.inf
 
-  #
-  # DT support
-  #
-  INF RuleOverride = DTB Platform/NXP/LS1043aRdbPkg/DeviceTree/DeviceTree.inf
-  INF Silicon/NXP/Drivers/DtPlatformDxe/DtPlatformDxe.inf
   INF Silicon/NXP/Drivers/Dpaa1EthernetDxe/Dpaa1EthernetDxe.inf
 
 [FV.FVMAIN_COMPACT]
