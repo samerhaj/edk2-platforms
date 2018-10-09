@@ -1,0 +1,92 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Device Tree Overlay for Freescale Layerscape-1043A Rev 1.1 SOC.
+ *
+ * Copyright 2018 NXP
+ *
+ */
+
+/dts-v1/;
+/plugin/;  /* allow undefined label references and record them */
+
+/ {
+    /* indicates that the overlay file is for different revision of LS1043A SOC*/
+    /* This should be the first compatible property in file, so that the overlay can be identified*/
+    compatible = "fsl,ls1043a-rev";
+    reg = <0x1>; /*For Si 1.1, the minor revision is 0x1.*/
+
+    fragment@0 {
+      target = <&msi1>;
+      #address-cells = <2>;
+      #size-cells = <2>;
+      __overlay__ {
+        compatible = "fsl,ls1043a-v1.1-msi";
+        interrupts = <0x0 116 0x4 0x0 111 0x4 0x0 112 0x4 0x0 113 0x4>;
+        reg = <0x0 0x1571000 0x0 0x1000>;
+      };
+    };
+
+    fragment@1 {
+      target = <&msi2>;
+      #address-cells = <2>;
+      #size-cells = <2>;
+      __overlay__ {
+        compatible = "fsl,ls1043a-v1.1-msi";
+        interrupts = <0x0 126 0x4 0x0 121 0x4 0x0 122 0x4 0x0 123 0x4>;
+        reg = <0x0 0x1572000 0x0 0x1000>;
+      };
+    };
+
+    fragment@2 {
+      target = <&msi3>;
+      #address-cells = <2>;
+      #size-cells = <2>;
+      __overlay__ {
+        compatible = "fsl,ls1043a-v1.1-msi";
+        interrupts = <0x0 160 0x4 0x0 155 0x4 0x0 156 0x4 0x0 157 0x4>;
+        reg = <0x0 0x1573000 0x0 0x1000>;
+      };
+    };
+
+    fragment@3 {
+      target = <&gic>;
+      #address-cells = <2>;
+      #size-cells = <2>;
+      __overlay__ {
+        reg = <0x0 0x1410000 0 0x10000>, /* GICD */
+              <0x0 0x1420000 0 0x20000>, /* GICC */
+              <0x0 0x1440000 0 0x20000>, /* GICH */
+              <0x0 0x1460000 0 0x20000>; /* GICV */
+        };
+    };
+
+    fragment@4 {
+      target-path = "/soc/pcie@3400000";
+      __overlay__ {
+        interrupt-map = <0000 0 0 1 &gic 0 110 0x4>,
+                        <0000 0 0 2 &gic 0 111 0x4>,
+                        <0000 0 0 3 &gic 0 112 0x4>,
+                        <0000 0 0 4 &gic 0 113 0x4>;
+        };
+    };
+
+    fragment@5 {
+      target-path = "/soc/pcie@3500000";
+      __overlay__ {
+        interrupt-map = <0000 0 0 1 &gic 0 120 0x4>,
+                        <0000 0 0 2 &gic 0 121 0x4>,
+                        <0000 0 0 3 &gic 0 122 0x4>,
+                        <0000 0 0 4 &gic 0 123 0x4>;
+        };
+    };
+
+    fragment@6 {
+      target-path = "/soc/pcie@3600000";
+      __overlay__ {
+        interrupt-map = <0000 0 0 1 &gic 0 154 0x4>,
+                        <0000 0 0 2 &gic 0 155 0x4>,
+                        <0000 0 0 3 &gic 0 156 0x4>,
+                        <0000 0 0 4 &gic 0 157 0x4>;
+        };
+    };
+};

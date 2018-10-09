@@ -136,4 +136,11 @@
   Silicon/NXP/Drivers/MmcHostDxe/MmcHostDxe.inf
   Silicon/NXP/Drivers/NandFlashDxe/NandFlashDxe.inf
   Silicon/NXP/Drivers/RngDxe/RngDxe.inf
+  Silicon/NXP/Drivers/Dpaa1EthernetDxe/Dpaa1EthernetDxe.inf
+
+  #
+  # DT support
+  #
+  Platform/NXP/LS1043aRdbPkg/DeviceTree/DeviceTree.inf
+  Silicon/NXP/Drivers/DtPlatformDxe/DtPlatformDxe.inf
  ##
