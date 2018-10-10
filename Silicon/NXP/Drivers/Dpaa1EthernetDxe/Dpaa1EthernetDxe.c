@@ -271,7 +271,7 @@ FdtFixupBmanVersion (
   }
 
   Major = (BmanRev1 >> 8) & 0xff;
-  Minor = BmanRev2 & 0xff;
+  Minor = BmanRev1 & 0xff;
   IpCfg = BmanRev2 & 0xff;
 
   AsciiSPrint (CompatStr, sizeof(CompatStr), "fsl,bman-portal-%u.%u.%u", Major, Minor, IpCfg);

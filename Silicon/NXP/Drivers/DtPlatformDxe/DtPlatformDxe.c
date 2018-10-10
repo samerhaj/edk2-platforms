@@ -98,7 +98,7 @@ GetCryptoEra (
 
   if (BigEndian) {
     SecVidMs = BeMmioRead32 (CryptoAddress + VIDMS_OFFSET);
-    CcbVid = BeMmioRead32 (CryptoAddress + VIDMS_OFFSET);
+    CcbVid = BeMmioRead32 (CryptoAddress + CCBVID_OFFSET);
   } else {
     SecVidMs = MmioRead32 (CryptoAddress + VIDMS_OFFSET);
     CcbVid = MmioRead32 (CryptoAddress + CCBVID_OFFSET);
