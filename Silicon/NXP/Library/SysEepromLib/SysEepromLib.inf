@@ -46,3 +46,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cAddress
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSpeed
 
+[Depex]
+  gEfiVariableArchProtocolGuid        AND
+  gEfiVariableWriteArchProtocolGuid
+
