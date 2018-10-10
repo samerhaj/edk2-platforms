@@ -44,6 +44,7 @@ FdtSocFixup (
   UINTN           Svr;
   UINTN           Index;
   VOID            *DtbOverlay;
+  INT32           NodeOffset;
 
   GurBase = (VOID *)PcdGet64 (PcdGutsBaseAddr);
   ASSERT (GurBase != NULL);
@@ -103,6 +104,35 @@ FdtSocFixup (
 
     // Move onto next Overlay File
     Index++;
+  }
+
+  if (Svr & BIT11) {
+    // 2 core variant of LS1043A SOC : LS1023A present. disable cpu 2 and 3
+    NodeOffset = fdt_path_offset (Dtb, "/cpus/cpu@2");
+    if (NodeOffset >= 0) {
+      FdtStatus = fdt_del_node (Dtb, NodeOffset);
+      if (FdtStatus) {
+        DEBUG ((
+          EFI_D_ERROR,
+          "fdt_del_node/failed to delete node /cpus/cpu@2: %a\n",
+          fdt_strerror (FdtStatus)
+          ));
+        return EFI_DEVICE_ERROR;
+      }
+    }
+
+    NodeOffset = fdt_path_offset (Dtb, "/cpus/cpu@3");
+    if (NodeOffset >= 0) {
+      FdtStatus = fdt_del_node (Dtb, NodeOffset);
+      if (FdtStatus) {
+        DEBUG ((
+          EFI_D_ERROR,
+          "fdt_del_node/failed to delete node /cpus/cpu@3: %a\n",
+          fdt_strerror (FdtStatus)
+          ));
+        return EFI_DEVICE_ERROR;
+      }
+    }
   }
 
   return Status;
