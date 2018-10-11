@@ -28,16 +28,30 @@
 [Packages]
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
   Silicon/NXP/NxpQoriqLs.dec
   Silicon/NXP/Chassis/Chassis2/Chassis2.dec
 
 [LibraryClasses]
   DebugLib
   DevicePathLib
+  FdtLib
   MemoryAllocationLib
+  ItbParseLib
   PcdLib
   SocLib
   UefiBootServicesTableLib
+  UefiLib
+
+[Protocols]
+  gEfiPciIoProtocolGuid  ## CONSUMES ## PROTOCOL
+
+[Guids]
+  gFdtTableGuid
+
+[FixedPcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdStart
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdEnd
 
 [Pcd]
   gNxpQoriqLsTokenSpaceGuid.PcdPciLutBigEndian
@@ -51,4 +65,5 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp4BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp5BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp6BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdPciFdtCompatible
   gNxpQoriqLsTokenSpaceGuid.PcdPcieConfigurePex

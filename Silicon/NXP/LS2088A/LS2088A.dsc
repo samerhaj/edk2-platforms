@@ -62,6 +62,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp3BaseSize|0x800000000        # 32 GB
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp4BaseAddr|0x3800000000
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp4BaseSize|0x800000000        # 32 GB
+  gNxpQoriqLsTokenSpaceGuid.PcdPciFdtCompatible|"fsl,ls2088a-pcie"
   gNxpQoriqLsTokenSpaceGuid.PcdUsbBaseAddr|0x3100000
   gNxpQoriqLsTokenSpaceGuid.PcdUsbSize|0x10000
   gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr|0x1E00000
@@ -98,5 +99,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2CortinaFwMaxLen|0x40000
   gNxpQoriqLsTokenSpaceGuid.PcdBypassAmqMask|0x60000
   gNxpQoriqLsTokenSpaceGuid.PcdMacDeviceDisableRegAddr|0x1e00074
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdStart|7
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdEnd|22
 
 ##

@@ -120,6 +120,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPcieExp4SysAddr|0x0|UINT64|0x000001D8
   gNxpQoriqLsTokenSpaceGuid.PcdPcieExp5SysAddr|0x0|UINT64|0x000001D9
   gNxpQoriqLsTokenSpaceGuid.PcdPcieExp6SysAddr|0x0|UINT64|0x000001DA
+  gNxpQoriqLsTokenSpaceGuid.PcdPciFdtCompatible|""|VOID*|0x000001DB
 
   #
   # IFC PCDs
@@ -245,4 +246,10 @@
   # DPAA1 Pcds
   #
   gNxpQoriqLsTokenSpaceGuid.PcdFmanFwFlashAddr|0x00|UINT64|0x00000354
+
+  #
+  # IO MMU Pcds
+  #
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdStart|0x00|UINT32|0x00000355
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdEnd|0x00|UINT32|0x00000356
 

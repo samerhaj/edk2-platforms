@@ -52,6 +52,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp2BaseSize|0x800000000
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp3BaseAddr|0x5000000000
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp3BaseSize|0x800000000
+  gNxpQoriqLsTokenSpaceGuid.PcdPciFdtCompatible|"fsl,ls1043a-pcie"
   gNxpQoriqLsTokenSpaceGuid.PcdScfgBaseAddr|0x1570000
   gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr|0x01EE0000
   gNxpQoriqLsTokenSpaceGuid.PcdWdog1BaseAddr|0x02AD0000
@@ -65,5 +66,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdNumPciController|3
   gNxpQoriqLsTokenSpaceGuid.PcdRomBaseAddr|0x00000000
   gNxpQoriqLsTokenSpaceGuid.PcdRomSize|0x00100000
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdStart|11
+  gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdEnd|26
 
 ##

@@ -14,17 +14,24 @@
 **/
 
 #include <PiDxe.h>
+#include <libfdt.h>
 #include <IndustryStandard/Pci22.h>
 #include <Library/BeIoLib.h>
 #include <Library/DebugLib.h>
 #include <Library/DevicePathLib.h>
 #include <Library/IoLib.h>
+#include <Library/ItbParse.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/PcdLib.h>
 #include <Library/PciHostBridgeLib.h>
+#include <Library/UefiBootServicesTableLib.h>
+#include <Library/UefiLib.h>
 #include <Pcie.h>
 #include <Protocol/PciHostBridgeResourceAllocation.h>
 #include <Protocol/PciRootBridgeIo.h>
+#include <Protocol/PciIo.h>
+
+#include "PciHostBridgeLib.h"
 
 #pragma pack(1)
 typedef struct {
@@ -32,6 +39,12 @@ typedef struct {
   EFI_DEVICE_PATH_PROTOCOL EndDevicePath;
 } EFI_PCI_ROOT_BRIDGE_DEVICE_PATH;
 #pragma pack ()
+
+//
+// Protocol notify related globals
+//
+VOID          *PlatformHasPciIoNotifyReg;
+EFI_EVENT     PlatformHasPciIoEvent;
 
 STATIC CONST EFI_PCI_ROOT_BRIDGE_DEVICE_PATH mEfiPciRootBridgeDevicePath[] = {
   {
@@ -614,6 +627,336 @@ PcieSetupCntrl (
 }
 
 /**
+  Find the Pcie Node Offset in device tree, whose address matches with the given address
+
+  @param[in] Dtb         Device tree to fixup
+  @param[in] Address     addresses of registers of pcie controller which is to be matched
+
+  @retval  Pcie Node Offset in device tree. if no node found then -FDT_ERR_NOTFOUND
+**/
+INT32
+FdtFindPcie (
+  IN  VOID    *Dtb,
+  IN  UINTN   Address
+  )
+{
+  INTN    NodeOffset;
+  UINT64  PcieAddress;
+  UINT8   RegIndex;
+  EFI_STATUS Status;
+
+  /* find pci controller node */
+  for (NodeOffset = fdt_node_offset_by_compatible (Dtb, -1, (VOID *)(PcdGetPtr (PcdPciFdtCompatible)));
+       NodeOffset != -FDT_ERR_NOTFOUND;
+       NodeOffset = fdt_node_offset_by_compatible (Dtb, NodeOffset, (VOID *)(PcdGetPtr (PcdPciFdtCompatible)))) {
+    // Get the Index of Controllers' registers
+    RegIndex = fdt_stringlist_search (Dtb, NodeOffset, "reg-names", "regs");
+    if (RegIndex < 0) {
+      RegIndex = 0;
+    }
+    // Get the controller's registers' address from node.
+    Status = FdtGetAddressSize (Dtb, NodeOffset, "reg", RegIndex, &PcieAddress, NULL);
+    if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "Error: can't get regs base address(Status = %r)!\n", Status));
+      continue;
+    }
+    // Search the address in received array from PciHostBridgeLib
+    if (Address == PcieAddress) {
+      break;
+    }
+  }
+
+  return NodeOffset;
+}
+
+/**
+  Program a single LUT entry
+ **/
+STATIC
+VOID
+PcieLutSetMapping (
+  IN   LS_PCIE   *LsPcie,
+  IN   INT32     Index,
+  IN   UINT32    BusDevFuc,
+  IN   UINT32    StreamId
+  )
+{
+  /* leave mask as all zeroes, want to match all bits */
+  if (FeaturePcdGet (PcdPciLutBigEndian)) {
+    BeMmioWrite32 (LsPcie->LsPcieLut->PexLut[Index].PexLudr, BusDevFuc << 16);
+    BeMmioWrite32 (LsPcie->LsPcieLut->PexLut[Index].PexLldr, StreamId | PCIE_LUT_ENABLE);
+  } else {
+    MmioWrite32 (LsPcie->LsPcieLut->PexLut[Index].PexLudr, BusDevFuc << 16);
+    MmioWrite32 (LsPcie->LsPcieLut->PexLut[Index].PexLldr, StreamId | PCIE_LUT_ENABLE);
+  }
+}
+
+/**
+  Return next available LUT index.
+ **/
+STATIC
+INT32
+PcieNextLutIndex (
+ IN  LS_PCIE   *LsPcie
+ )
+{
+  if (LsPcie->NextLutIndex < ARRAY_SIZE (LsPcie->LsPcieLut->PexLut)) {
+    return LsPcie->NextLutIndex++;
+  } else {
+    return -1;;  /* LUT is full */
+  }
+}
+
+/**
+  returns the next available streamid for pcie, OUT_OF_RESOURCES if failed
+ **/
+STATIC
+INT32
+PcieNextStreamId ()
+{
+  STATIC INT32 NextStreamid = FixedPcdGet32 (PcdPcieStreamIdStart);
+
+  if (NextStreamid > FixedPcdGet32 (PcdPcieStreamIdEnd)) {
+    return -1;
+  }
+
+  return NextStreamid++;
+}
+
+/**
+  An msi-map is a property to be added to the pci controller
+  node.  It is a table, where each entry consists of 4 fields
+  e.g.:
+
+       msi-map = <[devid] [phandle-to-msi-ctrl] [stream-id] [count]
+                  [devid] [phandle-to-msi-ctrl] [stream-id] [count]>;
+ **/
+EFI_STATUS
+FdtPcieSetMsiMapEntry (
+  VOID      *Dtb,
+  INT32     PcieNodeOffset,
+  UINT32    BusDevFuc,
+  UINT32    StreamId
+  )
+{
+  INT32          FdtStatus;
+  CONST fdt32_t  *Property;
+  UINT32         PHandle;
+
+  /* get phandle to MSI controller */
+  Property = fdt_getprop (Dtb, PcieNodeOffset, "msi-parent", 0);
+  if (Property == NULL) {
+    DEBUG ((DEBUG_WARN, "missing msi-parent for %a\n", fdt_get_name (Dtb, PcieNodeOffset, NULL)));
+    return EFI_NOT_FOUND;
+  }
+  PHandle = fdt32_to_cpu (*Property);
+
+  /* set one msi-map row */
+  FdtStatus = fdt_appendprop_u32 (Dtb, PcieNodeOffset, "msi-map", BusDevFuc);
+  if (FdtStatus) {
+    goto Error;
+  }
+  FdtStatus = fdt_appendprop_u32 (Dtb, PcieNodeOffset, "msi-map", PHandle);
+  if (FdtStatus) {
+    goto Error;
+  }
+  FdtStatus = fdt_appendprop_u32 (Dtb, PcieNodeOffset, "msi-map", StreamId);
+  if (FdtStatus) {
+    goto Error;
+  }
+  FdtStatus = fdt_appendprop_u32 (Dtb, PcieNodeOffset, "msi-map", 1);
+  if (FdtStatus) {
+    goto Error;
+  }
+
+  return EFI_SUCCESS;
+
+Error:
+    DEBUG ((DEBUG_ERROR, "error setting msi-map for %a\n", fdt_get_name (Dtb, PcieNodeOffset, NULL)));
+    return EFI_DEVICE_ERROR;
+}
+
+/**
+  An iommu-map is a property to be added to the pci controller
+  node.  It is a table, where each entry consists of 4 fields
+  e.g.:
+
+       iommu-map = <[devid] [phandle-to-iommu-ctrl] [stream-id] [count]
+                  [devid] [phandle-to-iommu-ctrl] [stream-id] [count]>;
+ **/
+EFI_STATUS
+FdtPcieSetIommuMapEntry (
+  VOID    *Dtb,
+  INT32   PcieNodeOffset,
+  UINT32  BusDevFuc,
+  UINT32  StreamId
+  )
+{
+  INT32          FdtStatus;
+  CONST fdt32_t  *Property;
+  UINT32         IommuMap[4];
+
+  /* get phandle to iommu controller */
+  Property = fdt_getprop (Dtb, PcieNodeOffset, "iommu-map", NULL);
+  if (Property == NULL) {
+    DEBUG ((DEBUG_WARN, "missing iommu-map for %a\n", fdt_get_name (Dtb, PcieNodeOffset, NULL)));
+    return EFI_NOT_FOUND;
+  }
+
+  /* set iommu-map row */
+  IommuMap[0] = cpu_to_fdt32 (BusDevFuc);
+  IommuMap[1] = *++Property;
+  IommuMap[2] = cpu_to_fdt32 (StreamId);
+  IommuMap[3] = cpu_to_fdt32 (1);
+
+  if (BusDevFuc == 0) {
+    FdtStatus = fdt_setprop_inplace (Dtb, PcieNodeOffset, "iommu-map", IommuMap, 16);
+  } else {
+    FdtStatus = fdt_appendprop (Dtb, PcieNodeOffset, "iommu-map", IommuMap, 16);
+  }
+
+  if (FdtStatus) {
+    DEBUG ((DEBUG_ERROR, "error setting iommu-map for %a\n", fdt_get_name (Dtb, PcieNodeOffset, NULL)));
+    return EFI_DEVICE_ERROR;
+  }
+
+  return EFI_SUCCESS;
+}
+
+/**
+  This notification function is invoked when an instance of the
+  EFI_PCI_IO_PROTOCOL is produced.  It searches the devices on the IO
+  Protocol and fixes the device tree with msi-map and iommu-map property
+  corresponding to that device.
+
+  @param  Event                 The event that occured
+  @param  Context               The address of PCIE Registers
+
+**/
+VOID
+EFIAPI
+OnPlatformHasPciIo (
+  IN  EFI_EVENT Event,
+  IN  VOID      *Context
+  )
+{
+  EFI_HANDLE            Handle;
+  EFI_STATUS            Status;
+  UINTN                 BufferSize;
+  EFI_PCI_IO_PROTOCOL   *PciIo;
+  UINTN                 SegmentNumber;
+  UINTN                 BusNumber;
+  UINTN                 DeviceNumber;
+  UINTN                 FunctionNumber;
+  UINTN                 BusDevFuc;
+  INTN                  PcieNodeOffset;
+  VOID                  *Dtb;
+  UINT32                StreamId;
+  UINT32                LutIndex;
+  LS_PCIE               *LsPcie;
+
+  LsPcie = (LS_PCIE *)Context;
+
+  Status = EfiGetSystemConfigurationTable (&gFdtTableGuid, &Dtb);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "Did not find the Dtb Blob.\n"));
+    return;
+  }
+
+  //
+  // Examine all new handles
+  //
+  for (;;) {
+    //
+    // Get the next handle
+    //
+    BufferSize = sizeof (Handle);
+    Status = gBS->LocateHandle (
+                    ByRegisterNotify,
+                    NULL,
+                    PlatformHasPciIoNotifyReg,
+                    &BufferSize,
+                    &Handle
+                    );
+
+    //
+    // If not found, we're done
+    //
+    if (EFI_NOT_FOUND == Status) {
+      break;
+    }
+
+    if (EFI_ERROR (Status)) {
+      continue;
+    }
+
+    //
+    // Get the PciIo protocol on that handle
+    //
+    Status = gBS->HandleProtocol (Handle, &gEfiPciIoProtocolGuid, (VOID **)&PciIo);
+    ASSERT_EFI_ERROR (Status);
+    ASSERT (PciIo != NULL);
+
+    //
+    // Get the Bus Device and Function
+    //
+    Status = PciIo->GetLocation (
+                      PciIo,
+                      &SegmentNumber,
+                      &BusNumber,
+                      &DeviceNumber,
+                      &FunctionNumber
+                      );
+
+    // Combine Bus, Device and Function number
+    // Bus       PCI Bus number. Range 0..255.
+    // Device    PCI Device number. Range 0..31.
+    // Function  PCI Function number. Range 0..7.
+    BusDevFuc = ((BusNumber & 0xff) << 8) | ((DeviceNumber & 0x1f) << 3) | (FunctionNumber & 0x07);
+
+    LutIndex = PcieNextLutIndex (&LsPcie[SegmentNumber]);
+    if (LutIndex < 0) {
+      DEBUG ((DEBUG_WARN, "No free Lut Index for Pcie\n"));
+      continue;
+    }
+
+    // Get a free StreamId from pool, if not found we are done
+    StreamId = PcieNextStreamId ();
+    if (StreamId < 0) {
+      DEBUG ((DEBUG_WARN, "No free StreamId for Pcie\n"));
+      break;
+    }
+
+    // Segment Number denotes the controller number
+    // Find the controller node offset in Device tree based on this
+    PcieNodeOffset = FdtFindPcie (Dtb, LsPcie[SegmentNumber].ControllerAddress);
+    if (PcieNodeOffset < 0) {
+      DEBUG ((
+        DEBUG_WARN,
+        "Pcie node with regs address %p node found in Dtb\n",
+        LsPcie[SegmentNumber].ControllerAddress
+        ));
+      continue;
+    }
+
+    Status = FdtPcieSetIommuMapEntry (Dtb, PcieNodeOffset, BusDevFuc, StreamId);
+    if (Status != EFI_NOT_FOUND) {
+      break;
+    }
+
+    Status = FdtPcieSetMsiMapEntry (Dtb, PcieNodeOffset, BusDevFuc, StreamId);
+    if (Status != EFI_NOT_FOUND) {
+      break;
+    }
+
+    PcieLutSetMapping (&LsPcie[SegmentNumber], LutIndex, BusDevFuc, StreamId);
+  }
+
+  return;
+}
+
+
+/**
   Return all the root bridge instances in an array.
 
   @param Count  Return the count of root bridge instances.
@@ -636,8 +979,15 @@ PciHostBridgeGetRootBridges (
   UINT64 PciPhyIoAddr[NUM_PCIE_CONTROLLER];
   UINT64 Regs[NUM_PCIE_CONTROLLER];
   UINT8  PciEnabled[NUM_PCIE_CONTROLLER];
+  LS_PCIE *LsPcie;
 
   *Count = 0;
+
+  LsPcie = AllocateZeroPool (sizeof (LS_PCIE) * NUM_PCIE_CONTROLLER);
+  if (!LsPcie) {
+    DEBUG ((DEBUG_ERROR, "Failed to allocate memory for Pcie controller data\n"));
+    return NULL;
+  }
 
   //
   // Filling local array for
@@ -650,6 +1000,9 @@ PciHostBridgeGetRootBridges (
     PciPhyCfg1Addr[Idx] = PCI_SEG0_PHY_CFG1_BASE + (PCI_BASE_DIFF * Idx);
     PciPhyIoAddr [Idx] =  PCI_SEG0_PHY_IO_BASE + (PCI_BASE_DIFF * Idx);
     Regs[Idx] =  PCI_SEG0_DBI_BASE + (PCI_DBI_SIZE_DIFF * Idx);
+    LsPcie[Idx].ControllerAddress = Regs[Idx];
+    LsPcie[Idx].NextLutIndex = 0;
+    LsPcie[Idx].LsPcieLut = (LS_PCIE_LUT *)(LsPcie[Idx].ControllerAddress + PCI_LUT_BASE);
   }
 
   for (Idx = 0; Idx < NUM_PCIE_CONTROLLER; Idx++) {
@@ -697,6 +1050,16 @@ PciHostBridgeGetRootBridges (
     PciEnabled[*Count] = Idx;
 
     *Count += BIT0;
+  }
+
+  if (!PlatformHasPciIoEvent) {
+    PlatformHasPciIoEvent = EfiCreateProtocolNotifyEvent (
+                            &gEfiPciIoProtocolGuid,
+                            TPL_CALLBACK,
+                            OnPlatformHasPciIo,
+                            LsPcie,
+                            &PlatformHasPciIoNotifyReg
+                            );
   }
 
   if (*Count == 0) {
