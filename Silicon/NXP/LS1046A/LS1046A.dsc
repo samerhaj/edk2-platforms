@@ -76,7 +76,5 @@
   gNxpQoriqLsTokenSpaceGuid.PcdDspiFdtCompatible|"fsl,ls1021a-v1.0-dspi"
   gNxpQoriqLsTokenSpaceGuid.PcdQspiErratumA008886|TRUE
   gNxpQoriqLsTokenSpaceGuid.PcdSpiBusCount|2
-  gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdStart|11
-  gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdEnd|26
 
 ##

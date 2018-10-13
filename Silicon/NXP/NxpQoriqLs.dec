@@ -177,8 +177,6 @@
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McDpcMcDramOffset|0x0|UINT32|0x000001EE
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McDplMaxLen|0x0|UINT32|0x000001EF
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McDplMcDramOffset|0x0|UINT32|0x000001F0
-  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2StreamIdStart|0x0|UINT32|0x000001F2
-  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2StreamIdEnd|0x0|UINT32|0x000001F3
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McBootTimeoutMs|0x0|UINT32|0x000001F4
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLogMcDramOffset|0x0|UINT32|0x000001F5
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLogLevel|0x0|UINT8|0x000001F6
@@ -252,4 +250,6 @@
   #
   gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdStart|0x00|UINT32|0x00000355
   gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdEnd|0x00|UINT32|0x00000356
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2StreamIdStart|0x0|UINT32|0x000001F2
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2StreamIdEnd|0x0|UINT32|0x000001F3
 

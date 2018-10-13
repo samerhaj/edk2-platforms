@@ -66,7 +66,5 @@
   gNxpQoriqLsTokenSpaceGuid.PcdNumPciController|3
   gNxpQoriqLsTokenSpaceGuid.PcdRomBaseAddr|0x00000000
   gNxpQoriqLsTokenSpaceGuid.PcdRomSize|0x00100000
-  gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdStart|11
-  gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdEnd|26
 
 ##

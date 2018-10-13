@@ -99,7 +99,5 @@
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2CortinaFwMaxLen|0x40000
   gNxpQoriqLsTokenSpaceGuid.PcdBypassAmqMask|0x60000
   gNxpQoriqLsTokenSpaceGuid.PcdMacDeviceDisableRegAddr|0x1e00074
-  gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdStart|7
-  gNxpQoriqLsTokenSpaceGuid.PcdPcieStreamIdEnd|22
 
 ##

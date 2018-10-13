@@ -29,6 +29,7 @@
   FLASH_DEFINITION               = Platform/NXP/LS1046aRdbPkg/LS1046aRdbPkg.fdf
 
 !include ../NxpQoriqLs.dsc
+!include ../../../Silicon/NXP/Chassis/Chassis2/Chassis2.dsc
 !include ../../../Silicon/NXP/LS1046A/LS1046A.dsc
 
 [LibraryClasses.common]
