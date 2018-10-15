@@ -181,5 +181,10 @@
   Silicon/NXP/Drivers/MmcHostDxe/MmcHostDxe.inf
   Silicon/NXP/Drivers/Dpaa2EthernetDxe/Dpaa2EthernetDxe.inf
   Silicon/NXP/Drivers/RngDxe/RngDxe.inf
+  #
+  # DT support
+  #
+  Platform/NXP/LX2160aRdbPkg/DeviceTree/DeviceTree.inf
+  Silicon/NXP/Drivers/DtPlatformDxe/DtPlatformDxe.inf
 
  ##

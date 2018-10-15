@@ -28,7 +28,7 @@
 
 [LibraryClasses.common]
   SocClockLib|Silicon/NXP/LX2160A/Library/SocClockLib/SocClockLib.inf
-  SocFixupLib|Silicon/NXP/Library/SocFixupLibNull/SocFixupLibNull.inf
+  SocFixupLib|Silicon/NXP/LX2160A/Library/SocFixupLib/SocFixupLib.inf
 
 [PcdsFixedAtBuild.common]
   gArmTokenSpaceGuid.PcdGenericWatchdogControlBase|0x23A0000
