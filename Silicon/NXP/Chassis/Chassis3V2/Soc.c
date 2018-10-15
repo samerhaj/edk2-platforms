@@ -229,12 +229,16 @@ UpdateDpaaDram (
 {
   UINT8            I;
 
-  if (FixedPcdGet64 (PcdDpaa2McLowRamSize) || FixedPcdGet64 (PcdDpaa2McHighRamSize)) {
-    DramInfo->DramRegion[0].BaseAddress += FixedPcdGet64 (PcdDpaa2McLowRamSize);
+  if (FixedPcdGet64 (PcdDpaa2McLowRamSize)) {
     DramInfo->DramRegion[0].Size -= FixedPcdGet64 (PcdDpaa2McLowRamSize);
-    if (DramInfo->NumOfDrams >= 2) {
+    //
+    // To align address boundary with DPAA2 requirements
+    // 
+    DramInfo->DramRegion[0].Size &= 0xE0000000;
+  }
+
+  if (FixedPcdGet64 (PcdDpaa2McHighRamSize)) {
       DramInfo->DramRegion[1].Size -= FixedPcdGet64 (PcdDpaa2McHighRamSize);
-    }
   }
 
   for (I = 0;  I < DramInfo->NumOfDrams; I++) {

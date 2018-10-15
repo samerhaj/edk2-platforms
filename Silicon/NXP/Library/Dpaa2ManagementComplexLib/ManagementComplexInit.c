@@ -132,7 +132,7 @@ Dpaa2McAllocatePrivateMem (
     McRamBlock = (VOID *)(DramInfo.DramRegion[1].BaseAddress + DramInfo.DramRegion[1].Size +
                    FixedPcdGet64 (PcdDpaa2McHighRamSize) - MC_FIXED_SIZE_512MB);
   } else {
-    McRamBlock = (VOID *)(DramInfo.DramRegion[0].BaseAddress - FixedPcdGet64 (PcdDpaa2McLowRamSize));
+    McRamBlock = (VOID *)(DramInfo.DramRegion[0].BaseAddress + DramInfo.DramRegion[0].Size);
   }
   DEBUG ((DEBUG_INFO, " McRamBlock 0x%lx, McRamSize 0x%lx \n", McRamBlock, McRamSize));
 
@@ -195,7 +195,7 @@ McCopyImage (
   )
 {
   DPAA_DEBUG_MSG (
-     "Copying %a from address 0x%p to address 0x%p (%u bytes) ...\n", Title,
+     "Copying %a from address 0x%lx to address 0x%lx (%u bytes) ...\n", Title,
      ImageFlashAddr, McRamAddr, ImageSize);
 
   /*
@@ -534,11 +534,11 @@ McFixupDpc (
   DisableMcLogging = FixedPcdGetBool (PcdDisableMcLogging);
 
   /* Use Extra memory for Dpc bloc (Required for Dpc Fixup) */
-  Status = fdt_open_into (DpcBlob, DpcBlob, fdt_totalsize (DpcRamAddr) + EFI_PAGE_SIZE);
-  if (EFI_ERROR (Status)) {
-    DPAA_ERROR_MSG ("%a : Unable to allocate memory (0x%x) for DPC blob \n",__FUNCTION__,
-                   (fdt_totalsize (DpcRamAddr) + EFI_PAGE_SIZE));
-    return Status;
+  FdtError = fdt_open_into (DpcBlob, DpcBlob, fdt_totalsize (DpcRamAddr) + EFI_PAGE_SIZE);
+  if (FdtError < 0) {
+    DPAA_ERROR_MSG ("%a : Unable to allocate memory 0x%lx (0x%lx) for DPC blob Err %a\n",
+      __FUNCTION__,  DpcRamAddr, (fdt_totalsize (DpcRamAddr) + EFI_PAGE_SIZE), fdt_strerror (FdtError));
+    return EFI_OUT_OF_RESOURCES;
   }
 
   ASSERT (Dpaa2StreamIdEnd > Dpaa2StreamIdStart);
