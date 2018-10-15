@@ -987,6 +987,48 @@ InitMcLogVars (
                Mc->McLogBufferStartPtr, McLog->BufLength);
 }
 
+EFI_STATUS
+FdtMcFixupIommuMapEntry (
+  IN VOID *Dtb
+  )
+{
+  CONST fdt32_t  *Property;
+  UINT32         IommuMap[4];
+  INT32          NodeOffset;
+  INT32          FdtStatus;
+
+  /* find fsl-mc node */
+  NodeOffset = fdt_path_offset (Dtb, "/soc/fsl-mc");
+  if (NodeOffset < 0) {
+    NodeOffset = fdt_path_offset (Dtb, "/fsl-mc");
+  }
+  if (NodeOffset < 0) {
+    DEBUG ((DEBUG_WARN, "ERROR: fsl-mc node not found in device tree (error %d)\n", NodeOffset));
+    return EFI_NOT_FOUND;
+  }
+
+  Property = fdt_getprop (Dtb, NodeOffset, "iommu-map", NULL);
+  if (Property == NULL) {
+    DEBUG ((DEBUG_WARN, "ERROR: missing iommu-map in fsl-mc bus node\n"));
+    return EFI_NOT_FOUND;
+  }
+
+  IommuMap[0] = cpu_to_fdt32(FixedPcdGet32 (PcdDpaa2StreamIdStart));
+  IommuMap[1] = *++Property;
+  IommuMap[2] = cpu_to_fdt32(FixedPcdGet32 (PcdDpaa2StreamIdStart));
+  IommuMap[3] = cpu_to_fdt32(FixedPcdGet32 (PcdDpaa2StreamIdEnd) - FixedPcdGet32 (PcdDpaa2StreamIdStart) + 1);
+
+  FdtStatus = fdt_setprop_inplace (Dtb, NodeOffset, "iommu-map", IommuMap, sizeof (IommuMap));
+  if (FdtStatus) {
+    DEBUG ((
+      DEBUG_ERROR, "error %a setting iommu-map for %a\n",
+      fdt_strerror (FdtStatus), fdt_get_name (Dtb, NodeOffset, NULL)
+      ));
+    return EFI_DEVICE_ERROR;
+  }
+
+  return EFI_SUCCESS;
+}
 
 /**
    Initializes the DPAA2 Management Complex (MC) module.
@@ -1016,6 +1058,7 @@ Dpaa2McInit (
   INT32 ContainerId;
   DPAA2_MC_FW_SOURCE McFwSrc;
   BOOLEAN McCoreReleased;
+  VOID    *Dtb;
 
   Status = EFI_SUCCESS;
   Mc = &gManagementComplex;
@@ -1168,7 +1211,16 @@ Dpaa2McInit (
   }
 
   ASSERT (Mc->RootDprcHandle != 0);
-  Status = EFI_SUCCESS;
+
+  Status = EfiGetSystemConfigurationTable (&gFdtTableGuid, &Dtb);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "Did not find the Dtb Blob.\n"));
+  } else {
+    Status = FdtMcFixupIommuMapEntry (Dtb);
+    if (Status == EFI_NOT_FOUND) {
+      Status = EFI_SUCCESS;
+    }
+  }
 
 Out:
   if (EFI_ERROR (Status)) {

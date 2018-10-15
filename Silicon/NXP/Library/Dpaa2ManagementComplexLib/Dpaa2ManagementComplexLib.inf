@@ -39,6 +39,9 @@
   MdeModulePkg/MdeModulePkg.dec
   Silicon/NXP/NxpQoriqLs.dec
 
+[Guids]
+  gFdtTableGuid
+
 [FixedPcd]
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McFwSrc
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McFwNorAddr

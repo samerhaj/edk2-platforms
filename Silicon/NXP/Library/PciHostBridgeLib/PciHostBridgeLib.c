@@ -772,7 +772,10 @@ FdtPcieSetMsiMapEntry (
   return EFI_SUCCESS;
 
 Error:
-    DEBUG ((DEBUG_ERROR, "error setting msi-map for %a\n", fdt_get_name (Dtb, PcieNodeOffset, NULL)));
+    DEBUG ((
+      DEBUG_ERROR, "error %a setting msi-map for %a\n",
+      fdt_strerror (FdtStatus), fdt_get_name (Dtb, PcieNodeOffset, NULL)
+      ));
     return EFI_DEVICE_ERROR;
 }
 
@@ -816,7 +819,10 @@ FdtPcieSetIommuMapEntry (
   }
 
   if (FdtStatus) {
-    DEBUG ((DEBUG_ERROR, "error setting iommu-map for %a\n", fdt_get_name (Dtb, PcieNodeOffset, NULL)));
+    DEBUG ((
+      DEBUG_ERROR, "error %a setting iommu-map for %a\n",
+      fdt_strerror (FdtStatus), fdt_get_name (Dtb, PcieNodeOffset, NULL)
+      ));
     return EFI_DEVICE_ERROR;
   }
 
