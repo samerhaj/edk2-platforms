@@ -20,6 +20,7 @@
 #include <Library/DxeServicesLib.h>
 #include <Library/IoLib.h>
 #include <Library/ItbParse.h>
+#include <Library/MemoryAllocationLib.h>
 #include <Library/PrintLib.h>
 #include <Library/SocClockLib.h>
 #include <Library/SysEepromLib.h>
@@ -28,6 +29,104 @@
 #include <Library/UefiDriverEntryPoint.h>
 
 #include "Dpaa1EthernetDxe.h"
+
+/**
+  Frees the Fman buffer allocated by GetFmanFirmware
+
+  @param[in]  FmanFw   Pointer to QeFirmware structure returned by GetFmanFirmware
+**/
+VOID
+FreeFmanFirmware (
+  IN  QeFirmware *FmanFw
+  )
+{
+  // memory for Preset Value 0xffffffff was allocated by GetFmanFirmware
+  FreePool ((VOID *)FmanFw - sizeof (UINT32));
+}
+
+/**
+  Allocate the Memory for Fman Firmware and load the Fman Firmware from Flash and validate it
+  If the firmware is correct, return its pointer in DDR memory
+
+  To free the Fman memory allocated by this function, FreeFmanFirmware function should be called
+
+  @param[out]  Length    if not null and retval is not null Length of Fman firmware
+                         if not null and retval is null then containes the error code
+  @retval                Null if no valid fman firmware found, otherwise fman firmware address in memory
+**/
+QeFirmware *
+GetFmanFirmware (
+  OUT  UINT32  *Length
+  )
+{
+  QeFirmware  *FmanFw, *FmanFwFlash;
+  UINT32      LengthFound;
+  UINT32      Crc;
+  UINT32      CrcCalculated;
+  EFI_STATUS  Status;
+
+  FmanFw = NULL;
+  FmanFwFlash = (QeFirmware *)FixedPcdGet64 (PcdFmanFwFlashAddr);
+
+  // If firmware not found, then exit silently
+  if (FmanFwFlash == NULL) {
+    Status = EFI_NOT_FOUND;
+    goto Error;
+  }
+
+  if ((FmanFwFlash->Header.Magic[0] != 'Q') ||
+      (FmanFwFlash->Header.Magic[1] != 'E') ||
+      (FmanFwFlash->Header.Magic[2] != 'F')) {
+    DEBUG ((DEBUG_ERROR, "Data at %p is not Fman Firmware\n", FmanFwFlash));
+    Status = EFI_NOT_FOUND;
+    goto Error;
+  }
+
+  LengthFound = fdt32_to_cpu (FmanFwFlash->Header.Length);
+  LengthFound += sizeof (UINT32); // for Preset value
+  FmanFw = (QeFirmware *)AllocatePool (LengthFound);
+  if (FmanFw == NULL) {
+    DEBUG ((DEBUG_ERROR, "%a could not allocate memory %d for Fman Firmware\n", __FUNCTION__, LengthFound));
+    Status = EFI_OUT_OF_RESOURCES;
+    goto Error;
+  }
+
+  *(UINT32 *)FmanFw = MAX_UINT32; // Add preset value 0xffffffff to FmanFirmware
+  CopyMem ((VOID *)FmanFw + sizeof (UINT32), FmanFwFlash, LengthFound - sizeof (UINT32));
+  LengthFound -= sizeof (UINT32);  /* Subtract the size of the CRC */
+  Crc = fdt32_to_cpu (*(UINT32 *)( (VOID *)FmanFw + LengthFound));
+  Status = gBS->CalculateCrc32 ( (VOID *)FmanFw, LengthFound, &CrcCalculated);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "Error while calculating Fman CRC %r\n", Status));
+    goto Error;
+  }
+
+  CrcCalculated ^= MAX_UINT32;
+  if (Crc != CrcCalculated) {
+    DEBUG ((DEBUG_ERROR,
+      "Fman firmware at %p has invalid CRC expected = 0x%x, calculated = 0x%x\n",
+      FmanFwFlash, Crc, CrcCalculated
+    ));
+    Status = EFI_CRC_ERROR;
+    goto Error;
+  }
+
+  if (Length) {
+    *Length = LengthFound;
+  }
+
+  return ((VOID *)FmanFw + sizeof (UINT32));
+
+Error:
+  if (FmanFw) {
+    FreePool (FmanFw);
+  }
+  if (Length) {
+    *Length = Status;
+  }
+
+  return NULL;
+}
 
 /**
   insert the Fman firmware into the device tree
@@ -51,8 +150,6 @@ FdtFixupFmanFirmware (
   INTN  FmanNode, FirmwareNode;
   QeFirmware  *FmanFw;
   UINT32      Length;
-  UINT32      Crc;
-  UINT32      CrcCalculated;
   UINT32      PHandle;
   INTN        FdtStatus;
   EFI_STATUS  Status;
@@ -69,33 +166,16 @@ FdtFixupFmanFirmware (
     return EFI_SUCCESS;
   }
 
-  FmanFw = (QeFirmware *)FixedPcdGet64 (PcdFmanFwFlashAddr);
-
-  // If firmware not found, then exit silently
+  FmanFw = (QeFirmware *)GetFmanFirmware (&Length);
   if (FmanFw == NULL) {
-    return EFI_SUCCESS;
+    Status = Length;
+    if (Status == EFI_NOT_FOUND) {
+      // If firmware not found, then exit silently
+      return EFI_SUCCESS;
+    } else {
+      return Status;
+    }
   }
-
-  if ((FmanFw->Header.Magic[0] != 'Q') ||
-      (FmanFw->Header.Magic[1] != 'E') ||
-      (FmanFw->Header.Magic[2] != 'F')) {
-    DEBUG ((DEBUG_ERROR, "Data at %p is not Fman Firmware\n", FmanFw));
-    return EFI_SUCCESS;
-  }
-
-  Length = fdt32_to_cpu (FmanFw->Header.Length);
-  Length -= sizeof (UINT32);  /* Subtract the size of the CRC */
-  Crc = fdt32_to_cpu (*(UINT32 *)( (VOID *)FmanFw + Length));
-  Status = gBS->CalculateCrc32 ( (VOID *)FmanFw, Length, &CrcCalculated);
-  if (EFI_ERROR (Status) || Crc != CrcCalculated) {
-    DEBUG ((DEBUG_ERROR,
-      "Fman firmware at %p has invalid CRC expected = 0x%x, calculated = 0x%x, Status = %r\n",
-      FmanFw, Crc, CrcCalculated, Status
-    ));
-    //return EFI_CRC_ERROR;
-  }
-
-  Length += sizeof (UINT32);
 
   /* Create the firmware node. */
   FirmwareNode = fdt_add_subnode (Dtb, FmanNode, "fman-firmware");
@@ -143,6 +223,9 @@ FdtFixupFmanFirmware (
       return EFI_DEVICE_ERROR;
     }
   }
+
+  // before return free the Fman Firmware memory if no further use
+  FreeFmanFirmware (FmanFw);
 
   return EFI_SUCCESS;
 }

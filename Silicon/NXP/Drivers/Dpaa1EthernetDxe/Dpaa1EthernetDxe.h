@@ -59,7 +59,7 @@ typedef struct _QeFirmware {
   // All Microcode Binaries Should Be Located Here
   // CRC32 Should Be Located Here, After The Microcode Binaries
 } QeFirmware;
-#pragma pack (1)
+#pragma pack ()
 
 #endif // __DPAA1_ETHERNET_DXE_H__
 
