@@ -63,6 +63,7 @@ SocGetClock (
 
   switch (IpModule) {
     case IP_SYSCLK:
+    case IP_USB_PHY:
       ReturnValue = SysClkHz;
       break;
     case IP_DUART:

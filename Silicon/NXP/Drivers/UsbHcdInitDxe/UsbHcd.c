@@ -13,9 +13,12 @@
 **/
 
 #include <Bitops.h>
+#include <libfdt.h>
 #include <Library/DebugLib.h>
 #include <Library/IoLib.h>
 #include <Library/NonDiscoverableDeviceRegistrationLib.h>
+#include <Library/SocClockLib.h>
+#include <Library/UefiLib.h>
 
 #include "UsbHcd.h"
 
@@ -165,6 +168,43 @@ InitializeUsbController (
 }
 
 /**
+  Disable USB 3 node if USB phy speed is not 100MHz
+
+  @param[in]  Dtb       Device tree to fixup
+**/
+EFI_STATUS
+FdtFixupUsb (
+  IN  VOID*       Dtb
+  )
+{
+  INT32      NodeOffset;
+  UINT64     Usb3PhyClock;
+  INT32      FdtStatus;
+
+  Usb3PhyClock = SocGetClock (IP_USB_PHY, 0);
+
+  if (Usb3PhyClock == 100000000) {
+    return EFI_SUCCESS;
+  }
+
+  /* find USB3 node */
+  for (NodeOffset = fdt_node_offset_by_compatible (Dtb, -1, "snps,dwc3");
+       NodeOffset != -FDT_ERR_NOTFOUND;
+       NodeOffset = fdt_node_offset_by_compatible (Dtb, NodeOffset, "snps,dwc3")) {
+    FdtStatus = fdt_setprop_string (Dtb, NodeOffset, "status", "disabled");
+    if (FdtStatus) {
+      DEBUG ((
+        DEBUG_ERROR, "error %a setting status disabled for %a\n",
+        fdt_strerror (FdtStatus), fdt_get_name (Dtb, NodeOffset, NULL)
+        ));
+      return EFI_DEVICE_ERROR;
+    }
+  }
+
+  return EFI_SUCCESS;
+}
+
+/**
   The Entry Point of module. It follows the standard UEFI driver model.
 
   @param[in] ImageHandle   The firmware allocated handle for the EFI image.
@@ -184,9 +224,16 @@ InitializeUsbHcd (
   EFI_STATUS               Status;
   UINT32                   NumUsbController;
   UINT32                   ControllerAddr;
+  VOID                     *Dtb;
 
   Status = EFI_SUCCESS;
   NumUsbController = PcdGet32 (PcdNumUsbController);
+
+  Status = EfiGetSystemConfigurationTable (&gFdtTableGuid, &Dtb);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "Did not find the Dtb Blob.\n"));
+    return Status;
+  }
 
   while (NumUsbController) {
     NumUsbController--;
@@ -213,6 +260,11 @@ InitializeUsbHcd (
       DEBUG ((DEBUG_ERROR, "Failed to register USB device (0x%x) with error 0x%x \n",
                            ControllerAddr, Status));
     }
+  }
+
+  Status = FdtFixupUsb (Dtb);
+  if (Status == EFI_NOT_FOUND) {
+    Status = EFI_SUCCESS;
   }
 
   return Status;
