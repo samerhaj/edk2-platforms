@@ -45,6 +45,7 @@
 
 [Protocols]
   gEfiPciIoProtocolGuid  ## CONSUMES ## PROTOCOL
+  gEdkiiNonDiscoverableDeviceProtocolGuid    ## CONSUMES ## PROTOCOL
 
 [Guids]
   gFdtTableGuid
