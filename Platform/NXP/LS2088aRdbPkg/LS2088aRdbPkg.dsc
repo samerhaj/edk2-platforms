@@ -29,9 +29,9 @@
   FLASH_DEFINITION               = Platform/NXP/LS2088aRdbPkg/LS2088aRdbPkg.fdf
   DEFINE MC_HIGH_MEM             = TRUE
 
-!include ../NxpQoriqLs.dsc
-!include ../../../Silicon/NXP/Chassis/Chassis3/Chassis3.dsc
-!include ../../../Silicon/NXP/LS2088A/LS2088A.dsc
+!include Platform/NXP/NxpQoriqLs.dsc
+!include Silicon/NXP/Chassis/Chassis3/Chassis3.dsc
+!include Silicon/NXP/LS2088A/LS2088A.dsc
 
 [LibraryClasses.common]
   ArmPlatformLib|Platform/NXP/LS2088aRdbPkg/Library/PlatformLib/ArmPlatformLib.inf

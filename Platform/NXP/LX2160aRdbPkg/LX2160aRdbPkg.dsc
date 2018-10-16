@@ -29,9 +29,9 @@
   FLASH_DEFINITION               = Platform/NXP/LX2160aRdbPkg/LX2160aRdbPkg.fdf
   DEFINE MC_HIGH_MEM             = TRUE
 
-!include ../NxpQoriqLs.dsc
-!include ../../../Silicon/NXP/Chassis/Chassis3V2/Chassis3V2.dsc
-!include ../../../Silicon/NXP/LX2160A/LX2160A.dsc
+!include Platform/NXP/NxpQoriqLs.dsc
+!include Silicon/NXP/Chassis/Chassis3V2/Chassis3V2.dsc
+!include Silicon/NXP/LX2160A/LX2160A.dsc
 
 [LibraryClasses.common]
   ArmPlatformLib|Platform/NXP/LX2160aRdbPkg/Library/PlatformLib/ArmPlatformLib.inf

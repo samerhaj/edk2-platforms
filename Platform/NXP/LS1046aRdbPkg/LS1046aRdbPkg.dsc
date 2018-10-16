@@ -28,9 +28,9 @@
   OUTPUT_DIRECTORY               = Build/LS1046aRdbPkg
   FLASH_DEFINITION               = Platform/NXP/LS1046aRdbPkg/LS1046aRdbPkg.fdf
 
-!include ../NxpQoriqLs.dsc
-!include ../../../Silicon/NXP/Chassis/Chassis2/Chassis2.dsc
-!include ../../../Silicon/NXP/LS1046A/LS1046A.dsc
+!include Platform/NXP/NxpQoriqLs.dsc
+!include Silicon/NXP/Chassis/Chassis2/Chassis2.dsc
+!include Silicon/NXP/LS1046A/LS1046A.dsc
 
 [LibraryClasses.common]
   ArmPlatformLib|Platform/NXP/LS1046aRdbPkg/Library/PlatformLib/ArmPlatformLib.inf
