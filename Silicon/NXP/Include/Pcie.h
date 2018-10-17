@@ -138,12 +138,45 @@
 #define PAB_CTRL_PAGE_SEL_SHIFT                      13
 #define PAB_CTRL_PAGE_SEL_MASK                       0x3f
 
+/* PPIO WINs RC mode */
+#define PAB_PEX_AMAP_CTRL(Idx)                  (0x4ba0 + 0x10 * Idx)
+#define PAB_EXT_PEX_AMAP_SIZE(Idx)              (0xbef0 + 0x04 * Idx)
+#define PAB_PEX_AMAP_AXI_WIN(Idx)               (0x4ba4 + 0x10 * Idx)
+#define PAB_EXT_PEX_AMAP_AXI_WIN(Idx)           (0xb4a0 + 0x04 * Idx)
+#define PAB_PEX_AMAP_PEX_WIN_L(Idx)             (0x4ba8 + 0x10 * Idx)
+#define PAB_PEX_AMAP_PEX_WIN_H(Idx)             (0x4bac + 0x10 * Idx)
+#define IB_TYPE_MEM_F                           0x2
+#define IB_TYPE_MEM_NF                          0x3
+
+#define PEX_AMAP_CTRL_TYPE_SHIFT                0x1
+#define PEX_AMAP_CTRL_EN_SHIFT                  0x0
+#define PEX_AMAP_CTRL_TYPE_MASK                 0x3
+#define PEX_AMAP_CTRL_EN_MASK                   0x1
+
+
+/* PEX PIO Engines */
+#define PAB_PEX_PIO_CTRL(Idx)                   (0x8c0 + 0x10 * Idx)
+#define PPIO_EN                                 (0x1 << 0)
+#define PAB_PEX_PIO_STAT(Idx)                   (0x8c4 + 0x10 * Idx)
+#define PAB_PEX_PIO_MT_STAT(Idx)                (0x8c8 + 0x10 * Idx)
+
 // AXI PIO
 #define PAB_AXI_PIO_CTRL(Idx)                        (0x840 + 0x10 * Idx)
 #define APIO_EN                                      0x1
 #define MEM_WIN_EN                                   0x1 << 1
 #define IO_WIN_EN                                    0x1 << 2
 #define CFG_WIN_EN                                   0x1 << 3
+
+/* GPEX CSR */
+#define GPEX_CLASSCODE                          0x474
+#define GPEX_CLASSCODE_SHIFT                    16
+#define GPEX_CLASSCODE_MASK                     0xffff
+
+// GPEX ACK timeout
+#define GPEX_ACK_REPLAY_TO                      0x438
+#define ACK_LAT_TO_VAL_SHIFT                    0
+#define ACK_LAT_TO_VAL_MASK                     0x1fff
+
 
 #define INDIRECT_ADDR_BNDRY                          0xc00
 #define PAGE_IDX_SHIFT                               10

@@ -280,6 +280,45 @@ CcsrWrite32 (
   }
 }
 
+
+/*
+This function create the in-bound window for
+RC for mem transfer for entire 1TB space
+
+*/
+
+STATIC
+VOID
+PciSetupInBoundWin (
+  IN EFI_PHYSICAL_ADDRESS Pcie,
+  IN UINT32 Idx,
+  IN UINT32  Type,
+  IN UINT64 Phys,
+  IN UINT64 BusAddr,
+  IN UINT64 Size)
+{
+  UINT32 Val;
+  UINT64 WinSize;
+
+  WinSize = ~(Size - 1);
+
+  Val = CcsrRead32 ((UINTN)Pcie, PAB_PEX_AMAP_CTRL(Idx));
+
+  Val &= ~(PEX_AMAP_CTRL_TYPE_MASK << PEX_AMAP_CTRL_TYPE_SHIFT);
+  Val &= ~(PEX_AMAP_CTRL_EN_MASK << PEX_AMAP_CTRL_EN_SHIFT);
+  Val = (Val | (Type << PEX_AMAP_CTRL_TYPE_SHIFT));
+  Val = (Val | (1 << PEX_AMAP_CTRL_EN_SHIFT));
+
+  CcsrWrite32 ((UINTN)Pcie, PAB_PEX_AMAP_CTRL(Idx),
+               (Val | (UINT32)WinSize));
+
+  CcsrWrite32 ((UINTN)Pcie, PAB_EXT_PEX_AMAP_SIZE(Idx), (WinSize>>32));
+  CcsrWrite32 ((UINTN)Pcie, PAB_PEX_AMAP_AXI_WIN(Idx), (UINT32)Phys);
+  CcsrWrite32 ((UINTN)Pcie, PAB_EXT_PEX_AMAP_AXI_WIN(Idx), (Phys>>32));
+  CcsrWrite32 ((UINTN)Pcie, PAB_PEX_AMAP_PEX_WIN_L(Idx), (UINT32)BusAddr);
+  CcsrWrite32 ((UINTN)Pcie, PAB_PEX_AMAP_PEX_WIN_H(Idx), (BusAddr >>32));
+
+}
 /**
   Function to set-up iATU outbound window for PCIe controller
 
@@ -303,7 +342,23 @@ PcieOutboundSet (
   )
 {
   if (PcdGetBool (PcdPcieConfigurePex)) {
-    UINT32 Val = 0;
+    UINT32 Val;
+    Size = ~(Size -1 );
+
+    // Mapping AXI transactions to PEX address
+    Val = CcsrRead32 ((UINTN)Dbi, PAB_AXI_AMAP_CTRL (Idx));
+    Val &= ~((AXI_AMAP_CTRL_TYPE_MASK << AXI_AMAP_CTRL_TYPE_SHIFT) |
+           (AXI_AMAP_CTRL_SIZE_MASK << AXI_AMAP_CTRL_SIZE_SHIFT) |
+            AXI_AMAP_CTRL_EN);
+    // Type indicates the type of AXI transaction to the window address is mapped
+    // to CFG/IO/MEM
+    Val |= ((Type & AXI_AMAP_CTRL_TYPE_MASK) << AXI_AMAP_CTRL_TYPE_SHIFT) |
+         (((UINT32)Size >> AXI_AMAP_CTRL_SIZE_SHIFT) <<
+           AXI_AMAP_CTRL_SIZE_SHIFT) | AXI_AMAP_CTRL_EN;
+    // Program Address mapping enable, other fields with desired values in Bridge
+    // control Register
+    // Contols the mapping of address for AXI transactions to PEX address
+    CcsrWrite32 ((UINTN)Dbi, PAB_AXI_AMAP_CTRL (Idx), Val);
 
     // Program AXI window base with appropriate PCIe physical address space
     // values in Bridge Address mapping window Register
@@ -314,22 +369,8 @@ PcieOutboundSet (
     CcsrWrite32 ((UINTN)Dbi, PAB_AXI_AMAP_PEX_WIN_L (Idx), (UINT32)BusAddr);
     CcsrWrite32 ((UINTN)Dbi, PAB_AXI_AMAP_PEX_WIN_H (Idx), BusAddr >> 32);
     // Program the size of window
-    CcsrWrite32 ((UINTN)Dbi, PAB_EXT_AXI_AMAP_SIZE (Idx), (UINT64)Size >> 32);
+    CcsrWrite32 ((UINTN)Dbi, PAB_EXT_AXI_AMAP_SIZE (Idx), Size >> 32);
 
-    // Mapping AXI transactions to PEX address
-    Val = CcsrRead32 ((UINTN)Dbi, PAB_AXI_AMAP_CTRL (Idx));
-    Val &= ~((AXI_AMAP_CTRL_TYPE_MASK << AXI_AMAP_CTRL_TYPE_SHIFT) |
-             (AXI_AMAP_CTRL_SIZE_MASK << AXI_AMAP_CTRL_SIZE_SHIFT) |
-              AXI_AMAP_CTRL_EN);
-    // Type indicates the type of AXI transaction to the window address is mapped
-    // to CFG/IO/MEM
-    Val |= ((Type & AXI_AMAP_CTRL_TYPE_MASK) << AXI_AMAP_CTRL_TYPE_SHIFT) |
-           (((UINT32)Size >> AXI_AMAP_CTRL_SIZE_SHIFT) <<
-             AXI_AMAP_CTRL_SIZE_SHIFT) | AXI_AMAP_CTRL_EN;
-    // Program Address mapping enable, other fields with desired values in Bridge
-    // control Register
-    // Contols the mapping of address for AXI transactions to PEX address
-    CcsrWrite32 ((UINTN)Dbi, PAB_AXI_AMAP_CTRL (Idx), Val);
   } else {
     MmioWrite32 (Dbi + IATU_VIEWPORT_OFF,
                 (UINT32)(IATU_VIEWPORT_OUTBOUND | Idx));
@@ -586,15 +627,20 @@ PcieSetupCntrl (
   )
 {
   if (PcdGetBool (PcdPcieConfigurePex)) {
+
     UINT32 Val;
 
-    // Enable AMBA & PEX PIO
-    // PEX PIO is used to generate PIO traffic from PCIe Link to AXI
-    Val = CcsrRead32 ((UINTN)Pcie, PAB_CTRL);
-    // Enable AXI-PIO/PEX PIO
-    Val |= PAB_CTRL_APIO_EN | PAB_CTRL_PPIO_EN;
-    // Programm APIO/PPIO in Bridge control register
-    CcsrWrite32 ((UINTN)Pcie, PAB_CTRL, Val);
+    // Set ACK Latency Timeout 
+    Val = CcsrRead32 ((UINTN)Pcie, GPEX_ACK_REPLAY_TO);
+    Val &= ~(ACK_LAT_TO_VAL_MASK << ACK_LAT_TO_VAL_SHIFT);
+    Val |= (4 << ACK_LAT_TO_VAL_SHIFT);
+    CcsrWrite32 ((UINTN)Pcie, GPEX_ACK_REPLAY_TO, Val);
+
+    //Fix Class Code
+    Val = CcsrRead32 ((UINTN)Pcie, GPEX_CLASSCODE);
+    Val &= ~(GPEX_CLASSCODE_MASK << GPEX_CLASSCODE_SHIFT);
+    Val |= PCI_CLASS_BRIDGE_PCI << GPEX_CLASSCODE_SHIFT;
+    CcsrWrite32 ((UINTN)Pcie, GPEX_CLASSCODE, Val);
 
     // Enable APIO and Memory/IO/CFG Wins
     Val = CcsrRead32 ((UINTN)Pcie, PAB_AXI_PIO_CTRL (0));
@@ -609,7 +655,21 @@ PcieSetupCntrl (
       DEBUG ((DEBUG_INFO, "Going to SetUp PCIe Space Windows\n\n"));
     }
 
+    PciSetupInBoundWin (Pcie, 0, PAB_AXI_TYPE_MEM, 0 , 0, SIZE_1TB);
     PcieSetupWindow (Pcie, Cfg0Base, Cfg1Base, MemBase, IoBase);
+
+    // Enable AMBA & PEX PIO
+    // PEX PIO is used to generate PIO traffic from PCIe Link to AXI
+    Val = CcsrRead32 ((UINTN)Pcie, PAB_CTRL);
+    // Enable AXI-PIO/PEX PIO
+    Val |= PAB_CTRL_APIO_EN | PAB_CTRL_PPIO_EN;
+    // Programm APIO/PPIO in Bridge control register
+    CcsrWrite32 ((UINTN)Pcie, PAB_CTRL, Val);
+
+     Val = CcsrRead32((UINTN)Pcie, PAB_PEX_PIO_CTRL(0));
+     Val |= PPIO_EN;
+     CcsrWrite32((UINTN)Pcie, PAB_PEX_PIO_CTRL(0), Val);
+
   } else {
     //
     // iATU outbound set-up
