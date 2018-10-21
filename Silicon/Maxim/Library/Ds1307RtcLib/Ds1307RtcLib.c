@@ -24,12 +24,14 @@
 #include <Library/RealTimeClockLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiLib.h>
+#include <Library/UefiRuntimeLib.h>
 #include <Protocol/I2cMaster.h>
 
 #include "Ds1307Rtc.h"
 
 STATIC VOID                       *mDriverEventRegistration;
 STATIC EFI_I2C_MASTER_PROTOCOL    *mI2cMaster;
+STATIC EFI_EVENT                  mRtcVirtualAddrChangeEvent;
 
 /**
   Read RTC register.
@@ -259,6 +261,25 @@ LibSetWakeupTime (
   return EFI_UNSUPPORTED;
 }
 
+/**
+  Fixup internal data so that EFI can be call in virtual mode.
+  Call the passed in Child Notify event and convert any pointers in
+  lib to virtual mode.
+
+  @param[in]    Event   The Event that is being processed
+  @param[in]    Context Event Context
+**/
+VOID
+EFIAPI
+LibRtcVirtualNotifyEvent (
+  IN EFI_EVENT        Event,
+  IN VOID             *Context
+  )
+{
+  EfiConvertPointer (0x0, (VOID **)&mI2cMaster);
+}
+
+
 STATIC
 VOID
 I2cDriverRegistrationEvent (
@@ -292,6 +313,16 @@ I2cDriverRegistrationEvent (
   }
 
   mI2cMaster = I2cMaster;
+
+  //
+  // Register for the virtual address change event
+  //
+  Status = gBS->CreateEventEx (EVT_NOTIFY_SIGNAL, TPL_NOTIFY,
+                  LibRtcVirtualNotifyEvent, NULL,
+                  &gEfiEventVirtualAddressChangeGuid,
+                  &mRtcVirtualAddrChangeEvent);
+  ASSERT_EFI_ERROR (Status);
+
 }
 
 /**
