@@ -182,8 +182,8 @@ FdtFixupCrypto (
     if (Era) {
       FdtStatus = fdt_setprop_u32 (Dtb, NodeOffset, "fsl,sec-era", Era);
       if (FdtStatus) {
-	DEBUG ((DEBUG_ERROR, "fdt_setprop_u32/sec-era could not set property %a\n", fdt_strerror (FdtStatus)));
-	return EFI_DEVICE_ERROR;
+        DEBUG ((DEBUG_ERROR, "fdt_setprop_u32/sec-era could not set property %a\n", fdt_strerror (FdtStatus)));
+        return EFI_DEVICE_ERROR;
       }
     }
   }

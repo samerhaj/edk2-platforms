@@ -630,7 +630,7 @@ PcieSetupCntrl (
 
     UINT32 Val;
 
-    // Set ACK Latency Timeout 
+    // Set ACK Latency Timeout
     Val = CcsrRead32 ((UINTN)Pcie, GPEX_ACK_REPLAY_TO);
     Val &= ~(ACK_LAT_TO_VAL_MASK << ACK_LAT_TO_VAL_SHIFT);
     Val |= (4 << ACK_LAT_TO_VAL_SHIFT);
@@ -743,11 +743,11 @@ PcieLutSetMapping (
 {
   /* leave mask as all zeroes, want to match all bits */
   if (FeaturePcdGet (PcdPciLutBigEndian)) {
-    BeMmioWrite32 (LsPcie->LsPcieLut->PexLut[Index].PexLudr, BusDevFuc << 16);
-    BeMmioWrite32 (LsPcie->LsPcieLut->PexLut[Index].PexLldr, StreamId | PCIE_LUT_ENABLE);
+    BeMmioWrite32 ((UINTN)&LsPcie->LsPcieLut->PexLut[Index].PexLudr, BusDevFuc << 16);
+    BeMmioWrite32 ((UINTN)&LsPcie->LsPcieLut->PexLut[Index].PexLldr, StreamId | PCIE_LUT_ENABLE);
   } else {
-    MmioWrite32 (LsPcie->LsPcieLut->PexLut[Index].PexLudr, BusDevFuc << 16);
-    MmioWrite32 (LsPcie->LsPcieLut->PexLut[Index].PexLldr, StreamId | PCIE_LUT_ENABLE);
+    MmioWrite32 ((UINTN)&LsPcie->LsPcieLut->PexLut[Index].PexLudr, BusDevFuc << 16);
+    MmioWrite32 ((UINTN)&LsPcie->LsPcieLut->PexLut[Index].PexLldr, StreamId | PCIE_LUT_ENABLE);
   }
 }
 
@@ -988,6 +988,10 @@ OnPlatformHasPciIo (
     // Device    PCI Device number. Range 0..31.
     // Function  PCI Function number. Range 0..7.
     BusDevFuc = ((BusNumber & 0xff) << 8) | ((DeviceNumber & 0x1f) << 3) | (FunctionNumber & 0x07);
+    if (BusDevFuc == 0) {
+      // For RC, already fixup has been applied.
+      continue;
+    }
 
     LutIndex = PcieNextLutIndex (&LsPcie[SegmentNumber]);
     if (LutIndex < 0) {
@@ -1015,12 +1019,12 @@ OnPlatformHasPciIo (
     }
 
     Status = FdtPcieSetIommuMapEntry (Dtb, PcieNodeOffset, BusDevFuc, StreamId);
-    if (Status != EFI_NOT_FOUND) {
+    if (EFI_ERROR (Status) && (Status != EFI_NOT_FOUND)) {
       break;
     }
 
     Status = FdtPcieSetMsiMapEntry (Dtb, PcieNodeOffset, BusDevFuc, StreamId);
-    if (Status != EFI_NOT_FOUND) {
+    if (EFI_ERROR (Status) && (Status != EFI_NOT_FOUND)) {
       break;
     }
 
@@ -1031,6 +1035,83 @@ OnPlatformHasPciIo (
 }
 
 
+/**
+  Fixup the pcie controller status disabled or okay in device tree
+
+  @param[in] Dtb         Device tree to fixup
+  @param[in] LsPcie      Array of type LS_PCIE for all PCIE controllers in SOC
+
+  @retval EFI_SUCCESS       Controller status set successfully
+  @retval EFI_DEVICE_ERROR  Couldn't set the status
+**/
+
+EFI_STATUS
+FdtFixupPcieStatus (
+  IN  VOID      *Dtb,
+  IN  LS_PCIE   *LsPcie
+  )
+{
+  UINTN       Idx;
+  INTN        PcieNodeOffset;
+  INT32       FdtStatus;
+  UINT32      StreamId;
+  UINT32      LutIndex;
+  EFI_STATUS  Status;
+
+  Status = EFI_SUCCESS;
+
+  for  (Idx = 0; Idx < NUM_PCIE_CONTROLLER; Idx++) {
+    PcieNodeOffset = FdtFindPcie (Dtb, LsPcie[Idx].ControllerAddress);
+    if (PcieNodeOffset < 0) {
+      DEBUG ((
+        DEBUG_WARN,
+        "Pcie node with regs address %p node found in Dtb\n",
+        LsPcie[Idx].ControllerAddress
+        ));
+      continue;
+    }
+
+    if (IsPcieNumEnabled (Idx)) {
+      FdtStatus = fdt_setprop_string (Dtb, PcieNodeOffset, "status", "okay");
+      // set the MSI interrupt map and IO MMU map for BusDevFunc = 0
+      // In the current fixup, RC is also assigned a steam ID
+      // because in theory we can access the RC itself config space on PCIe link
+      LutIndex = PcieNextLutIndex (&LsPcie[Idx]);
+      if (LutIndex < 0) {
+        DEBUG ((DEBUG_WARN, "No free Lut Index for Pcie\n"));
+        continue;
+      }
+
+      // Get a free StreamId from pool, if not found we are done
+      StreamId = PcieNextStreamId ();
+      if (StreamId < 0) {
+        DEBUG ((DEBUG_WARN, "No free StreamId for Pcie\n"));
+        continue;
+      }
+
+      Status = FdtPcieSetIommuMapEntry (Dtb, PcieNodeOffset, 0, StreamId);
+      if (EFI_ERROR (Status) && (Status != EFI_NOT_FOUND)) {
+        break;
+      }
+
+      Status = FdtPcieSetMsiMapEntry (Dtb, PcieNodeOffset, 0, StreamId);
+      if (EFI_ERROR (Status) && (Status != EFI_NOT_FOUND)) {
+        break;
+      }
+
+      PcieLutSetMapping (&LsPcie[Idx], LutIndex, 0, StreamId);
+    } else {
+      FdtStatus = fdt_setprop_string (Dtb, PcieNodeOffset, "status", "disabled");
+    }
+
+    if (FdtStatus) {
+      DEBUG ((DEBUG_ERROR, "Error: couldn't set the status %a!\n", fdt_strerror (FdtStatus)));
+      return EFI_DEVICE_ERROR;
+    }
+  }
+
+  return Status;
+}
 /**
   Return all the root bridge instances in an array.
 
@@ -1054,7 +1135,9 @@ PciHostBridgeGetRootBridges (
   UINT64 PciPhyIoAddr[NUM_PCIE_CONTROLLER];
   UINT64 Regs[NUM_PCIE_CONTROLLER];
   UINT8  PciEnabled[NUM_PCIE_CONTROLLER];
-  LS_PCIE *LsPcie;
+  LS_PCIE       *LsPcie;
+  EFI_STATUS    Status;
+  VOID          *Dtb;
 
   *Count = 0;
 
@@ -1078,6 +1161,16 @@ PciHostBridgeGetRootBridges (
     LsPcie[Idx].ControllerAddress = Regs[Idx];
     LsPcie[Idx].NextLutIndex = 0;
     LsPcie[Idx].LsPcieLut = (LS_PCIE_LUT *)(LsPcie[Idx].ControllerAddress + PCI_LUT_BASE);
+  }
+
+  Status = EfiGetSystemConfigurationTable (&gFdtTableGuid, &Dtb);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "Did not find the Dtb Blob.\n"));
+  } else {
+    Status = FdtFixupPcieStatus (Dtb, LsPcie);
+    if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "Could not set Pcie status retval %r\n", Status));
+    }
   }
 
   for (Idx = 0; Idx < NUM_PCIE_CONTROLLER; Idx++) {
