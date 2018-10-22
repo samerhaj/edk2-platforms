@@ -182,5 +182,10 @@
   Silicon/NXP/Drivers/Dpaa2EthernetDxe/Dpaa2EthernetDxe.inf
   Silicon/NXP/Drivers/NandFlashDxe/NandFlashDxe.inf
   Silicon/NXP/Drivers/RngDxe/RngDxe.inf
+  #
+  # DT support
+  #
+  Platform/NXP/LS2088aRdbPkg/DeviceTree/DeviceTree.inf
+  Silicon/NXP/Drivers/DtPlatformDxe/DtPlatformDxe.inf
 
  ##

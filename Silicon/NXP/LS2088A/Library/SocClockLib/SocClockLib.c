@@ -71,7 +71,7 @@ SocGetClock (
       break;
     case IP_DUART:
     case IP_ESDHC:
-      ReturnValue = ( (UINT64)Rcw->SysPllRat * SysClkHz) >> 1;
+      ReturnValue = ( (UINT64)Rcw->SysPllRat * SysClkHz) >> 2;
       break;
     case IP_QSPI:
       ConfigRegister = MmioRead32 ( (UINTN)&GurBase->QspiCR1);
@@ -80,25 +80,25 @@ SocGetClock (
         case 2:
           ReturnValue = (PlatformClk >> 1) >> 3;
           break;
-	case 3:
+        case 3:
           ReturnValue = (PlatformClk >> 1) / 12;
           break;
-	case 4:
+        case 4:
           ReturnValue = (PlatformClk >> 1) >> 4;
           break;
-	case 5:
+        case 5:
           ReturnValue = (PlatformClk >> 1) / 20;
           break;
-	case 6:
+        case 6:
           ReturnValue = (PlatformClk >> 1) / 24;
           break;
-	case 7:
+        case 7:
           ReturnValue = (PlatformClk >> 1) / 28;
           break;
-	case 8:
+        case 8:
           ReturnValue = (PlatformClk >> 1) >> 5;
           break;
-	case 20:
+        case 20:
           ReturnValue = (PlatformClk >> 1) / 80;
           break;
         default:

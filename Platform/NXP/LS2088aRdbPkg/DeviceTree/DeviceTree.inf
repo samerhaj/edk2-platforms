@@ -1,0 +1,31 @@
+#/** @file
+#
+#  Copyright 2018 NXP.
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#**/
+
+[Defines]
+  INF_VERSION    = 0x0001001A
+  BASE_NAME      = LS2088aRDBDeviceTree
+  FILE_GUID      = 25462CDA-221F-47DF-AC1D-259CFAA4E326 # gDtPlatformDefaultDtbFileGuid
+  MODULE_TYPE    = USER_DEFINED
+  VERSION_STRING = 1.0
+
+[Sources]
+  # The order of these file is important
+  # the fist file is main platform dtb file which is loaded by DtDxe driver
+  # the order of the rest of the files in determined by their parsing in SocFixupLib
+  fsl-ls2088a-rdb.dts
+
+[Packages]
+  MdePkg/MdePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+  Silicon/NXP/LS2088A/LS2088A.dec
