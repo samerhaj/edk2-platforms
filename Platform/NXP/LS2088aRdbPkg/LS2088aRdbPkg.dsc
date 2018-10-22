@@ -87,6 +87,7 @@
 
   gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cBus|0
   gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cAddress|0x57
+  gNxpQoriqLsTokenSpaceGuid.PcdI2cSpeed|100000
 
   #
   # RTC Pcds

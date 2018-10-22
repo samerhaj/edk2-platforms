@@ -27,10 +27,10 @@ EFI_PHYSICAL_ADDRESS *I2cAddrArr;
 UINT32 I2cAddrArrSize;
 
 EFI_PHYSICAL_ADDRESS I2cAddress[] = {
-  (EFI_PHYSICAL_ADDRESS)0x02000000,
-  (EFI_PHYSICAL_ADDRESS)0x02010000,
-  (EFI_PHYSICAL_ADDRESS)0x02020000,
-  (EFI_PHYSICAL_ADDRESS)0x02030000
+  (EFI_PHYSICAL_ADDRESS)(FixedPcdGet64 (PcdI2c0BaseAddr)),
+  (EFI_PHYSICAL_ADDRESS)(FixedPcdGet64 (PcdI2c0BaseAddr + FixedPcdGet32 (PcdI2cSize))),
+  (EFI_PHYSICAL_ADDRESS)(FixedPcdGet64 (PcdI2c0BaseAddr + 2 * FixedPcdGet32 (PcdI2cSize))), 
+  (EFI_PHYSICAL_ADDRESS)(FixedPcdGet64 (PcdI2c0BaseAddr + 3 * FixedPcdGet32 (PcdI2cSize)))
 };
 
 
@@ -51,6 +51,12 @@ UINT16 ClkDiv[60][2] = {
   { 2304, 0x3C }, { 2560, 0x3D }, { 3072, 0x3E }, { 3584, 0x7A },
   { 3840, 0x3F }, { 4096, 0x7B }, { 5120, 0x7D }, { 6144, 0x7E },
 };
+
+extern
+UINT64
+GetBusFrequency (
+  VOID
+  );
 
 UINT32
 I2cBusAddrArr(
@@ -78,7 +84,7 @@ GetClk(
   UINT32 Div;
   UINT8 ClkDivx;
 
-  ClkRate = 200000000; // to do with clock lib
+  ClkRate = GetBusFrequency();
 
   Div = (ClkRate + Rate - 1) / Rate;
   if (Div < ClkDiv[0][0])
