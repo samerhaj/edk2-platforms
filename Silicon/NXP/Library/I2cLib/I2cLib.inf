@@ -45,3 +45,4 @@
   gNxpQoriqLsTokenSpaceGuid.PcdI2c0BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdNumI2cController
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSize
+  gNxpQoriqLsTokenSpaceGuid.PcdI2cClock

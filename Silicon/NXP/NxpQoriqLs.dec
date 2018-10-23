@@ -52,6 +52,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSpeed|0|UINT32|0x00000002
   gNxpQoriqLsTokenSpaceGuid.PcdNumI2cController|0|UINT32|0x00000003
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSlaveAddress|0|UINT32|0x00000004
+  gNxpQoriqLsTokenSpaceGuid.PcdI2cClock|0|UINT32|0x00000005
 
   #
   # Pcd for I2c based devices

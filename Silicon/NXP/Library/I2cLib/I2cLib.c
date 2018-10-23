@@ -84,7 +84,8 @@ GetClk(
   UINT32 Div;
   UINT8 ClkDivx;
 
-  ClkRate = GetBusFrequency();
+  ClkRate = FixedPcdGet32 (PcdI2cClock) ?
+                 FixedPcdGet32 (PcdI2cClock) : GetBusFrequency ();
 
   Div = (ClkRate + Rate - 1) / Rate;
   if (Div < ClkDiv[0][0])
