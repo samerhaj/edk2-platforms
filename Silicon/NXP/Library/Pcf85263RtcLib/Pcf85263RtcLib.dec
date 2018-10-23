@@ -1,0 +1,28 @@
+#/** @file
+#
+#  Copyright 2018 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+#**/
+
+[Defines]
+  DEC_SPECIFICATION              = 0x0001001A
+  PACKAGE_NAME                   = Pcf85263RtcLib
+  PACKAGE_GUID                   = 896a4859-c0a6-48d7-a039-5b175fedf1e1
+  PACKAGE_VERSION                = 0.1
+
+[Guids]
+  gPcf85263RtcLibTokenSpaceGuid = { 0xf34c13c0, 0x6868, 0x46c6, { 0xb9, 0xd0, 0x06, 0x61, 0xa9, 0x58, 0x3a, 0x57 }}
+
+[PcdsFixedAtBuild]
+  gPcf85263RtcLibTokenSpaceGuid.PcdI2cSlaveAddress|0x51|UINT8|0x00000001
+
+  # preferred/max I2C bus frequency in Hz for the PCF85263
+  gPcf85263RtcLibTokenSpaceGuid.PcdI2cBusFrequency|100000|UINT32|0x00000002
