@@ -1,0 +1,46 @@
+#/** @file
+#  Real Time Clock Architectural Protocol Driver as defined in PI
+#
+#  Copyright (c) 2006 - 2007, Intel Corporation. All rights reserved.<BR>
+#  Copyright (c) 2017, Linaro, Ltd. All rights reserved.<BR>
+#  Copyright 2018 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution. The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x00010001A
+  BASE_NAME                      = RealTimeClock
+  FILE_GUID                      = 7b34198c-e460-4ca8-b9b2-08e1c9fd3d1d
+  MODULE_TYPE                    = DXE_RUNTIME_DRIVER
+  VERSION_STRING                 = 1.0
+
+  ENTRY_POINT                    = InitializeRealTimeClock
+
+[Sources.common]
+  Ds1307RealTimeClock.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+
+[LibraryClasses]
+  DebugLib
+  Ds1307RealTimeClockLib
+  FpgaLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  UefiRuntimeLib
+
+[Protocols]
+  gEfiRealTimeClockArchProtocolGuid
+
+[Depex]
+  TRUE
