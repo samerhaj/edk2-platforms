@@ -32,6 +32,10 @@
   DebugLib
   UefiBootServicesTableLib
   UefiLib
+  UefiRuntimeLib
+
+[Guids]
+  gEfiEventVirtualAddressChangeGuid
 
 [Protocols]
   gEfiI2cMasterProtocolGuid            ## CONSUMES
