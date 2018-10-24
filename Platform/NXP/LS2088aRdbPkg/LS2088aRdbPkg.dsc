@@ -92,8 +92,6 @@
   #
   # RTC Pcds
   #
-  gDs3232RtcLibTokenSpaceGuid.PcdI2cSlaveAddress|0x68
-  gDs3232RtcLibTokenSpaceGuid.PcdI2cBusFrequency|100000
   gDs3232RtcLibTokenSpaceGuid.PcdIsRtcDeviceMuxed|TRUE
   gDs3232RtcLibTokenSpaceGuid.PcdMuxDeviceAddress|0x75
   gDs3232RtcLibTokenSpaceGuid.PcdMuxControlRegOffset|0x09
@@ -166,6 +164,7 @@
   MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
   ArmPlatformPkg/Drivers/SP805WatchdogDxe/SP805WatchdogDxe.inf
   Silicon/NXP/Drivers/I2cDxe/I2cDxe.inf
+  EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf
   Silicon/NXP/Drivers/NorFlashDxe/NorFlashDxe.inf
   Silicon/NXP/Drivers/UsbHcdInitDxe/UsbHcd.inf
   Silicon/NXP/Drivers/PciCpuIo2Dxe/PciCpuIo2Dxe.inf

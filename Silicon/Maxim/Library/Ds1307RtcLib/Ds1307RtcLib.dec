@@ -22,5 +22,5 @@
   gDs1307RtcLibTokenSpaceGuid = { 0xd939eb84, 0xa95a, 0x46a0, { 0xa8, 0x2b, 0xb9, 0x64, 0x30, 0xcf, 0xf5, 0x99 }}
 
 [PcdsFixedAtBuild]
-  gDs1307RtcLibTokenSpaceGuid.PcdI2cSlaveAddress|0|UINT8|0x00000001
-  gDs1307RtcLibTokenSpaceGuid.PcdI2cBusFrequency|0|UINT32|0x00000002
+  gDs1307RtcLibTokenSpaceGuid.PcdI2cSlaveAddress|0x68|UINT8|0x00000001
+  gDs1307RtcLibTokenSpaceGuid.PcdI2cBusFrequency|100000|UINT32|0x00000002

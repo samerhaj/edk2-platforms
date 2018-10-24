@@ -169,6 +169,7 @@
   #MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
   ArmPkg/Drivers/GenericWatchdogDxe/GenericWatchdogDxe.inf
   Silicon/NXP/Drivers/I2cDxe/I2cDxe.inf
+  EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf
   Silicon/NXP/Drivers/UsbHcdInitDxe/UsbHcd.inf
   Silicon/NXP/Drivers/PciCpuIo2Dxe/PciCpuIo2Dxe.inf
   Silicon/NXP/Library/Pcf2129RtcLib/Pcf2129RtcLib.inf

@@ -116,7 +116,8 @@ READ_LOCK_STATUS   = TRUE
 
   INF Silicon/NXP/Drivers/I2cDxe/I2cDxe.inf
 
-  INF EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf
+  INF Platform/NXP/LS1043aRdbPkg/Drivers/Ds1307RealTimeClockRuntimeDxe/Ds1307RealTimeClockRuntimeDxe.inf
+  INF Platform/NXP/LS1043aRdbPkg/Drivers/Pcf85263RealTimeClockRuntimeDxe/Pcf85263RealTimeClockRuntimeDxe.inf
 
   #
   # Multiple Console IO support

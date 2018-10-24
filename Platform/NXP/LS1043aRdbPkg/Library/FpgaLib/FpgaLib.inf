@@ -24,8 +24,12 @@
 [Packages]
   MdePkg/MdePkg.dec
   Platform/NXP/LS1043aRdbPkg/LS1043aRdbPkg.dec
+  Silicon/NXP/Chassis/Chassis2/Chassis2.dec
   Silicon/NXP/NxpQoriqLs.dec
 
 [LibraryClasses]
   BaseLib
   IoLib
+
+[FixedPcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr

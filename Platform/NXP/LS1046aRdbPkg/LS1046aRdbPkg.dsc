@@ -139,6 +139,7 @@
 
   Silicon/NXP/Drivers/WatchDog/WatchDogDxe.inf
   Silicon/NXP/Drivers/I2cDxe/I2cDxe.inf
+  EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf
   Silicon/NXP/Drivers/PciCpuIo2Dxe/PciCpuIo2Dxe.inf
   MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridgeDxe.inf {
     <PcdsFixedAtBuild>

@@ -18,6 +18,8 @@
 **/
 
 #include <Base.h>
+#include <Chassis.h>
+#include <Soc.h>
 #include <Library/BaseLib.h>
 #include <Library/DebugLib.h>
 #include <Library/FpgaLib.h>
@@ -130,3 +132,24 @@ GetBoardSysClk (
   return 100000000;
 }
 
+BOOLEAN
+IsX2Board (
+  VOID
+  )
+{
+  CCSR_GUR   *GurBase;
+  UINTN      Svr;
+
+  GurBase = (VOID *)PcdGet64 (PcdGutsBaseAddr);
+  Svr = GurRead ((UINTN)&GurBase->Svr);
+
+  if (SVR_MINOR (Svr) == 1) {
+    if (FPGA_READ (PcbaVersion) >= 4) {
+       return TRUE;
+    } else {
+       return FALSE;
+    }
+  }
+
+  return FALSE;
+}

@@ -38,7 +38,8 @@
   SerialPortLib|Silicon/NXP/Library/DUartPortLib/DUartPortLib.inf
   BeIoLib|Silicon/NXP/Library/BeIoLib/BeIoLib.inf
   SocLib|Silicon/NXP/Chassis/LS1043aSocLib.inf
-  RealTimeClockLib|Silicon/Maxim/Library/Ds1307RtcLib/Ds1307RtcLib.inf
+  Ds1307RealTimeClockLib|Silicon/Maxim/Library/Ds1307RtcLib/Ds1307RtcLib.inf
+  Pcf85263RealTimeClockLib|Silicon/NXP/Library/Pcf85263RtcLib/Pcf85263RtcLib.inf
   IfcLib|Silicon/NXP/Library/IfcLib/IfcLib.inf
   BoardLib|Platform/NXP/LS1043aRdbPkg/Library/BoardLib/BoardLib.inf
   FpgaLib|Platform/NXP/LS1043aRdbPkg/Library/FpgaLib/FpgaLib.inf
@@ -89,15 +90,9 @@
   # I2C controller Pcds
   #
   gNxpQoriqLsTokenSpaceGuid.PcdI2cBus|0
-
+  gNxpQoriqLsTokenSpaceGuid.PcdI2cSpeed|100000
   gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cBus|0
   gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cAddress|0x53
-
-  #
-  # RTC Pcds
-  #
-  gDs1307RtcLibTokenSpaceGuid.PcdI2cSlaveAddress|0x68
-  gDs1307RtcLibTokenSpaceGuid.PcdI2cBusFrequency|100000
 
   #
   # NV Storage PCDs.
@@ -161,14 +156,9 @@
   Silicon/NXP/Drivers/RngDxe/RngDxe.inf
   Silicon/NXP/Drivers/Dpaa1EthernetDxe/Dpaa1EthernetDxe.inf
 
-  #
-  # DT support
-  #
   Platform/NXP/LS1043aRdbPkg/DeviceTree/DeviceTree.inf
   Silicon/NXP/Drivers/DtPlatformDxe/DtPlatformDxe.inf
-
-  #
-  # DPAA1 Ethernet driver
-  #
   Silicon/NXP/Drivers/Dpaa1Ethernet/Dpaa1EthernetDxe.inf
- ##
+
+  Platform/NXP/LS1043aRdbPkg/Drivers/Ds1307RealTimeClockRuntimeDxe/Ds1307RealTimeClockRuntimeDxe.inf
+  Platform/NXP/LS1043aRdbPkg/Drivers/Pcf85263RealTimeClockRuntimeDxe/Pcf85263RealTimeClockRuntimeDxe.inf
