@@ -18,12 +18,18 @@
 
 #include <Library/Dpaa2EthernetMacLib.h>
 #include <Library/Dpaa2EthernetPhyLib.h>
+#include <Library/PhyCommon.h>
 #include <Uefi.h>
+
+/*
+ * MDIO Device Address
+ */
+#define MDIO_PHY_DEV_ADDR               0
 
 /*
  * MDIO control device addresses
  */
-#define MDIO_CTL_DEVAD_NONE                    (-1)
+#define MDIO_CTL_DEVAD_NONE             (-1)
 
 /**
  * Physical Medium Attachment/Physical Medium Dependent
@@ -64,7 +70,7 @@
 VOID
 Dpaa2PhyRegisterWrite (
   IN DPAA2_PHY *Dpaa2Phy,
-  IN UINT8     MdioCtlDevAddr,
+  IN INT8      MdioCtlDevAddr,
   IN UINT16    PhyRegNum,
   IN UINT16    Value
   );
@@ -72,7 +78,7 @@ Dpaa2PhyRegisterWrite (
 UINT16
 Dpaa2PhyRegisterRead (
   IN DPAA2_PHY *Dpaa2Phy,
-  IN UINT8     MdioCtlDevAddr,
+  IN INT8      MdioCtlDevAddr,
   IN UINT16    PhyRegNum
   );
 
@@ -92,13 +98,35 @@ CortinaPhyConfig (
   );
 
 EFI_STATUS
-QC8035PhyConfig (
+CortinaPhyStartup (
   DPAA2_PHY *Dpaa2Phy
   );
 
 EFI_STATUS
-CortinaPhyStartup (
+Ar8035PhyConfig (
   DPAA2_PHY *Dpaa2Phy
+  );
+
+EFI_STATUS
+Ar8035PhyStartup (
+  DPAA2_PHY *Dpaa2Phy
+  );
+
+UINT32
+Dpaa2PhyReadMmdIndirect (
+  IN  DPAA2_PHY *Dpaa2Phy,
+  IN  UINT32    PortAddr,
+  IN  UINT32    DevAddr,
+  IN  INT8      Addr
+  );
+
+VOID
+Dpaa2PhyWriteMmdIndirect (
+  IN  DPAA2_PHY *Dpaa2Phy,
+  IN  UINT32    PortAddr,
+  IN  UINT32    DevAddr,
+  IN  INT8      Addr,
+  IN  UINT32    Data
   );
 
 #endif /* __DPAA2_ETHERNET_PHY_PRIVATE_H__ */

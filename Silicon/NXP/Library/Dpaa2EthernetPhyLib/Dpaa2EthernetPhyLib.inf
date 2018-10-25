@@ -23,10 +23,10 @@
   LIBRARY_CLASS                  = Dpaa2EthernetPhyLib
 
 [Sources.common]
+  Atheros.c
   Aquantia.c
   Cortina.c
   PhyCommon.c
-  Qualcomm.c
 
 [Packages]
   MdePkg/MdePkg.dec

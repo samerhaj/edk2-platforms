@@ -156,6 +156,7 @@ STATIC VOID GetDpMacId (
 
  **/
 STATIC UINT32 AssignedMac[NUM_WRIOP_DPMACS] = {0};
+
 VOID
 Dpaa2DiscoverWriopDpmac (
   SERDES_PROTOCOL LaneProtocol,
@@ -192,7 +193,7 @@ VOID ProbeDpaaLanes (
   SerDesProbeLanes (Dpaa2DiscoverWriopDpmac, Arg);
    for (DpmacId = 17; DpmacId <=18; DpmacId++) {
     WriopDpmacInit (DpmacId,
-                   PHY_INTERFACE_XGMII,
+                   PHY_INTERFACE_RGMII,
                    gDpmacToPhyMap[DpmacId].MdioBus,
                    gDpmacToPhyMap[DpmacId].PhyAddress,
                    gDpmacToPhyMap[DpmacId].PhyMediaType,
