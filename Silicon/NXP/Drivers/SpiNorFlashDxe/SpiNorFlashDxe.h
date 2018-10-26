@@ -14,6 +14,8 @@
 #ifndef _SPI_NOR_FLASH_DXE_H_
 #define _SPI_NOR_FLASH_DXE_H_
 
+#include "SpiNorFlashOps.h"
+
 EFI_STATUS
 SpiNorFlashSupported (
   IN EFI_DRIVER_BINDING_PROTOCOL   *This,

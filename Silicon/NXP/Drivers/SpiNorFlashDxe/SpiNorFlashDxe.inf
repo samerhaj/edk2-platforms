@@ -15,7 +15,7 @@
 #**/
 
 [Defines]
-  INF_VERSION                    = 0x0001000A
+  INF_VERSION                    = 0x0001001A
   BASE_NAME                      = SpiNorFlashDxe
   FILE_GUID                      = 93E34C7E-B50E-11DF-9223-2443DFD72085 #gEfiSpiNorFlashDriverGuid
   MODULE_TYPE                    = DXE_RUNTIME_DRIVER
@@ -24,6 +24,7 @@
 
 [Sources.common]
   SpiNorFlashDxe.c
+  SpiNorFlashOps.c
 
 [Packages]
   Silicon/NXP/NxpQoriqLs.dec
