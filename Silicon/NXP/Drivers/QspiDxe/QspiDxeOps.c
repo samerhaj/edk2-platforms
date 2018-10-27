@@ -63,12 +63,12 @@ DumpRegs (
   DEBUG ((DEBUG_INFO, "Sfa2ad    :0x%08x \n", QMaster->Read32 ( (UINTN)&Regs->Sfa2ad)));
   DEBUG ((DEBUG_INFO, "Sfb1ad    :0x%08x \n", QMaster->Read32 ( (UINTN)&Regs->Sfb1ad)));
   DEBUG ((DEBUG_INFO, "Sfb2ad    :0x%08x \n", QMaster->Read32 ( (UINTN)&Regs->Sfb2ad)));
-  for (Index = 0; Index < sizeof(Regs->Rbdr); Index++) {
+  for (Index = 0; Index < ARRAY_SIZE(Regs->Rbdr); Index++) {
     DEBUG ((DEBUG_INFO, "Rbdr[%d]   :0x%08x \n", Index, QMaster->Read32 ( (UINTN)&Regs->Rbdr[Index])));
   }
   DEBUG ((DEBUG_INFO, "Lutkey    :0x%08x \n", QMaster->Read32 ( (UINTN)&Regs->Lutkey)));
   DEBUG ((DEBUG_INFO, "Lckcr     :0x%08x \n", QMaster->Read32 ( (UINTN)&Regs->Lckcr)));
-  for (Index = 0; Index < sizeof(Regs->Lut); Index++) {
+  for (Index = 0; Index < ARRAY_SIZE(Regs->Lut); Index++) {
     DEBUG ((DEBUG_INFO, "Lut[%d]   :0x%08x \n", Index, QMaster->Read32 ( (UINTN)&Regs->Lut[Index])));
   }
 

@@ -19,6 +19,7 @@
 #include <Library/BeIoLib.h>
 #include <Library/DebugLib.h>
 #include <Library/IoLib.h>
+#include <Library/ItbParse.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 
@@ -82,32 +83,6 @@ QSPI_MASTER  mQspiMasterTemplate = {
 };
 
 /**
-  Read a big number; size is in cells (not bytes)
-
-  @param[in] Cell     Pointer to a cell in device tree in fdt32_t format.
-  @param[in] Size     size in number of cells. each cell is 4 byte (32 bit) size.
-
-  @retval             The number in CPU format.
-
-**/
-STATIC
-UINT64
-QspiReadNumber(
-  IN CONST fdt32_t  *Cell,
-  IN INT32          Size
-  )
-{
-  UINT64 Number;
-
-  Number = 0;
-  while (Size--) {
-    Number = (Number << 32) |
-             fdt32_to_cpu (*(Cell++));
-  }
-  return Number;
-}
-
-/**
  This function parses the device tree and for each QSPI controller node found,
  allocates runtime memory for the internal data structure containing a handle and installs
  the SpiMaster Protocol and Device Path protocol on to that handle.
@@ -130,20 +105,16 @@ ParseDeviceTree (
   )
 {
   INT32              NodeOffset;
-  INT32              ParentOffset;
-  INT32              AddressCells;
-  INT32              SizeCells;
   CONST fdt32_t      *Prop;
   INT32              PropLen;
   INT32              QspiIndex;
   INT32              QspiMemIndex;
-  INT32              RegCount;
   QSPI_MASTER        *QspiMasterPtr;
   EFI_STATUS         Status;
-  UINT32             AmbaBase;
-  UINT32             AmbaTotalSize;
+  UINT64             AmbaBase;
+  UINT64             AmbaTotalSize;
   UINT32             QspiMasterIndex;
-  QSPI_REGISTERS     *Regs;
+  UINT64             Regs;
   BOOLEAN            Runtime;
 
   Status = EFI_SUCCESS;
@@ -170,41 +141,15 @@ ParseDeviceTree (
       continue;
     }
 
-    ParentOffset = fdt_parent_offset (Fdt, NodeOffset);
-    if (ParentOffset < 0) {
-      Status = EFI_INVALID_PARAMETER;
-      break;
-    }
-
-    AddressCells = fdt_address_cells (Fdt, ParentOffset);
-    if ((AddressCells < 0) || (AddressCells > 2)) {
-      DEBUG ((DEBUG_ERROR, "AddressCells = %d\n", AddressCells));
-      Status = EFI_UNSUPPORTED;
-      break;
-    }
-
-    SizeCells = fdt_size_cells (Fdt, ParentOffset);
-    if ((SizeCells < 0) || (SizeCells > 2)) {
-      DEBUG ((DEBUG_ERROR, "SizeCells = %d\n", SizeCells));
-      Status = EFI_UNSUPPORTED;
-      break;
-    }
-
-    Prop = fdt_getprop (Fdt, NodeOffset, "reg", &PropLen);
-    if (Prop == NULL) {
-      DEBUG ((DEBUG_ERROR, "reg property not found\n"));
-      continue;
-    }
-
-    RegCount = fdt_stringlist_count (Fdt, NodeOffset, "reg-names");
-    if (RegCount < 0) {
-      DEBUG ((DEBUG_ERROR, "RegCount = %d\n", RegCount));
-      continue;
-    }
-
     QspiIndex = fdt_stringlist_search (Fdt, NodeOffset, "reg-names", "QuadSPI");
     if (QspiIndex < 0) {
       DEBUG ((DEBUG_ERROR, "Error: can't get regs base addresses(ret = %d)!\n", QspiIndex));
+      continue;
+    }
+
+    Status = FdtGetAddressSize (Fdt, NodeOffset, "reg", QspiIndex, &Regs, NULL);
+    if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "Error: can't get regs base addresses(ret = %r)!\n", Status));
       continue;
     }
 
@@ -214,26 +159,11 @@ ParseDeviceTree (
       continue;
     }
 
-    if (PropLen < RegCount * (AddressCells + SizeCells) * sizeof (INT32)) {
+    Status = FdtGetAddressSize (Fdt, NodeOffset, "reg", QspiMemIndex, &AmbaBase, &AmbaTotalSize);
+    if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "Error: can't get AMBA base addresses(ret = %r)!\n", Status));
       continue;
     }
-
-    if (sizeof (QSPI_REGISTERS) > QspiReadNumber (
-                                    Prop + (QspiIndex * (AddressCells + SizeCells)) + AddressCells,
-                                    SizeCells
-                                    ))
-    {
-      DEBUG ((DEBUG_ERROR, "Qspi Registers span more space than allocated in device tree!!\n"));
-      continue;
-    }
-
-    AmbaBase = QspiReadNumber (Prop + (QspiMemIndex * (AddressCells + SizeCells)), AddressCells);
-    AmbaTotalSize = QspiReadNumber (
-                      Prop + (QspiMemIndex * (AddressCells + SizeCells)) + AddressCells,
-                      SizeCells
-                      );
-
-    Regs = (VOID *)QspiReadNumber (Prop + (QspiIndex * (AddressCells + SizeCells)), AddressCells);
 
     Prop = fdt_getprop (Fdt, NodeOffset, "uefi-runtime", &PropLen);
     if (Prop == NULL) {
@@ -249,7 +179,7 @@ ParseDeviceTree (
       break;
     }
 
-    QspiMasterPtr->Regs = Regs;
+    QspiMasterPtr->Regs = (QSPI_REGISTERS *)Regs;
     QspiMasterPtr->AmbaBase = AmbaBase;
 
     if (fdt_getprop(Fdt, NodeOffset, "big-endian", NULL) != NULL) {

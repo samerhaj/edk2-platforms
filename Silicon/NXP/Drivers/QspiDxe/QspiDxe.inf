@@ -42,6 +42,7 @@
   DxeServicesTableLib
   FdtLib
   IoLib
+  ItbParseLib
   MemoryAllocationLib
   TimerLib
   UefiBootServicesTableLib
@@ -60,9 +61,8 @@
   gEfiSpiHcProtocolGuid
 
 [Guids]
-  gDtPlatformDefaultDtbFileGuid
+  gFdtTableGuid
   gEfiEventVirtualAddressChangeGuid
 
 [Depex]
-  TRUE
-
+  AFTER gDtPlatformDxeFileGuid

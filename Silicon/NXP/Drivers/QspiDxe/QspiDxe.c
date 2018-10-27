@@ -25,6 +25,7 @@
 #include <Library/MemoryAllocationLib.h>
 #include <Library/PcdLib.h>
 #include <Library/UefiBootServicesTableLib.h>
+#include <Library/UefiLib.h>
 #include <Library/UefiRuntimeLib.h>
 #include <Library/SocClockLib.h>
 #include <Protocol/SpiConfigData.h>
@@ -372,7 +373,7 @@ QspiUpdateSpiPeripheral (
 
   NextChipSelectBaseAddress = CurrentChipSelectBaseAddress + SpiConfigData->FlashSize;
 
-  QMaster->Write32 ( (UINTN)&QMaster->Regs->Sfa1ad + ChipSelect, NextChipSelectBaseAddress);
+  QMaster->Write32 ( (UINTN)(&QMaster->Regs->Sfa1ad + ChipSelect), NextChipSelectBaseAddress);
 
   SpiConfigData->DeviceBaseAddress = CurrentChipSelectBaseAddress;
 
@@ -528,24 +529,12 @@ QspiInitialise (
 {
   UINTN                 QSpiCount;
   VOID                  *Dtb;
-  UINTN                 DtbSize;
   EFI_STATUS            Status;
 
-  Status = GetSectionFromAnyFv (
-             &gDtPlatformDefaultDtbFileGuid,
-             EFI_SECTION_RAW,
-             0,
-             &Dtb,
-             &DtbSize
-             );
+  Status = EfiGetSystemConfigurationTable (&gFdtTableGuid, &Dtb);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Failed to get device tree\n"));
-    return EFI_NOT_FOUND;
-  }
-
-  if (fdt_check_header (Dtb)) {
-    DEBUG ((DEBUG_ERROR, "Invalid Device Tree\n"));
-    return EFI_CRC_ERROR;
+    DEBUG ((DEBUG_ERROR, "Did not find the Dtb Blob.\n"));
+    return Status;
   }
 
   Status = ParseDeviceTree (Dtb, &QSpiCount);
