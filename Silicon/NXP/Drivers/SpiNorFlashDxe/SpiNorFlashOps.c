@@ -386,27 +386,218 @@ FillWriteRequestPacket (
 }
 
 EFI_STATUS
+GetEraseCommandIndex (
+  IN  EFI_SPI_IO_PROTOCOL     *SpiIo,
+  IN  SPI_NOR_PARAMS          *SpiNorParams,
+  OUT UINT8                   *EraseIndex
+  )
+{
+  SFDP_SECTOR_MAP               *Table;
+  SFDP_SECTOR_MAP               *TableBackup;
+  SFDP_TABLE_HEADER             *TableHeader;
+  EFI_SPI_REQUEST_PACKET        *RequestPacket;
+  UINTN                         Index;
+  UINT8                         ConfigRegister;
+  UINT8                         SectorConfig;
+  UINT32                        RegionEraseSupport;
+  EFI_STATUS                    Status;
+
+  SectorConfig = 0;
+  TableBackup = NULL;
+  TableHeader = NULL;
+  RequestPacket = (EFI_SPI_REQUEST_PACKET *)AllocateZeroPool (sizeof (UINTN) + 4 * sizeof (EFI_SPI_BUS_TRANSACTION));
+  if (!RequestPacket) {
+    Status = EFI_OUT_OF_RESOURCES;
+    goto ErrorExit;
+  }
+
+  // Read the JEDEC Sector Map Parameter Header and Table
+  Status = ReadSfdpParameterTable (
+             SpiIo,
+             SpiNorParams,
+             PARAMETER_ID (0xFF, 0x81),
+             PARAMETER_REV (1, 0),
+             &TableHeader,
+             (VOID **)&TableBackup,
+             FALSE
+             );
+  if (EFI_ERROR (Status)) {
+    goto ErrorExit;
+  }
+
+  Table = TableBackup;
+
+  // Parse the config registers and get a configuration
+  while (!Table->DescriptorType) {
+    Index = 0;
+    // Send Command
+    RequestPacket->Transaction[Index].TransactionType = SPI_TRANSACTION_COMMAND;
+    RequestPacket->Transaction[Index].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+    RequestPacket->Transaction[Index].Length = 1;
+    RequestPacket->Transaction[Index].FrameSize = 8;
+    RequestPacket->Transaction[Index++].WriteBuffer = &Table->Config.Command;
+
+    if (Table->Config.AddressLength) {
+      // Send Address
+      RequestPacket->Transaction[Index].TransactionType = SPI_TRANSACTION_ADDRESS;
+      RequestPacket->Transaction[Index].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+      // At this point we have only used read SFDP (5A) command
+      // so for variable length address use the same address length as used for SFDP command
+      if (Table->Config.AddressLength == 1 || Table->Config.AddressLength == 3) {
+        RequestPacket->Transaction[Index].Length = 3; // 24 bit address
+      } else {
+        RequestPacket->Transaction[Index].Length = 4; // 32 bit address
+      }
+      RequestPacket->Transaction[Index].FrameSize = 8;
+      RequestPacket->Transaction[Index++].WriteBuffer = (UINT8 *)&Table->Config.Address;
+    }
+
+    if (Table->Config.ReadLatency) {
+      // dummy bytes
+      RequestPacket->Transaction[Index].TransactionType = SPI_TRANSACTION_DUMMY;
+      RequestPacket->Transaction[Index].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+      // At this point we have only used read SFDP (5A) command
+      // so for variable length read latency use the same dummy cycles as used for SFDP command
+      if (Table->Config.ReadLatency == 0xff) {
+        RequestPacket->Transaction[Index].Length = 8;
+      } else {
+        RequestPacket->Transaction[Index].Length = Table->Config.ReadLatency;
+      }
+      RequestPacket->Transaction[Index++].FrameSize = 8;
+    }
+
+    // Read one byte of Data
+    RequestPacket->Transaction[Index].TransactionType = SPI_TRANSACTION_DATA;
+    RequestPacket->Transaction[Index].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+    RequestPacket->Transaction[Index].Length = 1;
+    RequestPacket->Transaction[Index].FrameSize = 8;
+    RequestPacket->Transaction[Index++].ReadBuffer = &ConfigRegister;
+
+    RequestPacket->TransactionCount = Index;
+
+    Status = SpiIo->Transaction (
+                      SpiIo,
+                      RequestPacket,
+                      MHz (50)
+                      );
+    if (EFI_ERROR (Status)) {
+      DEBUG ((
+        DEBUG_ERROR, "Error Reading Sector configuration register @ 0x%08x %r\n",
+        Table->Config.Address,
+        Status
+        ));
+      goto ErrorExit;
+    }
+
+    // Mask the data read
+    ConfigRegister &= Table->Config.Mask;
+    // Move the selected bit to LSB
+    ConfigRegister >>= __builtin_ctz(Table->Config.Mask);
+    // configuration bits are read in the following MSb to LSb order to form the configuration map index value:
+    SectorConfig = (SectorConfig << 1 | (0x01 & ConfigRegister));
+
+    Table++;
+  }
+
+  // The command descriptors are optional.
+  // If there is a single configuration then no command descriptors are needed
+  if (Table != TableBackup) {
+    // Now that we have sector Config, search that config in sector map
+    while (TRUE) {
+      if (Table->Map.ConfigId == SectorConfig) {
+        break;
+      } else if (Table->SequenceEnd) {
+        DEBUG ((DEBUG_ERROR, "no sector map found for SectorConfig = 0x%02x\n", SectorConfig));
+        Status = EFI_NOT_FOUND;
+        goto ErrorExit;
+      }
+      // Move table pointer after the regions of this map
+      Table = (SFDP_SECTOR_MAP *)((UINT32 *)Table + Table->Map.RegionCount);
+      Table++;
+    }
+  }
+
+  // Look for supported Erase sizes in regions in sector map
+  RegionEraseSupport = Table->Map.Erase_Support;
+  if (Table->Map.RegionCount) {
+    // There are multiple regions in sector map
+    // look for an erase size that is supported by all the regions
+    for (Index = 1; Index < Table->Map.RegionCount; Index++) {
+      // Move Table Pointer by one Dword
+      Table = (SFDP_SECTOR_MAP *)((UINT32 *)Table + 1);
+      RegionEraseSupport &= Table->Map.Erase_Support;
+    }
+  }
+
+  if (!RegionEraseSupport) {
+    DEBUG ((DEBUG_ERROR, "No common erase size for all the regions for sector map config 0x%02x\n", SectorConfig));
+    Status = EFI_NOT_FOUND;
+    goto ErrorExit;
+  }
+
+  *EraseIndex = __builtin_ctz(RegionEraseSupport);
+
+ErrorExit:
+  if (TableBackup) {
+    FreePool (TableBackup);
+  }
+  if (TableHeader) {
+    FreePool (TableHeader);
+  }
+
+  if (RequestPacket) {
+    FreePool (RequestPacket);
+  }
+
+  return Status;
+}
+
+EFI_STATUS
 FillEraseRequestPacket (
+  IN  EFI_SPI_IO_PROTOCOL           *SpiIo,
   IN  EFI_SPI_REQUEST_PACKET        *RequestPacket,
   IN  SPI_NOR_PARAMS                *SpiNorParams
   )
 {
   UINT8                 Index;
   SFDP_FLASH_PARAM      *ParamTable;
+  BOOLEAN               NeedParseSectorMapTable;
+  EFI_STATUS            Status;
 
   ParamTable = SpiNorParams->ParamTable;
+  NeedParseSectorMapTable = FALSE;
 
-  // TO DO : parse ParamTable and Map table and put the maximum supported command.
   if (ParamTable->EraseSizes == 0x01) {
+    // 4 kilobyte Erase is supported throughout the device
+    // NOTE If the device uses a 4k subsector size, that size and instruction must be included
+    // somewhere in the 8th or 9th DWORD. This allows the user to discover the typical and maximum
+    // erase times for the 4k subsector by referencing the 10th DWORD.
     for (Index = 0; Index < ARRAY_SIZE (ParamTable->Erase_Size_Command); Index++) {
       if (ParamTable->Erase_Size_Command[Index].Command == ParamTable->Erase4K_Command) {
         break;
       }
     }
     SpiNorParams->EraseIndex = Index;
+  } else {
+    // Index 0 size would always be non zero
+    for (Index = 1; Index < ARRAY_SIZE (ParamTable->Erase_Size_Command); Index++) {
+      if (ParamTable->Erase_Size_Command[Index].Size != 0) {
+        NeedParseSectorMapTable = TRUE;
+        break;
+      }
+    }
+    if (NeedParseSectorMapTable == FALSE) {
+      SpiNorParams->EraseIndex = 0;
+    } else {
+      // Parse sector map table and find an erase size that can be used throughout the device
+      Status = GetEraseCommandIndex (SpiIo, SpiNorParams, &Index);
+      if (EFI_ERROR (Status)) {
+        return Status;
+      }
+      SpiNorParams->EraseIndex = Index;
+    }
   }
 
-  SpiNorParams->EraseIndex = 2;
   SpiNorParams->Commands[SPI_NOR_REQUEST_TYPE_ERASE] = ParamTable->Erase_Size_Command[SpiNorParams->EraseIndex].Command;
   Index = 0;
   // Send Command
@@ -522,7 +713,7 @@ FillFlashParam (
         Status = FillWriteRequestPacket (RequestPacket, SpiNorParams);
         break;
       case SPI_NOR_REQUEST_TYPE_ERASE:
-        Status = FillEraseRequestPacket (RequestPacket, SpiNorParams);
+        Status = FillEraseRequestPacket (SpiIo, RequestPacket, SpiNorParams);
         break;
       case SPI_NOR_REQUEST_TYPE_READ_STATUS:
         Status = FillReadStatusRequestPacket (RequestPacket, SpiNorParams);

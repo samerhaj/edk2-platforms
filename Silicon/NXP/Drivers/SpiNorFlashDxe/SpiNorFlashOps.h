@@ -119,6 +119,30 @@ typedef struct _SFDP_FLASH_PARAM {
   UINT8   OctalEnableReq : 3;
   UINT16  Reserved19_23 : 9;
 } SFDP_FLASH_PARAM;
+
+typedef struct _SFDP_SECTOR_MAP {
+  UINT8   SequenceEnd : 1;
+  UINT8   DescriptorType : 1;
+  UINT8   Reserved1_2 : 6;
+  union {
+    struct {
+      UINT8   Command;
+      UINT8   ReadLatency : 4;
+      UINT8   Reserved1_20 : 2;
+      UINT8   AddressLength : 2;
+      UINT8   Mask;
+      UINT32  Address;
+    } Config;
+    struct {
+      UINT8   ConfigId;
+      UINT8   RegionCount;
+      UINT8   Reserved1_24;
+      UINT8   Erase_Support : 4;
+      UINT8   Reserved2_4 : 4;
+      UINT32  RegionSize : 24;
+    } Map;
+  };
+} SFDP_SECTOR_MAP;
 #pragma pack()
 
 typedef enum {
