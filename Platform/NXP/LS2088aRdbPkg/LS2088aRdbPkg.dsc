@@ -187,4 +187,9 @@
   Platform/NXP/LS2088aRdbPkg/DeviceTree/DeviceTree.inf
   Silicon/NXP/Drivers/DtPlatformDxe/DtPlatformDxe.inf
 
+  #
+  # Prefetch support
+  #
+  Silicon/NXP/Drivers/ShellCommand/PreFetch/PreFetch.inf
+
  ##

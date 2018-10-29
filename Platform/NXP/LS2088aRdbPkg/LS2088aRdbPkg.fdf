@@ -30,10 +30,10 @@
 
 [FD.LS2088aRdb_EFI]
 BaseAddress   = 0x82000000|gArmTokenSpaceGuid.PcdFdBaseAddress  #The base address of the FLASH Device.
-Size          = 0x00100000|gArmTokenSpaceGuid.PcdFdSize           #The size in bytes of the FLASH Device
+Size          = 0x00200000|gArmTokenSpaceGuid.PcdFdSize           #The size in bytes of the FLASH Device
 ErasePolarity = 1
 BlockSize     = 0x1
-NumBlocks     = 0x00100000
+NumBlocks     = 0x00200000
 
 ################################################################################
 #
@@ -50,7 +50,7 @@ NumBlocks     = 0x00100000
 # RegionType <FV, DATA, or FILE>
 #
 ################################################################################
-0x00000000|0x00100000
+0x00000000|0x00200000
 gArmTokenSpaceGuid.PcdFvBaseAddress|gArmTokenSpaceGuid.PcdFvSize
 FV = FVMAIN_COMPACT
 
@@ -231,6 +231,11 @@ READ_LOCK_STATUS   = TRUE
   #
   INF RuleOverride = DTB Platform/NXP/LS2088aRdbPkg/DeviceTree/DeviceTree.inf
   INF Silicon/NXP/Drivers/DtPlatformDxe/DtPlatformDxe.inf
+
+  #
+  # Prefetch support
+  #
+  INF Silicon/NXP/Drivers/ShellCommand/PreFetch/PreFetch.inf
 
 [FV.FVMAIN_COMPACT]
 FvAlignment        = 8

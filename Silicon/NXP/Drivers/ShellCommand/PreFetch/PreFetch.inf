@@ -1,0 +1,48 @@
+#/** PreFetch.inf
+#
+#  Copyright 2017 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the
+#  BSD License  which accompanies this distribution.  The full text of 
+#  the license may be found at http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#**/
+
+[Defines]
+  INF_VERSION     = 0x0001001A
+  BASE_NAME       = ShellCommand
+  MODULE_UNI_FILE = PreFetch.uni
+  FILE_GUID       = 6F7B96E6-2FC0-4DD2-98D4-71911FE3004F
+  MODULE_TYPE     = UEFI_DRIVER
+  VERSION_STRING  = 0.1
+  ENTRY_POINT     = ShellCommandEntryPoint
+
+[Sources.common]
+  PreFetch.uni
+  ShellCommand.c
+  ShellPreFetchTool.c
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  ShellPkg/ShellPkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[LibraryClasses]
+  ArmSmcLib
+  HiiLib
+  ShellLib
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+  UefiRuntimeServicesTableLib
+
+[Protocols]
+  gEfiShellDynamicCommandProtocolGuid
+
+[FixedPcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdCoreNumbers

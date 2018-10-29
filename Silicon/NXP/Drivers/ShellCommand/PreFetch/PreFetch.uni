@@ -1,0 +1,45 @@
+// *++
+//
+// Copyright 2017 NXP
+//
+// This program and the accompanying materials are licensed and made available
+// under the terms and conditions of the BSD License which accompanies this
+// distribution.  The full text of the license may be found at
+// http://opensource.org/licenses/bsd-license.php
+//
+// THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+// WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+//
+//
+// Module Type:
+//
+// ShellCommand
+//
+// Abstract:
+//
+// String definitions for the EFI Shell 'prefetch' command
+//
+// Revision History:
+//
+// --*/
+
+/=#
+
+#langdef   en-US "English"
+
+#string STR_GET_HELP_PREFETCHTOOL            #language en-US ""
+".TH prefetch 0 "prefetch  tool."\r\n"
+".SH NAME\r\n"
+"Displays or modifies prefetch settings for all cores.\r\n"
+"  \r\n"
+".SH SYNOPSIS\r\n"
+"Supported Commands\r\n"
+".SH OPTIONS\r\n"
+"1. prefetch value -- Specify prefetch to be enabled or disabled \r\n"
+"2. prefetch       --  Display current prefetch settings \r\n"
+"   \r\n"
+".SH DESCRIPTION\r\n"
+"Value enable will enable prefetch on all cores\r\n"
+"Value disable will disable prefetch on all cores\r\n"
+"example: "prefetch enable" or "prefetch disable"\r\n"
+"\r\n"
