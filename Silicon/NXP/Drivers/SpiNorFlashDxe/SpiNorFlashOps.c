@@ -446,6 +446,7 @@ GetEraseCommandIndex (
       if (Table->Config.AddressLength == 1 || Table->Config.AddressLength == 3) {
         RequestPacket->Transaction[Index].Length = 3; // 24 bit address
       } else {
+        // TODO : if required Enter 4-Byte Addressing
         RequestPacket->Transaction[Index].Length = 4; // 32 bit address
       }
       RequestPacket->Transaction[Index].FrameSize = 8;
@@ -488,6 +489,11 @@ GetEraseCommandIndex (
         ));
       goto ErrorExit;
     }
+
+    if (Table->Config.Address == 4)
+      ConfigRegister |= (BIT3 | BIT1);
+    else if (Table->Config.Address == 2)
+      ConfigRegister &= ~BIT2;
 
     // Mask the data read
     ConfigRegister &= Table->Config.Mask;
