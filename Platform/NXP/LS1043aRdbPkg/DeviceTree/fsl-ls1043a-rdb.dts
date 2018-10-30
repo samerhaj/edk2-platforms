@@ -184,6 +184,7 @@
   ethernet@ea000 {
     phy-handle = <&qsgmii_phy4>;
     phy-connection-type = "qsgmii";
+    status = "okay";
   };
 
   ethernet@f0000 { /* 10GEC1 */
