@@ -65,4 +65,4 @@
   gEfiEventVirtualAddressChangeGuid
 
 [Depex]
-  AFTER gDtPlatformDxeFileGuid
+  gEdkiiPlatformHasDeviceTreeGuid

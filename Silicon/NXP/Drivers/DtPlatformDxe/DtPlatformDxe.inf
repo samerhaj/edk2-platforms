@@ -54,6 +54,7 @@
 [Guids]
   gDtPlatformDefaultDtbFileGuid
   gFdtTableGuid
+  gEdkiiPlatformHasDeviceTreeGuid
 
 [Depex]
   TRUE

@@ -326,8 +326,23 @@ DtPlatformDxeEntryPoint (
   //
   Status = gBS->InstallConfigurationTable (&gFdtTableGuid, Dtb);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "%a: failed to install FDT configuration table\n",
-      __FUNCTION__));
+    DEBUG ((DEBUG_ERROR, "%a: failed to install FDT configuration table %r\n",
+      __FUNCTION__, Status));
+    goto FreeDtb;
+  }
+
+  //
+  // Expose the Device Tree.
+  //
+  Status = gBS->InstallProtocolInterface (
+                  &ImageHandle,
+                  &gEdkiiPlatformHasDeviceTreeGuid,
+                  EFI_NATIVE_INTERFACE,
+                  NULL
+                  );
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "%a: failed to installFDT configuration guid %r\n",
+      __FUNCTION__, Status));
     goto FreeDtb;
   }
 
@@ -337,6 +352,12 @@ FreeDtb:
   if (Dtb != NULL) {
     FreePool (Dtb);
   }
+
+  ASSERT_EFI_ERROR (Status);
+  CpuDeadLoop ();
+  //
+  // Keep compilers happy.
+  //
 
   return Status;
 }
