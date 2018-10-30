@@ -22,6 +22,7 @@
           ((ParamTable->Density & BIT31) ? (1 << (ParamTable->Density & ~BIT31)) : (ParamTable->Density + 1))
 #define SFDP_PARAM_ERASE_SIZE(ParamTable)    \
           (1 << ParamTable->Erase_Size_Command[SpiNorParams->EraseIndex].Size)
+#define GET_BLOCK_OFFSET(Lba)               (Lba * SFDP_PARAM_ERASE_SIZE(ParamTable))
 #define PARAMETER_REV(Major, Minor)         ((Major << 8) | Minor)
 #define PARAMETER_ID(Msb, Lsb)              ((Msb << 8) | Lsb)
 

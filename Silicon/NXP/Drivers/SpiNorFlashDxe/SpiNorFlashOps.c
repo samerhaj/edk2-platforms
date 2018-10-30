@@ -913,25 +913,44 @@ ReadFlashData (
 {
   EFI_SPI_REQUEST_PACKET        *RequestPacket;
   EFI_STATUS                    Status;
+  UINTN                         TransferBytes;
 
+  Status = EFI_SUCCESS;
   RequestPacket = SpiNorGetRequestPacket (SpiNorParams, SPI_NOR_REQUEST_TYPE_READ);
-  // Fill Flash read request packet
-  FillRequestPacketData (
-    SPI_NOR_REQUEST_TYPE_READ,
-    SpiNorParams,
-    RequestPacket,
-    From,
-    ReadBuf,
-    Length
-    );
-  // read Flash Data
-  Status = SpiIo->Transaction (
-                    SpiIo,
-                    RequestPacket,
-                    0
-                    );
-  if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Error Reading Flash Data %r\n", Status));
+
+  while (Length) {
+    TransferBytes = SpiIo->MaximumTransferBytes;
+    if (SpiIo->Attributes | SPI_TRANSFER_SIZE_INCLUDES_ADDRESS) {
+      TransferBytes -= sizeof (UINT32);
+    }
+    if (SpiIo->Attributes | SPI_TRANSFER_SIZE_INCLUDES_OPCODE) {
+      TransferBytes -= sizeof (UINT8);
+    }
+    TransferBytes = MIN (Length, TransferBytes);
+    // Fill Flash read request packet
+    FillRequestPacketData (
+      SPI_NOR_REQUEST_TYPE_READ,
+      SpiNorParams,
+      RequestPacket,
+      From,
+      ReadBuf,
+      TransferBytes
+      );
+    // read Flash Data
+    Status = SpiIo->Transaction (
+                      SpiIo,
+                      RequestPacket,
+                      0
+                      );
+    if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "Error Reading Flash Data %r\n", Status));
+      break;
+    }
+
+    // Move Pointers
+    ReadBuf += TransferBytes;
+    From += TransferBytes;
+    Length -= TransferBytes;
   }
 
   return Status;

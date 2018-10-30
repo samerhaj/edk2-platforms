@@ -25,18 +25,41 @@
 [Sources.common]
   SpiNorFlashDxe.c
   SpiNorFlashOps.c
+  SpiNorFlashFvb.c
 
 [Packages]
   Silicon/NXP/NxpQoriqLs.dec
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
 
 [LibraryClasses]
   DebugLib
+  DxeServicesTableLib
+  HobLib
+  PcdLib
+  TimerLib
   UefiBootServicesTableLib
   UefiDriverEntryPoint
-  UefiLib
-  TimerLib
+  UefiRuntimeLib
+
+[Guids]
+  gEfiAuthenticatedVariableGuid
+  gEfiEventVirtualAddressChangeGuid
+  gEfiSystemNvDataFvGuid
+  gEfiVariableGuid
+  gEdkiiNvVarStoreFormattedGuid     ## PRODUCES ## PROTOCOL
+
+[Protocols]
+  gEfiFirmwareVolumeBlockProtocolGuid
+
+[Pcd.common]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase64
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareSize
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase64
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingSize
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase64
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableSize
 
 [Depex]
-  TRUE
+  gEfiCpuArchProtocolGuid
