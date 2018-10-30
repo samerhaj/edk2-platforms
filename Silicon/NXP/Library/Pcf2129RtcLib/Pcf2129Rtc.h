@@ -15,6 +15,8 @@
 #ifndef __PCF2129RTC_H__
 #define __PCF2129RTC_H__
 
+#define BOOTTIME_DEBUG(x)       do { if (!EfiAtRuntime()) DEBUG (x); } while (0)
+
 /*
  * RTC register addresses
  */

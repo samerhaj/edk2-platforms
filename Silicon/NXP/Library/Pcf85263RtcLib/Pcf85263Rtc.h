@@ -15,6 +15,8 @@
 #ifndef __PCF85263_H__
 #define __PCF85263_H__
 
+#define BOOTTIME_DEBUG(x)       do { if (!EfiAtRuntime()) DEBUG (x); } while (0)
+
 // Define EPOCH (1998-JANUARY-01) in the Julian Date representation
 #define EPOCH_JULIAN_DATE         2450815
 

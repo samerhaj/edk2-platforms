@@ -15,6 +15,8 @@
 #ifndef __DS3232RTC_H__
 #define __DS3232RTC_H__
 
+#define BOOTTIME_DEBUG(x)       do { if (!EfiAtRuntime()) DEBUG (x); } while (0)
+
 //RTC time register
 #define DS3232_SEC_REG_ADDR        0x00
 #define DS3232_MIN_REG_ADDR        0x01

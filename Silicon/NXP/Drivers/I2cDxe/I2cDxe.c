@@ -542,7 +542,7 @@ StartRequest (
   RegAddress = 0;
 
   if (RequestPacket->OperationCount <= 0) {
-    DEBUG ((DEBUG_ERROR,"%a: Operation count is not valid %d\n",
+    BOOTTIME_DEBUG ((DEBUG_ERROR,"%a: Operation count is not valid %d\n",
            __FUNCTION__, RequestPacket->OperationCount));
     return EFI_INVALID_PARAMETER;
   }
@@ -556,7 +556,7 @@ StartRequest (
     Buffer = RequestPacket->Operation[Count].Buffer;
 
     if (Length <= 0) {
-      DEBUG ((DEBUG_ERROR,"%a: Invalid length of buffer %d\n",
+      BOOTTIME_DEBUG ((DEBUG_ERROR,"%a: Invalid length of buffer %d\n",
              __FUNCTION__, Length));
       return EFI_INVALID_PARAMETER;
     }
@@ -565,7 +565,7 @@ StartRequest (
       Ret = I2cDataRead (PcdGet32 (PcdI2cBus), SlaveAddress,
               RegAddress, OffsetLength, Buffer, Length);
       if (Ret != EFI_SUCCESS) {
-        DEBUG ((DEBUG_ERROR,"%a: I2c read operation failed (error %d)\n",
+        BOOTTIME_DEBUG ((DEBUG_ERROR,"%a: I2c read operation failed (error %d)\n",
                __FUNCTION__, Ret));
         return Ret;
       }
@@ -573,12 +573,12 @@ StartRequest (
       Ret = I2cDataWrite (PcdGet32 (PcdI2cBus), SlaveAddress,
               RegAddress, OffsetLength, Buffer, Length);
       if (Ret != EFI_SUCCESS) {
-        DEBUG ((DEBUG_ERROR,"%a: I2c write operation failed (error %d)\n",
+        BOOTTIME_DEBUG ((DEBUG_ERROR,"%a: I2c write operation failed (error %d)\n",
                __FUNCTION__, Ret));
         return Ret;
       }
     } else {
-      DEBUG ((DEBUG_ERROR,"%a: Invalid Flag %d\n",
+      BOOTTIME_DEBUG ((DEBUG_ERROR,"%a: Invalid Flag %d\n",
              __FUNCTION__, Flag));
       return EFI_INVALID_PARAMETER;
     }

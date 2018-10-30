@@ -18,6 +18,8 @@
 
 #include <Uefi.h>
 
+#define BOOTTIME_DEBUG(x)       do { if (!EfiAtRuntime()) DEBUG (x); } while (0)
+
 #define I2C_CR_IIEN           (1 << 6)
 #define I2C_CR_MSTA           (1 << 5)
 #define I2C_CR_MTX            (1 << 4)

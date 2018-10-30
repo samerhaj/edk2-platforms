@@ -69,7 +69,7 @@ RtcRead (
                                      (VOID *)&Req,
                                      NULL,  NULL);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "RTC read error at Addr:0x%x\n", RtcRegAddr));
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "RTC read error at Addr:0x%x\n", RtcRegAddr));
   }
 
   return Val;
@@ -108,7 +108,7 @@ RtcWrite (
                                      (VOID *)&Req,
                                      NULL,  NULL);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "RTC write error at Addr:0x%x\n", RtcRegAddr));
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "RTC write error at Addr:0x%x\n", RtcRegAddr));
   }
 }
 
@@ -176,7 +176,7 @@ LibGetTime (
   Year = RtcRead (FixedPcdGet8 (PcdI2cSlaveAddress), DS3232_YR_REG_ADDR);
 
   if (Second & DS3232_SEC_BIT_CH) {
-    DEBUG ((DEBUG_ERROR, "### Warning: RTC oscillator has stopped\n"));
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "### Warning: RTC oscillator has stopped\n"));
     /* clear the CH flag */
     RtcWrite (FixedPcdGet8 (PcdI2cSlaveAddress), DS3232_SEC_REG_ADDR,
               RtcRead (FixedPcdGet8 (PcdI2cSlaveAddress), DS3232_SEC_REG_ADDR) & ~DS3232_SEC_BIT_CH);
@@ -229,7 +229,7 @@ LibSetTime (
   }
 
   if (Time->Year < START_YEAR || Time->Year >= END_YEAR){
-    DEBUG ((DEBUG_ERROR, "WARNING: Year should be between 1970 and 2069!\n"));
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "WARNING: Year should be between 1970 and 2069!\n"));
     return EFI_INVALID_PARAMETER;
   }
 
@@ -342,7 +342,7 @@ I2cDriverRegistrationEvent (
 
   Status = I2cMaster->Reset (I2cMaster);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "%a: I2CMaster->Reset () failed - %r\n",
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "%a: I2CMaster->Reset () failed - %r\n",
       __FUNCTION__, Status));
     return;
   }
@@ -350,7 +350,7 @@ I2cDriverRegistrationEvent (
   BusFrequency = FixedPcdGet16 (PcdI2cBusFrequency);
   Status = I2cMaster->SetBusFrequency (I2cMaster, &BusFrequency);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "%a: I2CMaster->SetBusFrequency () failed - %r\n",
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "%a: I2CMaster->SetBusFrequency () failed - %r\n",
       __FUNCTION__, Status));
     return;
   }

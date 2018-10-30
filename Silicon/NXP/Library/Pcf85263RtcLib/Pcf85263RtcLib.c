@@ -67,7 +67,7 @@ RtcRead (
                                      (VOID *)&Req,
                                      NULL,  NULL);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "RTC read error at Addr:0x%x\n", RtcRegAddr));
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "RTC read error at Addr:0x%x\n", RtcRegAddr));
   }
 
   return Val;
@@ -105,7 +105,7 @@ RtcWrite (
                                      (VOID *)&Req,
                                      NULL,  NULL);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "RTC write error at Addr:0x%x\n", RtcRegAddr));
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "RTC write error at Addr:0x%x\n", RtcRegAddr));
   }
 
   return Status;
@@ -202,12 +202,12 @@ LibGetTime (
   UINT8                         RtcRegAddr;
 
   if (mI2cMaster == NULL) {
-    DEBUG ((DEBUG_ERROR, "%a : I2c Master protocol is not yet installed\n", __FUNCTION__));
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "%a : I2c Master protocol is not yet installed\n", __FUNCTION__));
     return EFI_DEVICE_ERROR;
   }
 
   if (Time == NULL) {
-    DEBUG ((DEBUG_ERROR, "Received NULL parameter\n"));
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "Received NULL parameter\n"));
     return EFI_INVALID_PARAMETER;
   }
 
@@ -227,12 +227,12 @@ LibGetTime (
                                      (VOID *)&Req,
                                      NULL,  NULL);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "RTC read error at Addr:0x%x\n", RtcRegAddr));
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "RTC read error at Addr:0x%x\n", RtcRegAddr));
     return Status;
   }
 
   if (Buffer[PCF85263_SEC_REG_ADDR] & PCF85263_SEC_BIT_OSC) {
-    DEBUG ((DEBUG_ERROR, "### Warning: RTC oscillator has stopped\n"));
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "### Warning: RTC oscillator has stopped\n"));
     /* clear the OS flag */
     Val = Buffer[PCF85263_SEC_REG_ADDR] & ~PCF85263_SEC_BIT_OSC;
     RtcWrite (PCF85263_SEC_REG_ADDR, Val);
@@ -279,7 +279,7 @@ LibGetTime (
                );
 
     if (EFI_ERROR (Status)) {
-      DEBUG ((DEBUG_ERROR,
+      BOOTTIME_DEBUG ((DEBUG_ERROR,
         "LibGetTime: Failed to save %s variable to non-volatile storage, Status = %d\n",
         mTimeZoneVariableName,
         Status
@@ -326,7 +326,7 @@ LibGetTime (
                (VOID *)&(Time->Daylight)
                );
     if (EFI_ERROR (Status)) {
-      DEBUG ((DEBUG_ERROR,
+      BOOTTIME_DEBUG ((DEBUG_ERROR,
         "LibGetTime: Failed to save %s variable to non-volatile storage, Status = %d\n",
         mDaylightVariableName,
         Status
@@ -411,7 +411,7 @@ LibSetTime (
   UINT8                      RtcRegAddr;
 
   if (mI2cMaster == NULL) {
-    DEBUG ((DEBUG_ERROR, "%a : I2c Master protocol is not yet installed\n", __FUNCTION__));
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "%a : I2c Master protocol is not yet installed\n", __FUNCTION__));
     return EFI_DEVICE_ERROR;
   }
 
@@ -508,7 +508,7 @@ LibSetTime (
               (VOID *)&(Time->TimeZone)
               );
   if (EFI_ERROR (Status)) {
-      DEBUG ((DEBUG_ERROR,
+      BOOTTIME_DEBUG ((DEBUG_ERROR,
         "LibSetTime: Failed to save %s variable to non-volatile storage, Status = %d\n",
         mTimeZoneVariableName,
         Status
@@ -525,7 +525,7 @@ LibSetTime (
              (VOID *)&(Time->Daylight)
              );
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR,
+    BOOTTIME_DEBUG ((DEBUG_ERROR,
       "LibSetTime: Failed to save %s variable to non-volatile storage, Status = %d\n",
       mDaylightVariableName,
       Status
@@ -629,7 +629,7 @@ I2cDriverRegistrationEvent (
 
   Status = I2cMaster->Reset (I2cMaster);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "%a: I2CMaster->Reset () failed - %r\n",
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "%a: I2CMaster->Reset () failed - %r\n",
       __FUNCTION__, Status));
     return;
   }
@@ -637,7 +637,7 @@ I2cDriverRegistrationEvent (
   BusFrequency = FixedPcdGet16 (PcdI2cBusFrequency);
   Status = I2cMaster->SetBusFrequency (I2cMaster, &BusFrequency);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "%a: I2CMaster->SetBusFrequency () failed - %r\n",
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "%a: I2CMaster->SetBusFrequency () failed - %r\n",
       __FUNCTION__, Status));
     return;
   }

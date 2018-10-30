@@ -93,7 +93,7 @@ RtcWrite (
                                      (VOID *)&Req,
                                      NULL,  NULL);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "RTC write error at Addr:0x%x\n", RtcRegAddr));
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "RTC write error at Addr:0x%x\n", RtcRegAddr));
   }
 
 }
@@ -152,11 +152,12 @@ LibGetTime (
                                      (VOID *)&Req,
                                      NULL,  NULL);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "RTC read error at Addr:0x%x\n", RtcRegAddr));
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "RTC read error at Addr:0x%x\n", RtcRegAddr));
   }
 
   if (Buffer[PCF2129_CTRL3_REG_ADDR] & PCF2129_CTRL3_BIT_BLF) {
-    DEBUG((DEBUG_INFO, "### Warning: RTC battery status low, check/replace RTC battery.\n"));
+    BOOTTIME_DEBUG ((DEBUG_INFO,
+      "### Warning: RTC battery status low, check/replace RTC battery.\n"));
   }
 
   Time->Nanosecond = 0;
@@ -226,7 +227,7 @@ LibSetTime (
                                      (VOID *)&Req,
                                      NULL,  NULL);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "RTC write error at Addr:0x%x\n", RtcRegAddr));
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "RTC write error at Addr:0x%x\n", RtcRegAddr));
     return Status;
   }
 
@@ -331,7 +332,7 @@ LibRtcInitialize (
 
   Status = I2cMaster->Reset (I2cMaster);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "%a: I2CMaster->Reset () failed - %r\n",
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "%a: I2CMaster->Reset () failed - %r\n",
       __FUNCTION__, Status));
     return Status;
   }
@@ -339,7 +340,7 @@ LibRtcInitialize (
   BusFrequency = FixedPcdGet32 (PcdI2cSpeed);
   Status = I2cMaster->SetBusFrequency (I2cMaster, &BusFrequency);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "%a: I2CMaster->SetBusFrequency () failed - %r\n",
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "%a: I2CMaster->SetBusFrequency () failed - %r\n",
       __FUNCTION__, Status));
     return Status;
   }

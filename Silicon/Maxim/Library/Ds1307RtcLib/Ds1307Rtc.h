@@ -15,6 +15,8 @@
 #ifndef __DS1307RTC_H__
 #define __DS1307RTC_H__
 
+#define BOOTTIME_DEBUG(x)       do { if (!EfiAtRuntime()) DEBUG (x); } while (0)
+
 /*
  * RTC time register
  */
