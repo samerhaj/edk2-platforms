@@ -169,6 +169,7 @@
   ethernet@ea000 {
     phy-handle = <&sgmii_phy2>;
     phy-connection-type = "sgmii";
+    status = "okay";
   };
 
   ethernet@f0000 { /* 10GEC1 */
