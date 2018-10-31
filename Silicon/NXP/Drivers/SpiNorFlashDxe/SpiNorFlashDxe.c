@@ -35,6 +35,7 @@
 #include <Library/DebugLib.h>
 #include <Library/TimerLib.h>
 #include <Library/UefiBootServicesTableLib.h>
+#include <Library/UefiRuntimeLib.h>
 
 #include <Protocol/SpiConfigData.h>
 
@@ -337,6 +338,29 @@ SpiNorVirtualNotifyEvent (
   IN VOID             *Context
   )
 {
+  SPI_NOR_FLASH_CONTEXT       *SpiNorContext;
+
+  SpiNorContext = (SPI_NOR_FLASH_CONTEXT *)Context;
+
+  // The other elements of SpiIo would be relocated by SPI Bus layer
+  EfiConvertPointer (0x0, (VOID**)&SpiNorContext->SpiIo);
+
+  EfiConvertPointer (0x0, (VOID**)&SpiNorContext->SpiNorParams->RequestPackets);
+  EfiConvertPointer (0x0, (VOID**)&SpiNorContext->SpiNorParams->ParamTable);
+  EfiConvertPointer (0x0, (VOID**)&SpiNorContext->SpiNorParams->ParamHeader);
+  EfiConvertPointer (0x0, (VOID**)&SpiNorContext->SpiNorParams);
+
+  // Convert Fvb
+  EfiConvertPointer (0x0, (VOID**)&SpiNorContext->FvbProtocol.EraseBlocks);
+  EfiConvertPointer (0x0, (VOID**)&SpiNorContext->FvbProtocol.GetAttributes);
+  EfiConvertPointer (0x0, (VOID**)&SpiNorContext->FvbProtocol.GetBlockSize);
+  EfiConvertPointer (0x0, (VOID**)&SpiNorContext->FvbProtocol.GetPhysicalAddress);
+  EfiConvertPointer (0x0, (VOID**)&SpiNorContext->FvbProtocol.Read);
+  EfiConvertPointer (0x0, (VOID**)&SpiNorContext->FvbProtocol.SetAttributes);
+  EfiConvertPointer (0x0, (VOID**)&SpiNorContext->FvbProtocol.Write);
+
+  EfiConvertPointer (0x0, (VOID**)&SpiNorContext->ShadowBuffer);
+
   return;
 }
 
@@ -414,7 +438,7 @@ SpiNorFlashCreateContext (
                   EVT_NOTIFY_SIGNAL,
                   TPL_NOTIFY,
                   SpiNorVirtualNotifyEvent,
-                  NULL,
+                  (VOID *)*SpiNorContext,
                   &gEfiEventVirtualAddressChangeGuid,
                   &(*SpiNorContext)->SpiNorVirtualAddressEvent
                   );

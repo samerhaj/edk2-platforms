@@ -70,12 +70,16 @@ FillRequestPacketData (
 
   for (Index = 0; Index < RequestPacket->TransactionCount; Index++) {
     switch (RequestPacket->Transaction[Index].TransactionType) {
+      case SPI_TRANSACTION_COMMAND:
+        RequestPacket->Transaction[Index].WriteBuffer = (UINT8 *)&SpiNorParams->Commands[RequestType];
+        break;
       case SPI_TRANSACTION_ADDRESS:
         SpiNorParams->FlashOffset = Address;
         RequestPacket->Transaction[Index].WriteBuffer = (UINT8 *)&SpiNorParams->FlashOffset;
         break;
       case SPI_TRANSACTION_DATA:
         switch (RequestType) {
+          case SPI_NOR_REQUEST_TYPE_READ_STATUS:
           case SPI_NOR_REQUEST_TYPE_SFDP_READ:
           case SPI_NOR_REQUEST_TYPE_READ:
             RequestPacket->Transaction[Index].ReadBuffer = Data;
@@ -225,6 +229,14 @@ WaitForOperation (
 
   ParamTable = SpiNorParams->ParamTable;
   RequestPacket = SpiNorGetRequestPacket (SpiNorParams, SPI_NOR_REQUEST_TYPE_READ_STATUS);
+  FillRequestPacketData (
+    SPI_NOR_REQUEST_TYPE_READ_STATUS,
+    SpiNorParams,
+    RequestPacket,
+    0,
+    &SpiNorParams->Register[0],
+    sizeof (SpiNorParams->Register[0])
+  );
   MaxTimeout = GetMaxTimeout (SpiNorParams, RequestType);
   Status = EFI_SUCCESS;
 
@@ -969,6 +981,14 @@ WriteFlashData (
   EFI_STATUS                    Status;
 
   RequestPacket = SpiNorGetRequestPacket (SpiNorParams, SPI_NOR_REQUEST_TYPE_WRITE_ENABLE);
+  FillRequestPacketData (
+    SPI_NOR_REQUEST_TYPE_WRITE_ENABLE,
+    SpiNorParams,
+    RequestPacket,
+    0,
+    0,
+    0
+  );
   // Issue Write enable command
   Status = SpiIo->Transaction (
                     SpiIo,
@@ -1022,6 +1042,14 @@ EraseFlashBlock (
   EFI_STATUS                    Status;
 
   RequestPacket = SpiNorGetRequestPacket (SpiNorParams, SPI_NOR_REQUEST_TYPE_WRITE_ENABLE);
+  FillRequestPacketData (
+    SPI_NOR_REQUEST_TYPE_WRITE_ENABLE,
+    SpiNorParams,
+    RequestPacket,
+    0,
+    0,
+    0
+  );
   // Issue Write enable command
   Status = SpiIo->Transaction (
                     SpiIo,
