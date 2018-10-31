@@ -257,6 +257,10 @@ typedef struct {
   ///
   UINT32                             (*Write32) (IN  UINTN  Address, IN  UINT32  Value);
   ///
+  /// The Input clock frequency to QSPI module in Hz.
+  ///
+  UINT64                             ClockHz;
+  ///
   /// if the QSpi controller is runtime, then VirtualNotifyEvent
   ///
   EFI_EVENT                          Event;

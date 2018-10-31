@@ -53,6 +53,8 @@ QspiVirtualNotifyEvent (
   QMaster = (QSPI_MASTER *)Context;
 
   EfiConvertPointer (0x0, (VOID **)&QMaster->Regs);
+  EfiConvertPointer (0x0, (VOID **)&QMaster->Write32);
+  EfiConvertPointer (0x0, (VOID **)&QMaster->Read32);
   // Convert SpiMaster protocol
   EfiConvertPointer (0x0, (VOID **)&QMaster->QspiHcProtocol.ChipSelect);
   EfiConvertPointer (0x0, (VOID **)&QMaster->QspiHcProtocol.Clock);
@@ -105,7 +107,15 @@ QspiClock (
   QMaster = BASE_CR (This, QSPI_MASTER, QspiHcProtocol);
 
   ControllerNumber = QMaster->DevicePath.Controller.ControllerNumber;
-  QspiInputClock = SocGetClock (IP_QSPI, ControllerNumber);
+  // It's safe to get the clock from SocClockLib, as long as we are in UEFI context
+  // We Assume that the boot loader is capable of altering the clock frequency of an IP block
+  // but OS will not alter the clock of IP, which is reserved for runtime access.
+  if (EfiAtRuntime ()) {
+    QspiInputClock = QMaster->ClockHz;
+  } else {
+    QspiInputClock = SocGetClock (IP_QSPI, ControllerNumber);
+    QMaster->ClockHz = QspiInputClock;
+  }
 
   // without having to recalibrate the module clocks, the the serial flash device clock can be divided
   // by 2 (half speed) by setting the QSPI_SMPR[HSENA] bit.

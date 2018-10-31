@@ -131,13 +131,13 @@ CheckTransaction (
           DEBUG ((DEBUG_ERROR, "Request not supported! Support only Write or Write then Read operations\n"));
           Status = EFI_UNSUPPORTED;
         }
-	*TransferBytes += SpiTransaction->Length;
+        *TransferBytes += SpiTransaction->Length;
       } else if (SpiTransaction->ReadBuffer) {
           if ( (Request->Type >= SPI_REQUEST_INVALID) || (Request->Type <= SPI_REQUEST_NONE)) {
             DEBUG ((DEBUG_ERROR, "Request not supported! Support only Write or Write then Read operations\n"));
             Status = EFI_UNSUPPORTED;
           }
-	*TransferBytes += SpiTransaction->Length;
+        *TransferBytes += SpiTransaction->Length;
       } else {
         DEBUG ((DEBUG_ERROR, "No data found to transmit or receive\n"));
         Status = EFI_INVALID_PARAMETER;

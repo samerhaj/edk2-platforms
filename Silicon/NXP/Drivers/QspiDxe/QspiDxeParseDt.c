@@ -116,6 +116,7 @@ ParseDeviceTree (
   UINT32             QspiMasterIndex;
   UINT64             Regs;
   BOOLEAN            Runtime;
+  INT32              FdtStatus;
 
   Status = EFI_SUCCESS;
   QspiMasterIndex = 0;
@@ -227,6 +228,14 @@ ParseDeviceTree (
       DEBUG ((DEBUG_WARN, "QSpi Spi Host Controller Installation Failed!!\n"));
       FreePool (QspiMasterPtr);
       continue;
+    }
+
+    if (Runtime) {
+      FdtStatus = fdt_setprop_string (Fdt, NodeOffset, "status", "disabled");
+      if (FdtStatus) {
+        DEBUG ((DEBUG_ERROR, "Error %a disabling Node %a\n",
+          fdt_strerror (FdtStatus), fdt_get_name (Fdt, NodeOffset, NULL)));
+      }
     }
 
     *QSpiCount += 1;
