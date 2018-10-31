@@ -19,7 +19,8 @@
 
 #define SFDP_PARAM_PAGE_SIZE(ParamTable)    (1 << ParamTable->PageSize)
 #define SFDP_PARAM_FLASH_SIZE(ParamTable)    \
-          ((ParamTable->Density & BIT31) ? (1 << (ParamTable->Density & ~BIT31)) : (ParamTable->Density + 1))
+          ((ParamTable->Density & BIT31) ? ((1 << (ParamTable->Density & ~BIT31)) >> 3) : \
+                                           ((ParamTable->Density + 1) >> 3))
 #define SFDP_PARAM_ERASE_SIZE(ParamTable)    \
           (1 << ParamTable->Erase_Size_Command[SpiNorParams->EraseIndex].Size)
 #define GET_BLOCK_OFFSET(Lba)               (Lba * SFDP_PARAM_ERASE_SIZE(ParamTable))
