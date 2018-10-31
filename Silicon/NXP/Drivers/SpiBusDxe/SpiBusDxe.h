@@ -54,9 +54,9 @@ typedef struct {
   EFI_HANDLE                   DriverBindingHandle;
 
   ///
-  /// Link List of SPI Buses
+  /// Virtual Address change event
   ///
-  LIST_ENTRY                   Link;
+  EFI_EVENT                    SpiBusVirtualAddressEvent;
 } SPI_BUS_CONTEXT;
 
 ///
@@ -85,9 +85,9 @@ typedef struct {
   SPI_BUS_CONTEXT               *SpiBusContext;
 
   ///
-  /// Link List of SPI Devices
+  /// Virtual Address change event
   ///
-  LIST_ENTRY                    Link;
+  EFI_EVENT                     SpiDeviceVirtualAddressEvent;
 } SPI_DEVICE_CONTEXT;
 
 #define SPI_DEVICE_CONTEXT_FROM_PROTOCOL(a) CR (a, SPI_DEVICE_CONTEXT, SpiIo, SPI_DEVICE_SIGNATURE)

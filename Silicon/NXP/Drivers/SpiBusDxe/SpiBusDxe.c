@@ -57,10 +57,7 @@ SPI_BUS_CONTEXT gEfiSpiBusContextTemplate = {
   .Signature = SPI_BUS_SIGNATURE,
   .SpiHost = NULL,
   .SpiBus = NULL,
-  .Link = {
-    .ForwardLink = NULL,
-    .BackLink = NULL
-  }
+  .SpiBusVirtualAddressEvent = NULL
 };
 
 //
@@ -80,19 +77,8 @@ SPI_DEVICE_CONTEXT gEfiSpiDeviceContextTemplate = {
     .UpdateSpiPeripheral = SpiBusUpdateSpiPeripheral
   },
   .SpiBusContext = NULL,
-  .Link = {
-    .ForwardLink = NULL,
-    .BackLink = NULL
-  }
+  .SpiDeviceVirtualAddressEvent = NULL
 };
-
-STATIC EFI_EVENT     mSpiBusVirtualAddrChangeEvent;
-
-// Link list of SPI Buses that are runtime
-STATIC LIST_ENTRY    mSpiBusList = INITIALIZE_LIST_HEAD_VARIABLE (mSpiBusList);
-
-// Link list of SPI Devices that are runtime
-STATIC LIST_ENTRY    mSpiDeviceList = INITIALIZE_LIST_HEAD_VARIABLE (mSpiDeviceList);
 
 /**
   Check if the Spi Host controller's device path exists in Spi Bus configuration
@@ -298,6 +284,74 @@ SpiBusDriverSupported (
 }
 
 /**
+  Fixup internal data so that EFI can be call in virtual mode.
+  Call the passed in Child Notify event and convert any pointers in
+  lib to virtual mode.
+
+  @param[in]    Event   The Event that is being processed
+  @param[in]    Context Event Context
+**/
+VOID
+EFIAPI
+SpiDeviceVirtualNotifyEvent (
+  IN EFI_EVENT        Event,
+  IN VOID             *Context
+  )
+{
+  SPI_DEVICE_CONTEXT     *SpiDeviceContext;
+
+  SpiDeviceContext = (VOID *)Context;
+
+  EfiConvertPointer (0x0, (VOID **)&SpiDeviceContext->SpiBusContext);
+
+  EfiConvertPointer (0x0, (VOID **)&SpiDeviceContext->SpiIo.SpiPeripheral->SpiPart);
+  if (SpiDeviceContext->SpiIo.SpiPeripheral->ConfigurationData) {
+    EfiConvertPointer (0x0, (VOID **)&SpiDeviceContext->SpiIo.SpiPeripheral->ConfigurationData);
+  }
+  if (SpiDeviceContext->SpiIo.SpiPeripheral->ChipSelect) {
+    EfiConvertPointer (0x0, (VOID **)&SpiDeviceContext->SpiIo.SpiPeripheral->ChipSelect);
+  }
+  EfiConvertPointer (0x0, (VOID **)&SpiDeviceContext->SpiIo.SpiPeripheral->ChipSelectParameter);
+
+  EfiConvertPointer (0x0, (VOID **)&SpiDeviceContext->SpiIo.SpiPeripheral);
+  EfiConvertPointer (0x0, (VOID **)&SpiDeviceContext->SpiIo.LegacySpiProtocol);
+  EfiConvertPointer (0x0, (VOID **)&SpiDeviceContext->SpiIo.Transaction);
+
+  return;
+}
+
+/**
+  Fixup internal data so that EFI can be call in virtual mode.
+  Call the passed in Child Notify event and convert any pointers in
+  lib to virtual mode.
+
+  @param[in]    Event   The Event that is being processed
+  @param[in]    Context Event Context
+**/
+VOID
+EFIAPI
+SpiBusVirtualNotifyEvent (
+  IN EFI_EVENT        Event,
+  IN VOID             *Context
+  )
+{
+  SPI_BUS_CONTEXT     *SpiBusContext;
+
+  SpiBusContext = (VOID *)Context;
+
+  EfiConvertPointer (0x0, (VOID **)&SpiBusContext->SpiHost);
+  if (SpiBusContext->SpiBus->Clock) {
+    EfiConvertPointer (0x0, (VOID **)&SpiBusContext->SpiBus->Clock);
+  }
+  if (SpiBusContext->SpiBus->ClockParameter) {
+    EfiConvertPointer (0x0, (VOID **)&SpiBusContext->SpiBus->ClockParameter);
+  }
+  EfiConvertPointer (0x0, (VOID **)&SpiBusContext->SpiBus);
+
+  return;
+}
+
+/**
   Starts a device controller or a bus controller.
 
   The Start() function is designed to be invoked from the EFI boot service ConnectController().
@@ -481,7 +535,21 @@ SpiBusDriverStart (
   }
 
   if (SpiBusRuntime == TRUE) {
-    InsertTailList (&mSpiBusList, &SpiBusContext->Link);
+    //
+    // Register for the virtual address change event
+    //
+    Status = gBS->CreateEventEx (
+                    EVT_NOTIFY_SIGNAL,
+                    TPL_NOTIFY,
+                    SpiBusVirtualNotifyEvent,
+                    (VOID *)SpiBusContext,
+                    &gEfiEventVirtualAddressChangeGuid,
+                    &SpiBusContext->SpiBusVirtualAddressEvent
+                    );
+    if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "SpiBus: create VirtualNotifyEvent error, Status = %r\n", Status));
+      goto ErrorExit;
+    }
   }
 
   //
@@ -548,8 +616,8 @@ ErrorExit:
                       gEfiCallerIdGuid, SpiBusContext,
                       NULL
                       );
-      if (SpiBusRuntime == TRUE) {
-        RemoveEntryList (&SpiBusContext->Link);
+      if (SpiBusContext->SpiBusVirtualAddressEvent) {
+        gBS->CloseEvent (SpiBusContext->SpiBusVirtualAddressEvent);
       }
       FreePool (SpiBusContext);
     }
@@ -655,8 +723,8 @@ SpiBusDriverStop (
       //
       // No more child now, free bus context data.
       //
-      if (SpiBusRuntime) {
-        RemoveEntryList (&SpiBusContext->Link);
+      if (SpiBusContext->SpiBusVirtualAddressEvent) {
+        gBS->CloseEvent (SpiBusContext->SpiBusVirtualAddressEvent);
       }
       FreePool (SpiBusContext);
     }
@@ -826,7 +894,18 @@ RegisterSpiDevice (
     // Child has been created successfully
     //
     if (RegisterRuntime == TRUE) {
-      InsertTailList (&mSpiDeviceList, &SpiDeviceContext->Link);
+      //
+      // Register for the virtual address change event
+      //
+      Status = gBS->CreateEventEx (
+                      EVT_NOTIFY_SIGNAL,
+                      TPL_NOTIFY,
+                      SpiDeviceVirtualNotifyEvent,
+                      (VOID *)SpiDeviceContext,
+                      &gEfiEventVirtualAddressChangeGuid,
+                      &SpiDeviceContext->SpiDeviceVirtualAddressEvent
+                      );
+      ASSERT_EFI_ERROR (Status);
     }
   }
 
@@ -1103,6 +1182,10 @@ ReleaseSpiDeviceContext (
     return;
   }
 
+  if (SpiDeviceContext->SpiDeviceVirtualAddressEvent) {
+    gBS->CloseEvent (SpiDeviceContext->SpiDeviceVirtualAddressEvent);
+  }
+
   FreePool (SpiDeviceContext);
 }
 
@@ -1187,53 +1270,9 @@ UnRegisterSpiDevice (
   //
   // Free resources for this SPI device
   //
-  if (SpiDeviceContext->Link.ForwardLink != NULL || SpiDeviceContext->Link.BackLink != NULL) {
-    RemoveEntryList (&SpiDeviceContext->Link);
-  }
   ReleaseSpiDeviceContext (SpiDeviceContext);
 
   return EFI_SUCCESS;
-}
-
-/**
-  Fixup internal data so that EFI can be call in virtual mode.
-  Call the passed in Child Notify event and convert any pointers in
-  lib to virtual mode.
-
-  @param[in]    Event   The Event that is being processed
-  @param[in]    Context Event Context
-**/
-VOID
-EFIAPI
-SpiBusVirtualNotifyEvent (
-  IN EFI_EVENT        Event,
-  IN VOID             *Context
-  )
-{
-  LIST_ENTRY          *Link;
-  SPI_DEVICE_CONTEXT  *SpiDeviceContext;
-  SPI_BUS_CONTEXT     *SpiBusContext;
-
-  for (Link = mSpiBusList.ForwardLink;  Link != &mSpiBusList; Link = Link->ForwardLink) {
-    SpiBusContext = CR (Link, SPI_BUS_CONTEXT, Link, SPI_BUS_SIGNATURE);
-
-    EfiConvertPointer (0x0, (VOID **)&SpiBusContext->SpiHost);
-    EfiConvertPointer (0x0, (VOID **)&SpiBusContext->SpiBus);
-  }
-
-  for (Link = mSpiDeviceList.ForwardLink;  Link != &mSpiDeviceList; Link = Link->ForwardLink) {
-    SpiDeviceContext = CR (Link, SPI_DEVICE_CONTEXT, Link, SPI_DEVICE_SIGNATURE);
-
-    EfiConvertPointer (0x0, (VOID **)&SpiDeviceContext->SpiBusContext);
-
-    EfiConvertPointer (0x0, (VOID **)&SpiDeviceContext->SpiIo.SpiPeripheral);
-    EfiConvertPointer (0x0, (VOID **)&SpiDeviceContext->SpiIo.OriginalSpiPeripheral);
-    EfiConvertPointer (0x0, (VOID **)&SpiDeviceContext->SpiIo.LegacySpiProtocol);
-    EfiConvertPointer (0x0, (VOID **)&SpiDeviceContext->SpiIo.Transaction);
-    EfiConvertPointer (0x0, (VOID **)&SpiDeviceContext->SpiIo.UpdateSpiPeripheral);
-  }
-
-  return;
 }
 
 /**
@@ -1265,19 +1304,6 @@ InitializeSpiBus(
              &gSpiBusDriverBinding,
              NULL
              );
-  ASSERT_EFI_ERROR (Status);
-
-  //
-  // Register for the virtual address change event
-  //
-  Status = gBS->CreateEventEx (
-                  EVT_NOTIFY_SIGNAL,
-                  TPL_NOTIFY,
-                  SpiBusVirtualNotifyEvent,
-                  NULL,
-                  &gEfiEventVirtualAddressChangeGuid,
-                  &mSpiBusVirtualAddrChangeEvent
-                  );
   ASSERT_EFI_ERROR (Status);
 
   return Status;
