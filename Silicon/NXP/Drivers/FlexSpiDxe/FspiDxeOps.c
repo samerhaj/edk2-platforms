@@ -489,7 +489,6 @@ FspiSetup (
 {
   FSPI_REGISTERS                *Regs;
   UINT8                         Index;
-  EFI_PHYSICAL_ADDRESS          AmbaBase;
   UINT64                        AmbaSizePerChip;
   EFI_STATUS                    Status;
 
@@ -498,7 +497,6 @@ FspiSetup (
   }
 
   Regs = Fspi->Regs;
-  AmbaBase = Fspi->AmbaBase;
   Status = EFI_SUCCESS;
 
   // SW reset by writing 1 to MCR0[SWRESET]. This bit is auto-cleared by hardware after

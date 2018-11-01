@@ -675,7 +675,6 @@ SpiBusDriverStop (
   )
 {
   SPI_BUS_CONTEXT             *SpiBusContext;
-  BOOLEAN                     SpiBusRuntime;
   EFI_STATUS                  Status;
   BOOLEAN                     AllChildrenStopped;
   UINTN                       Index;
@@ -713,7 +712,6 @@ SpiBusDriverStop (
                     EFI_OPEN_PROTOCOL_GET_PROTOCOL
                     );
     if (!EFI_ERROR (Status)) {
-      SpiBusRuntime = SpiBusContext->SpiBus->RuntimePeripherallist ? TRUE : FALSE;
 
       gBS->UninstallMultipleProtocolInterfaces (
             Controller,
