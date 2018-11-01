@@ -126,7 +126,7 @@
 #define IATU_LWR_TARGET_ADDR_OFF_OUTBOUND_0          0x918
 #define IATU_UPPER_TARGET_ADDR_OFF_OUTBOUND_0        0x91C
 
-#define PCI_CLASS_BRIDGE_PCI                         0x6040010
+#define PCI_CLASS_BRIDGE_PCI                         0x0604
 #define PCI_CLASS_DEVICE                             0x8
 #define PCI_DBI_RO_WR_EN                             0x8bc
 #define PCI_BASE_ADDRESS_0                           0x10
@@ -134,7 +134,7 @@
 // PAB CSR
 #define PAB_CTRL                                     0x808
 #define PAB_CTRL_APIO_EN                             0x1
-#define PAB_CTRL_PPIO_EN                             0x1 << 1
+#define PAB_CTRL_PPIO_EN                             (0x1 << 1)
 #define PAB_CTRL_PAGE_SEL_SHIFT                      13
 #define PAB_CTRL_PAGE_SEL_MASK                       0x3f
 

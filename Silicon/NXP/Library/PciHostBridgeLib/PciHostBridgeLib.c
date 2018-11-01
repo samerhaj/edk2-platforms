@@ -513,13 +513,13 @@ PcieSetupWindow (
                          PAB_AXI_TYPE_CFG,
                          Cfg0Base,
                          SEG_CFG_BUS,
-                         LX_PEX_CFG_SIZE);
+                         SEG_CFG_SIZE);
   // ATU 2 : OUTBOUND : IO
   PcieOutboundSet (Pcie, IATU_REGION_INDEX1,
                          PAB_AXI_TYPE_IO,
                          IoBase,
-                         SEG_CFG_BUS,
-                         SEG_CFG_SIZE);
+                         SEG_IO_BUS,
+                         SEG_IO_SIZE);
 
   // ATU 3 : OUTBOUND : MEM
   PcieOutboundSet (Pcie, IATU_REGION_INDEX2,
@@ -531,7 +531,7 @@ PcieSetupWindow (
   if (FeaturePcdGet (PcdPciDebug) == TRUE) {
     INTN Cnt;
     for (Cnt = 0; Cnt <= IATU_REGION_INDEX2; Cnt++) {
-      DEBUG ((DEBUG_INFO,"AMAP WINDOW%d:\n", Cnt));
+      DEBUG ((DEBUG_INFO,"APIO WINDOW%d:\n", Cnt));
       DEBUG ((DEBUG_INFO,"\tLOWER PHYS 0x%08x\n",
               CcsrRead32 ((UINTN)Pcie, PAB_AXI_AMAP_AXI_WIN (Cnt))));
       DEBUG ((DEBUG_INFO,"\tUPPER PHYS 0x%08x\n",

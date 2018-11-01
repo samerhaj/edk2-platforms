@@ -41,84 +41,7 @@ typedef enum {
 #define ASSERT_INVALID_PCI_SEGMENT_ADDRESS(A,M) \
   ASSERT (((A) & (0xffff0000f0000000ULL | (M))) == 0)
 
-/**
-  Function to return PCIe Physical Address(PCIe view) or Controller
-  Address(CPU view) for different RCs
-
-  @param  Address Address passed from bus layer.
-  @param  Segment Segment number for Root Complex.
-
-  @return Return PCIe CPU or Controller address.
-
-**/
-STATIC
-UINT64
-PciSegmentLibGetConfigBase (
-  IN  UINT64      Address,
-  IN  UINT16      Segment
-  )
-{
-
-  switch (Segment) {
-    // Root Complex 1
-    case PCI_SEG0_NUM:
-      // Reading bus number(bits 20-27)
-      if ((Address >> 20) & 1) {
-        return PCI_SEG0_MMIO_MEMBASE;
-      } else {
-        // On Bus 0 RCs are connected
-        return PCI_SEG0_DBI_BASE;
-      }
-    // Root Complex 2
-    case PCI_SEG1_NUM:
-      // Reading bus number(bits 20-27)
-      if ((Address >> 20) & 1) {
-        return PCI_SEG1_MMIO_MEMBASE;
-      } else {
-        // On Bus 0 RCs are connected
-        return PCI_SEG1_DBI_BASE;
-      }
-    // Root Complex 3
-    case PCI_SEG2_NUM:
-      // Reading bus number(bits 20-27)
-      if ((Address >> 20) & 1) {
-        return PCI_SEG2_MMIO_MEMBASE;
-      } else {
-        // On Bus 0 RCs are connected
-        return PCI_SEG2_DBI_BASE;
-      }
-    // Root Complex 4
-    case PCI_SEG3_NUM:
-      // Reading bus number(bits 20-27)
-      if ((Address >> 20) & 1) {
-        return PCI_SEG3_MMIO_MEMBASE;
-      } else {
-        // On Bus 0 RCs are connected
-        return PCI_SEG3_DBI_BASE;
-      }
-    // Root Complex 5
-    case PCI_SEG4_NUM:
-      // Reading bus number(bits 20-27)
-      if ((Address >> 20) & 1) {
-        return PCI_SEG4_MMIO_MEMBASE;
-      } else {
-        // On Bus 0 RCs are connected
-        return PCI_SEG4_DBI_BASE;
-      }
-    // Root Complex 6
-    case PCI_SEG5_NUM:
-      // Reading bus number(bits 20-27)
-      if ((Address >> 20) & 1) {
-        return PCI_SEG5_MMIO_MEMBASE;
-      } else {
-        // On Bus 0 RCs are connected
-        return PCI_SEG5_DBI_BASE;
-      }
-    default:
-      return 0;
-  }
-
-}
+static UINT8 WriteFixedData;
 
 /**
   Function to select page among the 48 1KB pages for
@@ -135,14 +58,141 @@ CcsrSetPg (
   IN UINT8 PgIdx
   )
 {
-  UINT32 Val;
-  Val = MmioRead32 (Dbi + PAB_CTRL);
+  UINTN Val;
+  Val = MmioRead32 ((UINTN)Dbi + PAB_CTRL);
   // Bit 18:13 of Bridge Control Register(PAB) denotes page select
   // Mask is 6 bits and shift is 13 to select page
   Val &= ~(PAB_CTRL_PAGE_SEL_MASK << PAB_CTRL_PAGE_SEL_SHIFT);
   Val |= (PgIdx & PAB_CTRL_PAGE_SEL_MASK) << PAB_CTRL_PAGE_SEL_SHIFT;
 
-  MmioWrite32 (Dbi + PAB_CTRL, Val);
+  MmioWrite32 ((UINTN)Dbi + PAB_CTRL, Val);
+}
+
+STATIC
+VOID
+CcsrWrite32 (
+ IN EFI_PHYSICAL_ADDRESS Dbi,
+ IN UINT32 Offset,
+ IN UINT32 Value
+  )
+{
+
+  if (Offset < INDIRECT_ADDR_BNDRY) {
+    CcsrSetPg (Dbi, 0);
+    MmioWrite32 ((UINTN)Dbi + Offset, Value);
+  } else {
+    CcsrSetPg (Dbi, OFFSET_TO_PAGE_IDX (Offset));
+    MmioWrite32 ((UINTN)Dbi + OFFSET_TO_PAGE_ADDR (Offset), Value);
+  }
+}
+
+STATIC
+VOID
+PcieCfgSetTarget (
+  IN EFI_PHYSICAL_ADDRESS Dbi,
+  IN UINT32 Target)
+{
+    CcsrWrite32 ((UINTN)Dbi, PAB_AXI_AMAP_PEX_WIN_L(0), Target);
+    CcsrWrite32 ((UINTN)Dbi, PAB_AXI_AMAP_PEX_WIN_H(0), 0);
+}
+
+/**
+  Function to return PCIe Physical Address(PCIe view) or Controller
+  Address(CPU view) for different RCs
+
+  @param  Address Address passed from bus layer.
+  @param  Segment Segment number for Root Complex.
+  @param  Offset  Function number.
+
+  @return Return PCIe CPU or Controller address.
+
+**/
+STATIC
+UINT64
+PciSegmentLibGetConfigBase (
+  IN  UINT64      Address,
+  IN  UINT16      Segment,
+  IN  UINT16      Offset
+  )
+{
+
+  UINT32 Target;
+
+  switch (Segment) {
+    // Root Complex 1
+    case PCI_SEG0_NUM:
+      // Reading bus number(bits 20-27)
+      if ((Address >> 20) & 1) {
+        return (PCI_SEG0_MMIO_MEMBASE + Offset);
+      } else {
+        // On Bus 0 RCs are connected
+        return (PCI_SEG0_DBI_BASE + Offset);
+      }
+    // Root Complex 2
+    case PCI_SEG1_NUM:
+      // Reading bus number(bits 20-27)
+      if ((Address >> 20) & 1) {
+        return (PCI_SEG1_MMIO_MEMBASE + Offset);
+      } else {
+        // On Bus 0 RCs are connected
+        return (PCI_SEG1_DBI_BASE + Offset);
+      }
+    // Root Complex 3
+    case PCI_SEG2_NUM:
+      // Reading bus number(bits 20-27)
+      if ((Address >> 20) & 1) {
+        if (PcdGetBool (PcdPcieConfigurePex)) {
+          Target = 0x1000000;
+          PcieCfgSetTarget (PCI_SEG2_DBI_BASE, Target);
+        }
+        return (PCI_SEG2_MMIO_MEMBASE + Offset);
+      } else {
+          if (PcdGetBool (PcdPcieConfigurePex)) {
+            if (Offset < INDIRECT_ADDR_BNDRY) {
+              CcsrSetPg (PCI_SEG2_DBI_BASE, 0);
+              if (Offset == 4)  {
+                WriteFixedData = 1;
+              }
+              return (PCI_SEG2_DBI_BASE + Offset);
+            }
+
+            CcsrSetPg (PCI_SEG2_DBI_BASE, OFFSET_TO_PAGE_IDX (Offset));
+            Offset = OFFSET_TO_PAGE_ADDR (Offset);
+            }
+        // On Bus 0 RCs are connected
+        return (PCI_SEG2_DBI_BASE + Offset);
+      }
+    // Root Complex 4
+    case PCI_SEG3_NUM:
+      // Reading bus number(bits 20-27)
+      if ((Address >> 20) & 1) {
+        return (PCI_SEG3_MMIO_MEMBASE + Offset);
+      } else {
+        // On Bus 0 RCs are connected
+        return (PCI_SEG3_DBI_BASE + Offset);
+      }
+    // Root Complex 5
+    case PCI_SEG4_NUM:
+      // Reading bus number(bits 20-27)
+      if ((Address >> 20) & 1) {
+        return (PCI_SEG4_MMIO_MEMBASE + Offset);
+      } else {
+        // On Bus 0 RCs are connected
+        return (PCI_SEG4_DBI_BASE + Offset);
+      }
+    // Root Complex 6
+    case PCI_SEG5_NUM:
+      // Reading bus number(bits 20-27)
+      if ((Address >> 20) & 1) {
+        return (PCI_SEG5_MMIO_MEMBASE + Offset);
+      } else {
+        // On Bus 0 RCs are connected
+        return (PCI_SEG5_DBI_BASE + Offset);
+      }
+    default:
+      return 0;
+  }
+
 }
 
 /**
@@ -175,18 +225,7 @@ PciSegmentLibReadWorker (
   //
   Offset = (Address & 0xfff );
 
-  Base = PciSegmentLibGetConfigBase (Address, Segment);
-
-  if (PcdGetBool (PcdPcieConfigurePex)) {
-    if ((Address >> 20) & 1) {
-      if (Offset < INDIRECT_ADDR_BNDRY) {
-        CcsrSetPg ((UINTN)Base, 0);
-      } else {
-        CcsrSetPg ((UINTN)Base, OFFSET_TO_PAGE_IDX (Offset));
-        Offset = OFFSET_TO_PAGE_ADDR (Offset);
-      }
-    }
-  }
+  Base = PciSegmentLibGetConfigBase (Address, Segment, Offset);
 
   //
   // ignore devices > 0 on bus 0
@@ -204,11 +243,11 @@ PciSegmentLibReadWorker (
 
   switch (Width) {
   case PciCfgWidthUint8:
-    return MmioRead8 (Base + (UINT8)Offset);
+    return MmioRead8 (Base);
   case PciCfgWidthUint16:
-    return MmioRead16 (Base + (UINT16)Offset);
+    return MmioRead16 (Base);
   case PciCfgWidthUint32:
-    return MmioRead32 (Base + (UINT32)Offset);
+    return MmioRead32 (Base);
   default:
     ASSERT (FALSE);
   }
@@ -247,18 +286,7 @@ PciSegmentLibWriteWorker (
   //
   Offset = (Address & 0xfff );
 
-  Base = PciSegmentLibGetConfigBase (Address, Segment);
-
-  if (PcdGetBool (PcdPcieConfigurePex)) {
-    if ((Address >> 20) & 1) {
-      if (Offset < INDIRECT_ADDR_BNDRY) {
-        CcsrSetPg ((UINTN)Base, 0);
-      } else {
-        CcsrSetPg ((UINTN)Base, OFFSET_TO_PAGE_IDX (Offset));
-        Offset = OFFSET_TO_PAGE_ADDR (Offset);
-      }
-    }
-  }
+  Base = PciSegmentLibGetConfigBase (Address, Segment, Offset);
 
   //
   // ignore devices > 0 on bus 0
@@ -274,15 +302,19 @@ PciSegmentLibWriteWorker (
     return MAX_UINT32;
   }
 
+  if (WriteFixedData && (Data == 0)) {
+    Data = 6;
+  }
+
   switch (Width) {
   case PciCfgWidthUint8:
-    MmioWrite8 (Base + (UINT8)Offset, Data);
+    MmioWrite8 (Base , Data);
     break;
   case PciCfgWidthUint16:
-    MmioWrite16 (Base + (UINT16)Offset, Data);
+    MmioWrite16 (Base , Data);
     break;
   case PciCfgWidthUint32:
-    MmioWrite32 (Base + (UINT16)Offset, Data);
+    MmioWrite32 (Base , Data);
     break;
   default:
     ASSERT (FALSE);

@@ -71,3 +71,5 @@
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2QBmanPortalsCacheSize
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McHighRamSize
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLowRamSize
+  gNxpQoriqLsTokenSpaceGuid.PcdRomBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdRomSize
