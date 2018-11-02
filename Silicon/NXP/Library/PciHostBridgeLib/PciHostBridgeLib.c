@@ -768,19 +768,31 @@ PcieNextLutIndex (
 }
 
 /**
-  returns the next available streamid for pcie, OUT_OF_RESOURCES if failed
+  returns the available streamid for pcie, -1 if failed
  **/
 STATIC
 INT32
-PcieNextStreamId ()
+PcieGetStreamId (LS_PCIE  *LsPcie)
 {
   STATIC INT32 NextStreamid = FixedPcdGet32 (PcdPcieStreamIdStart);
+  INT32        StreamId;
 
-  if (NextStreamid > FixedPcdGet32 (PcdPcieStreamIdEnd)) {
-    return -1;
+  if (!AsciiStrCmp ( (CHAR8 *)PcdGetPtr (PcdPciFdtCompatible), "fsl,lx2160a-pcie")) {
+    StreamId = LsPcie->CurrentStreamId;
+    if (StreamId > FixedPcdGet32 (PcdPcieStreamIdEnd)) {
+      return -1;
+    }
+
+    LsPcie->CurrentStreamId++;
+
+    return StreamId | ((LsPcie->ControllerIndex + 1) << 11);
+  } else {
+    if (NextStreamid > FixedPcdGet32 (PcdPcieStreamIdEnd)) {
+      return -1;
+    }
+
+    return NextStreamid++;
   }
-
-  return NextStreamid++;
 }
 
 /**
@@ -1000,7 +1012,7 @@ OnPlatformHasPciIo (
     }
 
     // Get a free StreamId from pool, if not found we are done
-    StreamId = PcieNextStreamId ();
+    StreamId = PcieGetStreamId (&LsPcie[SegmentNumber]);
     if (StreamId < 0) {
       DEBUG ((DEBUG_WARN, "No free StreamId for Pcie\n"));
       break;
@@ -1083,7 +1095,7 @@ FdtFixupPcieStatus (
       }
 
       // Get a free StreamId from pool, if not found we are done
-      StreamId = PcieNextStreamId ();
+      StreamId = PcieGetStreamId (&LsPcie[Idx]);
       if (StreamId < 0) {
         DEBUG ((DEBUG_WARN, "No free StreamId for Pcie\n"));
         continue;
@@ -1161,6 +1173,8 @@ PciHostBridgeGetRootBridges (
     LsPcie[Idx].ControllerAddress = Regs[Idx];
     LsPcie[Idx].NextLutIndex = 0;
     LsPcie[Idx].LsPcieLut = (LS_PCIE_LUT *)(LsPcie[Idx].ControllerAddress + PCI_LUT_BASE);
+    LsPcie[Idx].ControllerIndex = Idx;
+    LsPcie[Idx].CurrentStreamId = 0;
   }
 
   Status = EfiGetSystemConfigurationTable (&gFdtTableGuid, &Dtb);
