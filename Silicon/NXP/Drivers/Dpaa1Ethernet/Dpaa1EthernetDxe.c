@@ -80,7 +80,11 @@ Dpaa1SnpValidateParameters (
   DPAA1_ETHERNET_DEVICE *Dpaa1EthDev;
   FMAN_MEMAC *FmanMemac;
 
-  SnpMode = Snp->Mode;
+  SnpMode = NULL;
+
+  if (Snp) {
+    SnpMode = Snp->Mode;
+  }
 
   if (!Snp || !SnpMode) {
     ASSERT(Snp != NULL);
