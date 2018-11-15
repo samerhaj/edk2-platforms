@@ -64,6 +64,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdUsbSize|0x10000
   gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr|0x1E00000
   gNxpQoriqLsTokenSpaceGuid.PcdSdxcBaseAddr|0x02140000
+  gNxpQoriqLsTokenSpaceGuid.PcdEMmcBaseAddr|0x02150000
   gNxpQoriqLsTokenSpaceGuid.PcdI2c0BaseAddr|0x02000000
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSize|0x10000
   gNxpQoriqLsTokenSpaceGuid.PcdNumI2cController|8

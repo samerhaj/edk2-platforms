@@ -43,5 +43,9 @@
 [Guids]
   gFdtTableGuid
 
+[FixedPcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdSdxcBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdEMmcBaseAddr
+
 [Depex]
   TRUE

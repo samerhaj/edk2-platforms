@@ -36,5 +36,4 @@
   Silicon/NXP/NxpQoriqLs.dec
 
 [FixedPcd]
-  gNxpQoriqLsTokenSpaceGuid.PcdSdxcBaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdMmcBigEndian

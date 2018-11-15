@@ -34,13 +34,13 @@ MMC *mMmc;
 **/
 BOOLEAN
 DetectCardPresence (
-  IN                VOID
+  IN  VOID          *BaseAddress
   )
 {
   SDXC_REGS         *Regs;
   INT32             Timeout;
 
-  Regs = (VOID *)PcdGet64 (PcdSdxcBaseAddr);
+  Regs = BaseAddress;
   Timeout = TIMEOUT;
 
   while (!(MmcRead ((UINTN)&Regs->Prsstat) & PRSSTATE_CINS) && --Timeout)
@@ -62,12 +62,12 @@ DetectCardPresence (
 **/
 BOOLEAN
 IsCardReadOnly (
-  IN                VOID
+  IN  VOID          *BaseAddress
   )
 {
   SDXC_REGS         *Regs;
 
-  Regs = (VOID *)PcdGet64 (PcdSdxcBaseAddr);
+  Regs = BaseAddress;
 
   if (MmcRead ((UINTN)&Regs->Prsstat) & PRSSTATE_WPSPL) {
     return FALSE;
@@ -89,8 +89,9 @@ IsCardReadOnly (
 **/
 EFI_STATUS
 SendCmd (
-  IN  SD_CMD        *Cmd,
-  IN  SD_DATA       *Data
+  IN  VOID          *BaseAddress,
+  IN  MMC_CMD_INFO  *Cmd,
+  IN  MMC_DATA      *Data
   )
 {
   EFI_STATUS        Status;
@@ -101,9 +102,9 @@ SendCmd (
 
   Status = 0;
   Timeout = TIMEOUT;
-  Regs = (VOID *)PcdGet64 (PcdSdxcBaseAddr);
+  Regs = BaseAddress;
 
-  DEBUG_MSG ("0x%x : Cmd.Id %d, Arg 0x%x SdCmd.RespType 0x%x \n",
+  DEBUG_MSG ("0x%x : Cmd.Id %d, Arg 0x%x SdCmd.RespType 0x%x\n",
               Regs, Cmd->CmdIdx, Cmd->CmdArg, Cmd->RespType);
 
   MmcWrite ((UINTN)&Regs->Irqstat, 0xFFFFFFFF);
@@ -124,7 +125,7 @@ SendCmd (
 
   // Set up for a data transfer if we have one
   if (Data) {
-    Status = SdxcSetupData (Data);
+    Status = SdxcSetupData (Regs, Data);
     if (Status) {
       goto Out;;
     }
@@ -190,6 +191,7 @@ Out:
 **/
 EFI_STATUS
 RcvResp (
+  IN   VOID         *BaseAddress,
   IN   UINT32       RespType,
   OUT  UINT32*      Response,
   IN   UINT8        Data
@@ -202,7 +204,7 @@ RcvResp (
      return EFI_SUCCESS;
   }
 
-  Regs = (VOID *)PcdGet64 (PcdSdxcBaseAddr);
+  Regs = BaseAddress;
 
   // Workaround for SDXC Errata ENGcm03648
   if (!Data && (RespType & MMC_RSP_BUSY)) {
@@ -255,14 +257,15 @@ RcvResp (
 **/
 EFI_STATUS
 PrepareTransfer (
-  IN  UINT32  Flags,
-  IN  UINTN   Length,
-  IN  VOID*   Buffer,
-  IN  SD_CMD  *Cmd
+  IN  VOID         *BaseAddress,
+  IN  UINT32       Flags,
+  IN  UINTN        Length,
+  IN  VOID*        Buffer,
+  IN  MMC_CMD_INFO *Cmd
   )
 {
-  EFI_STATUS  Status;
-  SD_DATA     Data;
+  EFI_STATUS       Status;
+  MMC_DATA         Data;
 
   Data.Flags = Flags;
 
@@ -277,7 +280,7 @@ PrepareTransfer (
 
   Data.Addr = Buffer;
 
-  Status = SendCmd (Cmd, &Data);
+  Status = SendCmd (BaseAddress, Cmd, &Data);
 
   return Status;
 }
@@ -296,10 +299,11 @@ PrepareTransfer (
 **/
 EFI_STATUS
 ReadBlock (
+  IN  VOID          *BaseAddress,
   IN  UINTN         Offset,
   IN  UINTN         Length,
   OUT UINT32*       Buffer,
-  IN  SD_CMD        Cmd
+  IN  MMC_CMD_INFO  Cmd
   )
 {
   EFI_STATUS        Status;
@@ -317,13 +321,13 @@ ReadBlock (
     return EFI_OUT_OF_RESOURCES;
   }
 
-  Status = PrepareTransfer (MMC_DATA_READ, Length, Temp, &Cmd);
+  Status = PrepareTransfer (BaseAddress, MMC_DATA_READ, Length, Temp, &Cmd);
   if (Status) {
     DEBUG ((DEBUG_ERROR,"Mmc Read: Fail to setup controller 0x%x \n", Status));
     goto ReadExit;
   }
 
-  Status = Transfer ();
+  Status = Transfer (BaseAddress);
   if (Status) {
     DEBUG ((DEBUG_ERROR,"Mmc Read Failed (0x%x) \n", Status));
     goto ReadExit;
@@ -349,10 +353,11 @@ ReadExit:
 **/
 EFI_STATUS
 WriteBlock (
+  IN  VOID          *BaseAddress,
   IN  UINTN         Offset,
   IN  UINTN         Length,
   IN  UINT32        *Buffer,
-  IN  SD_CMD        Cmd
+  IN  MMC_CMD_INFO  Cmd
   )
 {
   EFI_STATUS        Status;
@@ -372,13 +377,13 @@ WriteBlock (
 
   InternalMemCopyMem (Temp, Buffer, DmaData.Bytes);
 
-  Status = PrepareTransfer (MMC_DATA_WRITE, Length, Temp, &Cmd);
+  Status = PrepareTransfer (BaseAddress, MMC_DATA_WRITE, Length, Temp, &Cmd);
   if (Status) {
     DEBUG ((DEBUG_ERROR,"Mmc Write: Fail to setup controller 0x%x \n", Status));
     goto WriteExit;
   }
 
-  Status = Transfer ();
+  Status = Transfer (BaseAddress);
   if (Status) {
     DEBUG ((DEBUG_ERROR,"Mmc Write Failed (0x%x) \n", Status));
   }
@@ -398,21 +403,18 @@ WriteExit:
 **/
 EFI_STATUS
 InitMmc (
-  IN                VOID
+  IN  SDXC_REGS    *Regs
   )
 {
   EFI_STATUS        Status;
-  SDXC_REGS         *Regs;
 
-  Regs = (VOID *)PcdGet64 (PcdSdxcBaseAddr);
-
-  Status = SdxcInit (mMmc);
+  Status = SdxcInit (Regs, mMmc);
   if (Status) {
     return Status;
   }
 
   mMmc->DdrMode = 0;
-  SdxcSetBusWidth (mMmc, 1);
+  SdxcSetBusWidth (Regs, mMmc, 1);
 
   MmcAnd ((UINTN)&Regs->Proctl, ~PRCTL_BE);
 
@@ -429,6 +431,7 @@ InitMmc (
 **/
 VOID
 SetIos (
+  IN  VOID             *BaseAddress,
   IN  UINT32           BusClockFreq,
   IN  UINT32           BusWidth,
   IN  UINT32           TimingMode
@@ -436,13 +439,13 @@ SetIos (
 {
   SDXC_REGS            *Regs;
 
-  Regs = (VOID *)PcdGet64 (PcdSdxcBaseAddr);
+  Regs = BaseAddress;
 
   DEBUG_MSG ("BusClockFreq %d, BusWidth %d\n", BusClockFreq, BusWidth);
 
   // Set the clock speed
   if (BusClockFreq) {
-    SetSysctl (BusClockFreq);
+    SetSysctl (Regs, BusClockFreq);
   }
 
   // Set the bus width
@@ -468,7 +471,7 @@ SetIos (
 **/
 EFI_STATUS
 MmcInitialize (
-  VOID
+  IN  VOID    *BaseAddress
   )
 {
   EFI_STATUS  Status;
@@ -477,7 +480,7 @@ MmcInitialize (
   UINT32      VoltageCaps;
   UINTN       Voltages;
 
-  Regs = (VOID *)PcdGet64 (PcdSdxcBaseAddr);
+  Regs = BaseAddress;
 
   // First reset the SDXC controller
   SdxcReset (Regs);
@@ -522,7 +525,7 @@ MmcInitialize (
   mMmc->FMin = MIN_CLK_FREQUENCY;
   mMmc->FMax = MIN ((UINT32)mMmc->SdhcClk, MAX_CLK_FREQUENCY);
 
-  Status = InitMmc ();
+  Status = InitMmc (Regs);
   if (Status != EFI_SUCCESS) {
       DEBUG ((DEBUG_ERROR,"Failed to initialize MMC\n"));
       return Status;

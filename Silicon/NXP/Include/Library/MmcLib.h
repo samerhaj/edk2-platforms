@@ -73,14 +73,14 @@ typedef struct {
   UINT16 CmdIdx;
   UINT32 RespType;
   UINT32 CmdArg;
-} SD_CMD;
+} MMC_CMD_INFO;
 
 typedef struct {
   UINT32 Flags;
   UINT32 Blocks;
   UINT32 Blocksize;
   VOID   *Addr;
-} SD_DATA;
+} MMC_DATA;
 
 /**
   Helper Function to initialize MMC
@@ -92,7 +92,7 @@ typedef struct {
 **/
 EFI_STATUS
 MmcInitialize (
-  VOID
+  IN  VOID    *BaseAddress
   );
 
 /**
@@ -108,6 +108,7 @@ MmcInitialize (
 **/
 EFI_STATUS
 RcvResp (
+  IN  VOID    *BaseAddress,
   IN  UINT32  RespType,
   OUT UINT32* Response,
   IN  UINT8   Data
@@ -122,7 +123,7 @@ RcvResp (
 **/
 BOOLEAN
 DetectCardPresence (
-  IN VOID
+  IN  VOID           *BaseAddress
   );
 
 /**
@@ -134,7 +135,7 @@ DetectCardPresence (
 **/
 BOOLEAN
 IsCardReadOnly (
-  IN VOID
+  IN  VOID          *BaseAddress
   );
 
 /**
@@ -149,8 +150,9 @@ IsCardReadOnly (
 **/
 EFI_STATUS
 SendCmd (
-  IN  SD_CMD  *Cmd,
-  IN  SD_DATA *Data
+  IN  VOID          *BaseAddress,
+  IN  MMC_CMD_INFO  *Cmd,
+  IN  MMC_DATA      *Data
   );
 
 /**
@@ -163,6 +165,7 @@ SendCmd (
 **/
 VOID
 SetIos (
+  IN  VOID    *BaseAddress,
   IN  UINT32  BusClockFreq,
   IN  UINT32  BusWidth,
   IN  UINT32  TimingMode
@@ -181,10 +184,11 @@ SetIos (
 **/
 EFI_STATUS
 WriteBlock (
-  IN  UINTN   Offset,
-  IN  UINTN   Length,
-  IN  UINT32* Buffer,
-  IN  SD_CMD  Cmd
+  IN  VOID         *BaseAddress,
+  IN  UINTN        Offset,
+  IN  UINTN        Length,
+  IN  UINT32*      Buffer,
+  IN  MMC_CMD_INFO Cmd
   );
 
 /**
@@ -201,10 +205,11 @@ WriteBlock (
 **/
 EFI_STATUS
 ReadBlock (
-  IN  UINTN   Offset,
-  IN  UINTN   Length,
-  OUT UINT32* Buffer,
-  IN  SD_CMD  Cmd
+  IN  VOID         *BaseAddress,
+  IN  UINTN        Offset,
+  IN  UINTN        Length,
+  IN  UINT32*      Buffer,
+  IN  MMC_CMD_INFO Cmd
   );
 
 extern UINT64 GetSdxcFrequency();

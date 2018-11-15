@@ -262,7 +262,8 @@ typedef struct {
 **/
 EFI_STATUS
 SdxcInit (
-  IN  MMC    *Mmc
+  IN  SDXC_REGS     *Regs,
+  IN  MMC           *Mmc
   );
 
 /**
@@ -273,7 +274,7 @@ SdxcInit (
 **/
 VOID
 SdxcReset (
-  IN  SDXC_REGS *Regs
+  IN  SDXC_REGS     *Regs
   );
 
 /**
@@ -286,7 +287,7 @@ SdxcReset (
 **/
 VOID *
 GetDmaBuffer (
-  IN  DMA_DATA  *DmaData
+  IN  DMA_DATA      *DmaData
   );
 
 /**
@@ -299,7 +300,7 @@ GetDmaBuffer (
 **/
 EFI_STATUS
 FreeDmaBuffer (
-  IN  DMA_DATA  *DmaData
+  IN  DMA_DATA      *DmaData
   );
 
 /**
@@ -311,7 +312,8 @@ FreeDmaBuffer (
 **/
 EFI_STATUS
 SdxcSetupData (
-  IN  SD_DATA   *Data
+  IN  SDXC_REGS     *Regs,
+  IN  MMC_DATA      *Data
   );
 
 /**
@@ -326,8 +328,8 @@ SdxcSetupData (
 **/
 UINT32
 SdxcXfertype (
-  IN  SD_CMD    *Cmd,
-  IN  SD_DATA   *Data
+  IN  MMC_CMD_INFO  *Cmd,
+  IN  MMC_DATA      *Data
   );
 
 /**
@@ -336,8 +338,8 @@ SdxcXfertype (
 **/
 VOID
 ResetCmdFailedData (
-  IN  SDXC_REGS *Regs,
-  IN  UINT8     Data
+  IN  SDXC_REGS     *Regs,
+  IN  UINT8         Data
   );
 
 /**
@@ -349,8 +351,9 @@ ResetCmdFailedData (
 **/
 VOID
 SdxcSetBusWidth (
-  IN  MMC       *Mmc,
-  IN  UINT32    BWidth
+  IN  SDXC_REGS     *Regs,
+  IN  MMC           *Mmc,
+  IN  UINT32        BWidth
   );
 
 /**
@@ -364,7 +367,7 @@ SdxcSetBusWidth (
 UINT32
 EFIAPI
 MmcRead (
-  IN  UINTN     Address
+  IN  UINTN         Address
   );
 
 /**
@@ -376,8 +379,8 @@ MmcRead (
 UINT32
 EFIAPI
 MmcWrite (
-  IN  UINTN     Address,
-  IN  UINT32    Value
+  IN  UINTN         Address,
+  IN  UINT32        Value
   );
 
 /**
@@ -393,9 +396,9 @@ MmcWrite (
 UINT32
 EFIAPI
 MmcAndThenOr (
-  IN  UINTN     Address,
-  IN  UINT32    AndData,
-  IN  UINT32    OrData
+  IN  UINTN         Address,
+  IN  UINT32        AndData,
+  IN  UINT32        OrData
   );
 
 /**
@@ -410,8 +413,8 @@ MmcAndThenOr (
 UINT32
 EFIAPI
 MmcOr (
-  IN  UINTN     Address,
-  IN  UINT32    OrData
+  IN  UINTN         Address,
+  IN  UINT32        OrData
   );
 
 /**
@@ -426,8 +429,8 @@ MmcOr (
 UINT32
 EFIAPI
 MmcAnd (
-  IN  UINTN     Address,
-  IN  UINT32    AndData
+  IN  UINTN         Address,
+  IN  UINT32        AndData
   );
 
 /**
@@ -437,7 +440,7 @@ MmcAnd (
 **/
 EFI_STATUS
 Transfer (
-  IN  VOID
+  IN  VOID          *BaseAddress
   );
 
 /**
@@ -448,7 +451,13 @@ Transfer (
 **/
 VOID
 SetSysctl (
-  UINT32 Clock
+  IN  SDXC_REGS     *Regs,
+  IN  UINT32        Clock
+  );
+
+VOID
+DumpMmcRegs (
+  IN  VOID          *BaseAddress
   );
 
 #endif

@@ -137,12 +137,12 @@ MmcAnd (
 **/
 VOID
 DumpMmcRegs (
-  IN VOID
+  IN VOID   *BaseAddress
   )
 {
   SDXC_REGS *Regs;
 
-  Regs = (VOID *)PcdGet64 (PcdSdxcBaseAddr);
+  Regs = BaseAddress;
 
   DEBUG ((DEBUG_ERROR, "Dsaddr : 0x%x \n", Regs->Dsaddr));
   DEBUG ((DEBUG_ERROR, "Blkattr : 0x%x \n", Regs->Blkattr));
@@ -252,8 +252,8 @@ FreeDmaBuffer (
 **/
 UINT32
 SdxcXfertype (
-  IN  SD_CMD        *Cmd,
-  IN  SD_DATA       *Data
+  IN  MMC_CMD_INFO  *Cmd,
+  IN  MMC_DATA      *Data
   )
 {
   UINT32            Xfertype;
@@ -306,16 +306,15 @@ SdxcXfertype (
 **/
 EFI_STATUS
 SdxcSetupData (
-  IN  SD_DATA       *Data
+  IN  SDXC_REGS     *Regs,
+  IN  MMC_DATA      *Data
   )
 {
-  SDXC_REGS         *Regs;
   INT32             Timeout;
   UINT32            WmlVal;
 
   EFI_PHYSICAL_ADDRESS Addr;
 
-  Regs = (VOID *)PcdGet64 (PcdSdxcBaseAddr);
   Timeout = 0;
   WmlVal = 0;
 
@@ -407,21 +406,21 @@ ResetCmdFailedData (
 **/
 EFI_STATUS
 Transfer (
-  IN                VOID
+  IN  VOID         *BaseAddress
   )
 {
   UINT32            Irqstat;
   UINT32            Timeout;
   SDXC_REGS         *Regs;
 
-  Regs = (VOID *)PcdGet64 (PcdSdxcBaseAddr);
+  Regs = BaseAddress;
   Timeout = TRANSFER_TIMEOUT;
 
   do {
     Irqstat = MmcRead ((UINTN)&Regs->Irqstat);
 
     if (Irqstat & IRQSTATE_DTOE) {
-      DumpMmcRegs ();
+      DumpMmcRegs (BaseAddress);
       ResetCmdFailedData (Regs, 1);
       return EFI_TIMEOUT;
     }
@@ -453,16 +452,15 @@ Transfer (
 **/
 VOID
 SetSysctl (
+  IN  SDXC_REGS     *Regs,
   IN  UINT32        Clock
   )
 {
   INT32             Div;
   INT32             PreDiv;
-  SDXC_REGS         *Regs;
   INT32             SdhcClk;
   UINT32            Clk;
 
-  Regs = (VOID *)PcdGet64 (PcdSdxcBaseAddr);
   SdhcClk = mMmc->SdhcClk;
 
   if (Clock < mMmc->FMin) {
@@ -512,13 +510,14 @@ SetSysctl (
 **/
 VOID
 SdxcSetBusWidth (
+  IN  SDXC_REGS     *Regs,
   IN  MMC           *Mmc,
   IN  UINT32        BWidth
   )
 {
   Mmc->BusWidth = BWidth;
 
-  SetIos (Mmc->Clock, Mmc->BusWidth, 0);
+  SetIos ((VOID *)Regs, Mmc->Clock, Mmc->BusWidth, 0);
 }
 
 /**
@@ -529,13 +528,12 @@ SdxcSetBusWidth (
 **/
 EFI_STATUS
 SdxcInit (
+  IN  SDXC_REGS     *Regs,
   IN  MMC           *Mmc
   )
 {
-  SDXC_REGS         *Regs;
   INT32             Timeout;
 
-  Regs = (VOID *)PcdGet64 (PcdSdxcBaseAddr);
   Timeout = TIMEOUT;
 
   // Reset the entire host controller
@@ -557,7 +555,7 @@ SdxcInit (
   MmcOr ((UINTN)&Regs->Sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
 
   // Set the initial clock speed
-  SetIos (MIN_CLK_FREQUENCY, Mmc->BusWidth, 0);
+  SetIos ((VOID *)Regs, MIN_CLK_FREQUENCY, Mmc->BusWidth, 0);
 
   // Disable the BRR and BWR bits in IRQSTAT
   MmcAnd ((UINTN)&Regs->Irqstaten,

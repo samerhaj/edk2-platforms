@@ -17,13 +17,13 @@
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib.h>
 #include <Library/DevicePathLib.h>
+#include <Library/MemoryAllocationLib.h>
 #include <Library/MmcLib.h>
 #include <Library/SocClockLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiLib.h>
-#include <Protocol/MmcHost.h>
 
-STATIC SD_CMD Cmd;
+#include "MmcHostDxe.h"
 
 EFI_GUID mMmcDevicePathGuid = EFI_CALLER_ID_GUID;
 
@@ -38,7 +38,15 @@ MmcIsCardPresent (
   IN EFI_MMC_HOST_PROTOCOL     *This
   )
 {
-  return DetectCardPresence ();
+  MMC_DEVICE_INSTANCE          *Instance;
+
+  Instance = MMC_DEVICE_INSTANCE_FROM_HOST (This);
+
+  if (Instance->CardType == SD_CARD) {
+    return DetectCardPresence ((VOID *)Instance->DeviceBaseAddress);
+  }
+
+  return TRUE;
 }
 
 /**
@@ -52,7 +60,15 @@ MmcIsReadOnly (
   IN EFI_MMC_HOST_PROTOCOL     *This
   )
 {
-  return IsCardReadOnly ();
+  MMC_DEVICE_INSTANCE          *Instance;
+
+  Instance = MMC_DEVICE_INSTANCE_FROM_HOST (This);
+
+  if (Instance->CardType == SD_CARD) {
+    return IsCardReadOnly ((VOID *)Instance->DeviceBaseAddress);
+  }
+
+  return FALSE;
 }
 
 /**
@@ -107,28 +123,51 @@ MmcSendCommand (
 {
   EFI_STATUS                   Status;
   UINT8                        LastCmd;
+  UINT8                        CmdIdx;
+  MMC_DEVICE_INSTANCE          *Instance;
 
-  LastCmd = Cmd.CmdIdx;
+  Status = EFI_SUCCESS;
+  Instance = MMC_DEVICE_INSTANCE_FROM_HOST (This);
 
-  Cmd.CmdIdx = MMC_GET_INDX (MmcCmd);
-  Cmd.CmdArg = Argument;
-  Cmd.RespType = CreateResponseType (MmcCmd);
+  LastCmd = Instance->Cmd.CmdIdx;
 
-  //Saved data in Cmd struct for commands that need a read/write.
-  //This is done because which setting Xfertype register we need
-  //information of block number and blocksize.
-  if ((Cmd.CmdIdx == MMC_INDX (6)) || (Cmd.CmdIdx == MMC_INDX (51)) ||
-       (Cmd.CmdIdx == MMC_INDX (17)) || (Cmd.CmdIdx == MMC_INDX (18)) ||
-       (Cmd.CmdIdx == MMC_INDX (24)) || (Cmd.CmdIdx == MMC_INDX (25))) {
+  Instance->Cmd.CmdIdx = CmdIdx = MMC_GET_INDX (MmcCmd);
+  Instance->Cmd.CmdArg = Argument;
+  Instance->Cmd.RespType = CreateResponseType (MmcCmd);
 
-      if ((Cmd.CmdIdx == MMC_INDX (6)) && (LastCmd == MMC_INDX (55))) {
-        Status = SendCmd (&Cmd, NULL);
+  ///
+  /// Saved data in Cmd struct for commands that need a read/write.
+  /// This is done because which setting Xfertype register we need
+  /// information of block number and blocksize.
+  ///
+  if ((CmdIdx == MMC_INDX (6)) || (CmdIdx == MMC_INDX (51)) ||
+       (CmdIdx == MMC_INDX (17)) || (CmdIdx == MMC_INDX (18)) ||
+       (CmdIdx == MMC_INDX (8)) ||
+       (CmdIdx == MMC_INDX (24)) || (CmdIdx == MMC_INDX (25))) {
+
+    if (Instance->CardType == SD_CARD) {
+      if (((CmdIdx == MMC_INDX (6)) && (LastCmd == MMC_INDX (55))) ||
+          (CmdIdx == MMC_INDX (8))) {
+        Status = SendCmd ((VOID *)Instance->DeviceBaseAddress, &Instance->Cmd, NULL);
       }
-      else {
-        Status = EFI_SUCCESS;
+    } else if (Instance->CardType == EMMC_CARD) {
+      ///
+      /// not supporting DDR mode
+      ///
+      if ((CmdIdx == MMC_INDX (6))) {
+        if ((((Argument >> 16) & 0xFF) == EXTCSD_BUS_WIDTH) &&
+            ((((Argument >> 8) & 0xFF) == EMMC_BUS_WIDTH_DDR_4BIT) ||
+             (((Argument >> 8) & 0xFF) == EMMC_BUS_WIDTH_DDR_8BIT))) {
+          return EFI_UNSUPPORTED;
+        } else {
+          Status = SendCmd ((VOID *)Instance->DeviceBaseAddress, &Instance->Cmd, NULL);
+        }
       }
+    } else {
+      Status = EFI_SUCCESS;
+    }
    } else {
-      Status = SendCmd (&Cmd, NULL);
+      Status = SendCmd ((VOID *)Instance->DeviceBaseAddress, &Instance->Cmd, NULL);
    }
 
   return Status;
@@ -150,6 +189,12 @@ MmcReceiveResponse (
   )
 {
   EFI_STATUS                   Status;
+  MMC_DEVICE_INSTANCE          *Instance;
+  UINT8                        CmdIdx;
+
+  Instance = MMC_DEVICE_INSTANCE_FROM_HOST (This);
+
+  CmdIdx = Instance->Cmd.CmdIdx;
 
   if (Buffer == NULL) {
     return EFI_INVALID_PARAMETER;
@@ -161,20 +206,20 @@ MmcReceiveResponse (
     Type |= MMC_RSP_BUSY;
   }
 
-  DEBUG_MSG ("MMC_RESPONSE_TYPE 0x%x for cmd %d \n", Type, Cmd.CmdIdx);
+  DEBUG_MSG ("MMC_RESPONSE_TYPE 0x%x for cmd %d \n", Type, CmdIdx);
 
   // if Last sent command is one among 6, 51, 17, 18, 24 and 25, then
   // set data to 1 else 0
-  if ((Cmd.CmdIdx == MMC_INDX (6)) || (Cmd.CmdIdx == MMC_INDX (51)) ||
-      (Cmd.CmdIdx == MMC_INDX (17)) || (Cmd.CmdIdx == MMC_INDX (18)) ||
-      (Cmd.CmdIdx == MMC_INDX (24)) || (Cmd.CmdIdx == MMC_INDX (25))) {
-    Status = RcvResp (Type, Buffer, 1);
+  if ((CmdIdx == MMC_INDX (6)) || (CmdIdx == MMC_INDX (51)) ||
+      (CmdIdx == MMC_INDX (17)) || (CmdIdx == MMC_INDX (18)) ||
+      (CmdIdx == MMC_INDX (24)) || (CmdIdx == MMC_INDX (25))) {
+    Status = RcvResp ((VOID *)Instance->DeviceBaseAddress, Type, Buffer, 1);
   } else {
-    Status = RcvResp (Type, Buffer, 0);
+    Status = RcvResp ((VOID *)Instance->DeviceBaseAddress, Type, Buffer, 0);
   }
 
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Failed to receive response for %d \n", Cmd.CmdIdx));
+    DEBUG ((DEBUG_ERROR, "Failed to receive response for %d \n", CmdIdx));
     return Status;
   }
 
@@ -227,14 +272,17 @@ MmcReadBlockData (
   EFI_STATUS                   RetVal;
   EFI_TPL                      Tpl;
   UINT8                        Temp;
+  MMC_DEVICE_INSTANCE          *Instance;
+
+  Instance = MMC_DEVICE_INSTANCE_FROM_HOST (This);
 
   // Raise the TPL at the highest level to disable Interrupts.
   Tpl = gBS->RaiseTPL (TPL_NOTIFY);
 
   //send Cmd structure here, library will send this command.
-  RetVal = ReadBlock (Lba, Length, Buffer, Cmd);
+  RetVal = ReadBlock ((VOID *)Instance->DeviceBaseAddress, Lba, Length, Buffer, Instance->Cmd);
 
-  if (Cmd.CmdIdx == MMC_INDX (6)) {
+  if (Instance->Cmd.CmdIdx == MMC_INDX (6)) {
     for (Temp = 0; Temp < Length/8; Temp++) {
     Buffer[Temp] = SwapBytes32 (Buffer[Temp]);
     }
@@ -269,12 +317,15 @@ MmcWriteBlockData (
 {
   EFI_STATUS                   RetVal;
   EFI_TPL                      Tpl;
+  MMC_DEVICE_INSTANCE          *Instance;
+
+  Instance = MMC_DEVICE_INSTANCE_FROM_HOST (This);
 
   // Raise the TPL at the highest level to disable Interrupts.
   Tpl = gBS->RaiseTPL (TPL_NOTIFY);
 
   //send Cmd structure here, library will send this command.
-  RetVal = WriteBlock (Lba, Length, Buffer, Cmd);
+  RetVal = WriteBlock ((VOID *)Instance->DeviceBaseAddress, Lba, Length, Buffer, Instance->Cmd);
 
   // Restore Tpl
   gBS->RestoreTPL (Tpl);
@@ -296,6 +347,9 @@ MmcNotifyState (
   )
 {
   EFI_STATUS                   Status;
+  MMC_DEVICE_INSTANCE          *Instance;
+
+  Instance = MMC_DEVICE_INSTANCE_FROM_HOST (This);
 
   switch (State) {
   case MmcInvalidState:
@@ -304,7 +358,7 @@ MmcNotifyState (
   case MmcHwInitializationState:
     DEBUG ((DEBUG_ERROR, "MmcNotifyState(MmcHwInitializationState)\n"));
 
-    Status = MmcInitialize ();
+    Status = MmcInitialize ((VOID *)Instance->DeviceBaseAddress);
     if (Status != EFI_SUCCESS) {
       DEBUG ((DEBUG_ERROR,"Failed to init MMC\n"));
       return Status;
@@ -339,13 +393,29 @@ MmcBuildDevicePath (
   IN  EFI_DEVICE_PATH_PROTOCOL **DevicePath
   )
 {
+  MMC_DEVICE_INSTANCE          *Instance;
   EFI_DEVICE_PATH_PROTOCOL     *NewDevicePathNode;
+  UINT8                        NodeSubType;
 
-  NewDevicePathNode = CreateDeviceNode (HARDWARE_DEVICE_PATH,
-          HW_VENDOR_DP, sizeof (VENDOR_DEVICE_PATH));
+  NodeSubType = 0;
+  NewDevicePathNode = NULL;
+
+  Instance = MMC_DEVICE_INSTANCE_FROM_HOST (This);
+  DEBUG_MSG ("MmcBuildDevicePath : CardType %d \n", Instance->CardType);
+
+  if (Instance->CardType == SD_CARD) {
+    NodeSubType = MSG_SD_DP;
+  } else if (Instance->CardType == EMMC_CARD) {
+    NodeSubType = MSG_EMMC_DP;
+  } else {
+    return EFI_UNSUPPORTED;
+  }
+
+  NewDevicePathNode = CreateDeviceNode (MESSAGING_DEVICE_PATH, NodeSubType, sizeof (EMMC_DEVICE_PATH));
   CopyGuid (&((VENDOR_DEVICE_PATH*)NewDevicePathNode)->Guid, &mMmcDevicePathGuid);
 
   *DevicePath = NewDevicePathNode;
+
   return EFI_SUCCESS;
 }
 
@@ -366,7 +436,12 @@ MmcSetIos (
   IN  UINT32                   TimingMode
   )
 {
-  SetIos (BusClockFreq, BusWidth, TimingMode);
+  MMC_DEVICE_INSTANCE          *Instance;
+
+  Instance = MMC_DEVICE_INSTANCE_FROM_HOST (This);
+
+  SetIos ((VOID *)Instance->DeviceBaseAddress, BusClockFreq, BusWidth, TimingMode);
+
   return EFI_SUCCESS;
 }
 
@@ -377,20 +452,6 @@ MmcIsMultBlk (
 {
   return TRUE;
 }
-
-EFI_MMC_HOST_PROTOCOL gMmcHost = {
-  MMC_HOST_PROTOCOL_REVISION,
-  MmcIsCardPresent,
-  MmcIsReadOnly,
-  MmcBuildDevicePath,
-  MmcNotifyState,
-  MmcSendCommand,
-  MmcReceiveResponse,
-  MmcReadBlockData,
-  MmcWriteBlockData,
-  MmcSetIos,
-  MmcIsMultBlk
-};
 
 /**
   insert the MMC peripheral clock info into the device tree
@@ -430,6 +491,73 @@ FdtFixupMmc (
   return EFI_SUCCESS;
 }
 
+EFI_STATUS
+ConstructHostInstance (
+  IN  UINTN                    BaseAddress,
+  IN  CARD_TYPE                CardType
+  )
+{
+  EFI_STATUS                   Status;
+  EFI_HANDLE                   Handle;
+  MMC_DEVICE_INSTANCE          *MmcHostInstance;
+
+  Handle = NULL;
+
+  MmcHostInstance = (MMC_DEVICE_INSTANCE *)AllocatePool (sizeof (MMC_DEVICE_INSTANCE));
+
+  if (MmcHostInstance == NULL) {
+    DEBUG ((DEBUG_ERROR, "Failed to allocate memory to MmcHostInstance\n"));
+    return EFI_OUT_OF_RESOURCES;
+  }
+
+  MmcHostInstance->Signature = MMC_DEVICE_SIGNATURE;
+  MmcHostInstance->CardType = CardType;
+  MmcHostInstance->DeviceBaseAddress = BaseAddress;
+  MmcHostInstance->MmcHostProtocol.Revision = MMC_HOST_PROTOCOL_REVISION;
+  MmcHostInstance->MmcHostProtocol.IsCardPresent = MmcIsCardPresent;
+  MmcHostInstance->MmcHostProtocol.IsReadOnly = MmcIsReadOnly;
+  MmcHostInstance->MmcHostProtocol.BuildDevicePath = MmcBuildDevicePath;
+  MmcHostInstance->MmcHostProtocol.NotifyState = MmcNotifyState;
+  MmcHostInstance->MmcHostProtocol.SendCommand = MmcSendCommand;
+  MmcHostInstance->MmcHostProtocol.ReceiveResponse = MmcReceiveResponse;
+  MmcHostInstance->MmcHostProtocol.ReadBlockData = MmcReadBlockData;
+  MmcHostInstance->MmcHostProtocol.WriteBlockData = MmcWriteBlockData;
+  MmcHostInstance->MmcHostProtocol.SetIos = MmcSetIos;
+  MmcHostInstance->MmcHostProtocol.IsMultiBlock = MmcIsMultBlk;
+
+  Status = gBS->InstallMultipleProtocolInterfaces (
+             &Handle,
+             &gEfiMmcHostProtocolGuid,
+             &MmcHostInstance->MmcHostProtocol,
+             NULL
+             );
+
+  if (EFI_ERROR(Status)) {
+    DEBUG ((DEBUG_ERROR, "Failed to install gEfiMmcHostProtocolGuid on %d \n",
+      MmcHostInstance->CardType));
+  }
+
+  return Status;
+}
+
+EFI_STATUS
+CreateMmcHostInstance (
+  IN  VOID
+  )
+{
+  EFI_STATUS                   Status;
+
+  if ((VOID *)PcdGet64 (PcdSdxcBaseAddr)) {
+    Status = ConstructHostInstance (PcdGet64 (PcdSdxcBaseAddr), SD_CARD);
+  }
+
+  if ((VOID *)PcdGet64 (PcdEMmcBaseAddr)) {
+    Status =  ConstructHostInstance (PcdGet64 (PcdEMmcBaseAddr), EMMC_CARD);
+  }
+
+  return EFI_SUCCESS;
+}
+
 /**
   Function to install MMC Host Protocol gEfiMmcHostProtocolGuid
 **/
@@ -440,20 +568,13 @@ MmcHostDxeEntryPoint (
   )
 {
   EFI_STATUS                   Status;
-  EFI_HANDLE                   Handle;
   VOID                         *Dtb;
 
-  Handle = NULL;
   Dtb = NULL;
 
-  Status = gBS->InstallMultipleProtocolInterfaces (
-                  &Handle,
-                  &gEfiMmcHostProtocolGuid, &gMmcHost,
-                  NULL
-                  );
-
-  if (EFI_ERROR(Status)) {
-    DEBUG ((DEBUG_ERROR, "Failed to install gEfiMmcHostProtocolGuid\n"));
+  Status = CreateMmcHostInstance ();
+  if (EFI_ERROR (Status)) {
+    return Status;
   }
 
   Status = EfiGetSystemConfigurationTable (&gFdtTableGuid, &Dtb);
