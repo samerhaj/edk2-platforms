@@ -702,7 +702,7 @@ FdtFindPcie (
 {
   INTN    NodeOffset;
   UINT64  PcieAddress;
-  UINT8   RegIndex;
+  INT32   RegIndex;
   EFI_STATUS Status;
 
   /* find pci controller node */
@@ -738,7 +738,7 @@ PcieLutSetMapping (
   IN   LS_PCIE   *LsPcie,
   IN   INT32     Index,
   IN   UINT32    BusDevFuc,
-  IN   UINT32    StreamId
+  IN   INT32     StreamId
   )
 {
   /* leave mask as all zeroes, want to match all bits */
@@ -808,7 +808,7 @@ FdtPcieSetMsiMapEntry (
   VOID      *Dtb,
   INT32     PcieNodeOffset,
   UINT32    BusDevFuc,
-  UINT32    StreamId
+  INT32     StreamId
   )
 {
   INT32          FdtStatus;
@@ -864,7 +864,7 @@ FdtPcieSetIommuMapEntry (
   VOID    *Dtb,
   INT32   PcieNodeOffset,
   UINT32  BusDevFuc,
-  UINT32  StreamId
+  INT32   StreamId
   )
 {
   INT32          FdtStatus;
@@ -929,8 +929,8 @@ OnPlatformHasPciIo (
   UINTN                 BusDevFuc;
   INTN                  PcieNodeOffset;
   VOID                  *Dtb;
-  UINT32                StreamId;
-  UINT32                LutIndex;
+  INT32                 StreamId;
+  INT32                 LutIndex;
   LS_PCIE               *LsPcie;
   VOID                  *Dev;
 
@@ -1066,8 +1066,8 @@ FdtFixupPcieStatus (
   UINTN       Idx;
   INTN        PcieNodeOffset;
   INT32       FdtStatus;
-  UINT32      StreamId;
-  UINT32      LutIndex;
+  INT32       StreamId;
+  INT32       LutIndex;
   EFI_STATUS  Status;
 
   Status = EFI_SUCCESS;

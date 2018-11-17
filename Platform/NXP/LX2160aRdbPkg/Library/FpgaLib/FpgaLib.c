@@ -38,7 +38,7 @@ FpgaRead (
   UINT8 Val;
 
   if (!I2CInitDone) {
-    FpgaInterfaceInit ( );
+    (VOID)FpgaInterfaceInit ( );
   }
 
   I2cDataRead (QIXIS_BASE_I2C_BUS, QIXIS_BASE_I2C_ADR, Reg, 1, &Val, 1);
@@ -59,7 +59,7 @@ FpgaWrite (
   )
 {
   if (!I2CInitDone) {
-    FpgaInterfaceInit ( );
+    (VOID)FpgaInterfaceInit ( );
   }
 
   I2cDataWrite (QIXIS_BASE_I2C_BUS, QIXIS_BASE_I2C_ADR, Reg, 1, &Value, 1);

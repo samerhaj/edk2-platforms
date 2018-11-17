@@ -168,10 +168,10 @@ SpiNorFlashWrite (
   // For the very best performance, programming should be done in full pages
   // of page size aligned on page size boundaries with each Page being programmed only once.
   Alignment = SpiIo->MaximumTransferBytes;
-  if (SpiIo->Attributes | SPI_TRANSFER_SIZE_INCLUDES_ADDRESS) {
+  if (SpiIo->Attributes & SPI_TRANSFER_SIZE_INCLUDES_ADDRESS) {
     Alignment -= sizeof (UINT32);
   }
-  if (SpiIo->Attributes | SPI_TRANSFER_SIZE_INCLUDES_OPCODE) {
+  if (SpiIo->Attributes & SPI_TRANSFER_SIZE_INCLUDES_OPCODE) {
     Alignment -= sizeof (UINT8);
   }
   Alignment = MIN (ConfigData->PageSize, Alignment);

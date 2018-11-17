@@ -47,7 +47,7 @@ ArmPlatformInitialize (
   IN  UINTN   MpId
   )
 {
-  FpgaInterfaceInit();
+  (VOID)FpgaInterfaceInit();
   SocInit ();
   return EFI_SUCCESS;
 }

@@ -469,9 +469,13 @@ GetEraseCommandIndex (
       // dummy bytes
       RequestPacket->Transaction[Index].TransactionType = SPI_TRANSACTION_DUMMY;
       RequestPacket->Transaction[Index].BusWidth = SPI_TRANSACTION_BUS_WIDTH_1;
+      // Range from 0 to 14 cycles of read latency, in clock cycles
+      // A value of Fh indicates the read latency is variable. The software or hardware controlling
+      // the memory is aware of the latency last set in the memory device and this same value is used
+      // in the configuration detection command.
       // At this point we have only used read SFDP (5A) command
       // so for variable length read latency use the same dummy cycles as used for SFDP command
-      if (Table->Config.ReadLatency == 0xff) {
+      if (Table->Config.ReadLatency == 0xf) {
         RequestPacket->Transaction[Index].Length = 8;
       } else {
         RequestPacket->Transaction[Index].Length = Table->Config.ReadLatency;
@@ -594,6 +598,9 @@ FillEraseRequestPacket (
       if (ParamTable->Erase_Size_Command[Index].Command == ParamTable->Erase4K_Command) {
         break;
       }
+    }
+    if (Index == ARRAY_SIZE (ParamTable->Erase_Size_Command)) {
+      return EFI_NOT_FOUND;
     }
     SpiNorParams->EraseIndex = Index;
   } else {
@@ -932,10 +939,10 @@ ReadFlashData (
 
   while (Length) {
     TransferBytes = SpiIo->MaximumTransferBytes;
-    if (SpiIo->Attributes | SPI_TRANSFER_SIZE_INCLUDES_ADDRESS) {
+    if (SpiIo->Attributes & SPI_TRANSFER_SIZE_INCLUDES_ADDRESS) {
       TransferBytes -= sizeof (UINT32);
     }
-    if (SpiIo->Attributes | SPI_TRANSFER_SIZE_INCLUDES_OPCODE) {
+    if (SpiIo->Attributes & SPI_TRANSFER_SIZE_INCLUDES_OPCODE) {
       TransferBytes -= sizeof (UINT8);
     }
     TransferBytes = MIN (Length, TransferBytes);
