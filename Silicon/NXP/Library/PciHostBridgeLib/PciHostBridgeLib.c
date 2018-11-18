@@ -1234,16 +1234,6 @@ PciHostBridgeGetRootBridges (
     *Count += BIT0;
   }
 
-  if (!PlatformHasPciIoEvent) {
-    PlatformHasPciIoEvent = EfiCreateProtocolNotifyEvent (
-                            &gEfiPciIoProtocolGuid,
-                            TPL_CALLBACK,
-                            OnPlatformHasPciIo,
-                            LsPcie,
-                            &PlatformHasPciIoNotifyReg
-                            );
-  }
-
   if (*Count == 0) {
      return NULL;
   } else {
@@ -1283,6 +1273,15 @@ PciHostBridgeGetRootBridges (
         mPciRootBridges[Loop].DevicePath            = (EFI_DEVICE_PATH_PROTOCOL *)&mEfiPciRootBridgeDevicePath[PciEnabled[Loop]];
      }
 
+    if (!PlatformHasPciIoEvent) {
+      PlatformHasPciIoEvent = EfiCreateProtocolNotifyEvent (
+                                &gEfiPciIoProtocolGuid,
+                                TPL_CALLBACK,
+                                OnPlatformHasPciIo,
+                                LsPcie,
+                                &PlatformHasPciIoNotifyReg
+                                );
+    }
      return mPciRootBridges;
   }
 }
