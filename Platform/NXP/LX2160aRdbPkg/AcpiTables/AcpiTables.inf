@@ -1,0 +1,46 @@
+## @file
+#
+#  ACPI table data and ASL sources required to boot the platform.
+#
+#  Copyright (c) 2014, ARM Ltd. All rights reserved.
+#  Copyright (c) 2015, Linaro Limited. All rights reserved.
+#  Copyright 2017-2018 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#  Based on the files under ArmPlatformPkg/ArmJunoPkg/AcpiTables/
+#
+##
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = LX2160AcpiTables
+  FILE_GUID                      = 7E374E25-8E01-4FEE-87F2-390C23C606CD
+  MODULE_TYPE                    = USER_DEFINED
+  VERSION_STRING                 = 1.0
+
+[Sources]
+  Dsdt/Dsdt.asl
+  Fadt.aslc
+  Gtdt.aslc
+  Madt.aslc
+  Mcfg.aslc
+  Spcr.aslc
+ /* Iort.asl
+  Dbg2.aslc
+  SASSSDT.ASL
+  SATASSDT.ASL*/
+
+[Packages]
+  ArmPkg/ArmPkg.dec
+  ArmPlatformPkg/ArmPlatformPkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
