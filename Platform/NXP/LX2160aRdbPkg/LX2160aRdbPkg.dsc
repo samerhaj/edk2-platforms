@@ -55,6 +55,9 @@
   SecureMonRngLib|Silicon/NXP/Library/SecureMonRngLib/SecureMonRngLib.inf
   MemoryInitPeiLib|Silicon/NXP/Library/MemoryInitPei/MemoryInitPeiLib.inf
 
+[PcdsFeatureFlag.common]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdInstallAcpiSdtProtocol|TRUE
+
 [PcdsFixedAtBuild.common]
 
 !if $(MC_HIGH_MEM) == TRUE                                        # Management Complex loaded at the end of DDR2
@@ -196,5 +199,15 @@
   Silicon/NXP/Drivers/SpiBusDxe/SpiBusDxe.inf
   Silicon/NXP/Drivers/SpiNorFlashDxe/SpiNorFlashDxe.inf
   Silicon/NXP/Drivers/SpiConfigurationDxe/SpiConfigurationDxe.inf
+
+  #
+  # Acpi Support
+  #
+  MdeModulePkg/Universal/Acpi/AcpiPlatformDxe/AcpiPlatformDxe.inf
+
+  #
+  # Platform
+  #
+  Platform/NXP/LX2160aRdbPkg/AcpiTables/AcpiTables.inf
 
  ##
