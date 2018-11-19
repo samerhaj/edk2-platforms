@@ -1,0 +1,60 @@
+/** Serial Port Console Redirection Table (SPCR)
+*
+*  Copyright (c) 2016 Linaro Limited. All rights reserved.
+*  Copyright 2017-2018 NXP
+*
+*  This program and the accompanying materials
+*  are licensed and made available under the terms and conditions of the BSD License
+*  which accompanies this distribution.  The full text of the license may be found at
+*  http://opensource.org/licenses/bsd-license.php
+*
+*  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+*  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+*
+*  Based on the files under ArmPlatformPkg/ArmJunoPkg/AcpiTables/
+*
+**/
+
+#include <Library/AcpiLib.h>
+#include <Library/PcdLib.h>
+#include <IndustryStandard/Acpi.h>
+#include <IndustryStandard/SerialPortConsoleRedirectionTable.h>
+#include "Platform.h"
+
+
+STATIC EFI_ACPI_SERIAL_PORT_CONSOLE_REDIRECTION_TABLE Spcr = {
+  ARM_ACPI_HEADER (EFI_ACPI_5_1_SERIAL_PORT_CONSOLE_REDIRECTION_TABLE_SIGNATURE,
+                     EFI_ACPI_SERIAL_PORT_CONSOLE_REDIRECTION_TABLE,
+                     EFI_ACPI_SERIAL_PORT_CONSOLE_REDIRECTION_TABLE_REVISION),
+  EFI_ACPI_SERIAL_PORT_CONSOLE_REDIRECTION_TABLE_INTERFACE_TYPE_16550,              //InterfaceType
+  // UINT8                                   Reserved1[3];
+  {
+    EFI_ACPI_RESERVED_BYTE,
+    EFI_ACPI_RESERVED_BYTE,
+    EFI_ACPI_RESERVED_BYTE
+  },                                                                   //Reserved1
+  ARM_GAS32 (UART0_BASE),                                              //BaseAddress
+  EFI_ACPI_SERIAL_PORT_CONSOLE_REDIRECTION_TABLE_INTERRUPT_TYPE_GIC,   //InterruptType
+  0,                                                                   // irq Not used on ARM
+  UART0_IT,                                                            //GlobalSystemInterrupt
+  EFI_ACPI_SERIAL_PORT_CONSOLE_REDIRECTION_TABLE_BAUD_RATE_115200,     //BaudRate
+  EFI_ACPI_SERIAL_PORT_CONSOLE_REDIRECTION_TABLE_PARITY_NO_PARITY,     //Parity
+  EFI_ACPI_SERIAL_PORT_CONSOLE_REDIRECTION_TABLE_STOP_BITS_1,          //StopBits
+  SPCR_FLOW_CONTROL_NONE,                                              //FlowControl
+  EFI_ACPI_SERIAL_PORT_CONSOLE_REDIRECTION_TABLE_TERMINAL_TYPE_ANSI,   //TerminalType
+  EFI_ACPI_RESERVED_BYTE,                                              //Reserved2
+  0xFFFF,                                                              //PciDeviceId
+  0xFFFF,                                                              //PciVendorId
+  0x00,                                                                //PciBusNumber
+  0x00,                                                                //PciDeviceNumber
+  0x00,                                                                //PciFunctionNumber
+  0x00000000,                                                          //PciFlags
+  0x00,                                                                //PciSegment
+  EFI_ACPI_RESERVED_DWORD                                              //Reserved3
+};
+
+//
+// Reference the table being generated to prevent the optimizer from removing the
+// data structure from the executable
+//
+VOID* CONST ReferenceAcpiTable = &Spcr;
