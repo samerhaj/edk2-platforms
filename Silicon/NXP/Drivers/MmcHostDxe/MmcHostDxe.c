@@ -555,7 +555,7 @@ CreateMmcHostInstance (
     Status =  ConstructHostInstance (PcdGet64 (PcdEMmcBaseAddr), EMMC_CARD);
   }
 
-  return EFI_SUCCESS;
+  return Status;
 }
 
 /**
