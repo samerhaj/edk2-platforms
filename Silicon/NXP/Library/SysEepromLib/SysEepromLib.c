@@ -156,6 +156,8 @@ MacReadFromEeprom (
     return EFI_INVALID_PARAMETER;
   }
 
+  SetMem(MacAddress, 6, 0xFF);
+
   Status = EepromRead (EEPROM_NO_FORCE_READ);
   if (EFI_ERROR(Status)) {
     return Status;
@@ -165,11 +167,21 @@ MacReadFromEeprom (
     if (MacNo >= SystemID->NXSystemID.MacSize) {
       return EFI_NOT_FOUND;
     }
+
+    if (!CompareMem (MacAddress, SystemID->NXSystemID.Mac[MacNo], 6)) {
+      return EFI_NOT_FOUND;
+    }
+
     CopyMem (MacAddress, SystemID->NXSystemID.Mac[MacNo], 6);
   } else {
     if (MacNo > SystemID->CCSystemID.MacSize) {
       return EFI_NOT_FOUND;
     }
+
+   if (!CompareMem (MacAddress, SystemID->NXSystemID.Mac[MacNo], 6)) {
+      return EFI_NOT_FOUND;
+    }
+
     CopyMem (MacAddress, SystemID->CCSystemID.Mac[MacNo], 6);
   }
 
