@@ -547,6 +547,8 @@ CreateMmcHostInstance (
 {
   EFI_STATUS                   Status;
 
+  Status = EFI_SUCCESS;
+
   if ((VOID *)PcdGet64 (PcdSdxcBaseAddr)) {
     Status = ConstructHostInstance (PcdGet64 (PcdSdxcBaseAddr), SD_CARD);
   }
