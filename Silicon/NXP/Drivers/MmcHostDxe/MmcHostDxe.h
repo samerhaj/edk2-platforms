@@ -21,11 +21,6 @@
 
 #define MMC_DEVICE_INSTANCE_FROM_HOST(a)    CR(a, MMC_DEVICE_INSTANCE, MmcHostProtocol, MMC_DEVICE_SIGNATURE)
 
-#define EXTCSD_BUS_WIDTH        183
-
-#define EMMC_BUS_WIDTH_DDR_4BIT 5
-#define EMMC_BUS_WIDTH_DDR_8BIT 6
-
 typedef enum {
   UNKNOWN_CARD,
   MMC_CARD,              //MMC card

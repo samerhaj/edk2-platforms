@@ -163,7 +163,7 @@ SendCmd (
   @param  TimingMode   Timing mode to be set
 
 **/
-VOID
+EFI_STATUS
 SetIos (
   IN  VOID    *BaseAddress,
   IN  UINT32  BusClockFreq,

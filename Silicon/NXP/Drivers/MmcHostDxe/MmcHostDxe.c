@@ -151,17 +151,8 @@ MmcSendCommand (
         Status = SendCmd ((VOID *)Instance->DeviceBaseAddress, &Instance->Cmd, NULL);
       }
     } else if (Instance->CardType == EMMC_CARD) {
-      ///
-      /// not supporting DDR mode
-      ///
       if ((CmdIdx == MMC_INDX (6))) {
-        if ((((Argument >> 16) & 0xFF) == EXTCSD_BUS_WIDTH) &&
-            ((((Argument >> 8) & 0xFF) == EMMC_BUS_WIDTH_DDR_4BIT) ||
-             (((Argument >> 8) & 0xFF) == EMMC_BUS_WIDTH_DDR_8BIT))) {
-          return EFI_UNSUPPORTED;
-        } else {
           Status = SendCmd ((VOID *)Instance->DeviceBaseAddress, &Instance->Cmd, NULL);
-        }
       }
     } else {
       Status = EFI_SUCCESS;
@@ -437,12 +428,13 @@ MmcSetIos (
   )
 {
   MMC_DEVICE_INSTANCE          *Instance;
+  EFI_STATUS                   Status;
 
   Instance = MMC_DEVICE_INSTANCE_FROM_HOST (This);
 
-  SetIos ((VOID *)Instance->DeviceBaseAddress, BusClockFreq, BusWidth, TimingMode);
+  Status = SetIos ((VOID *)Instance->DeviceBaseAddress, BusClockFreq, BusWidth, TimingMode);
 
-  return EFI_SUCCESS;
+  return Status;
 }
 
 BOOLEAN

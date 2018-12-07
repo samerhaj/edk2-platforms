@@ -20,6 +20,7 @@
 #include <Library/MemoryAllocationLib.h>
 #include <Library/MmcLib.h>
 #include <Library/TimerLib.h>
+#include <Protocol/MmcHost.h>
 
 #include "MmcInternal.h"
 
@@ -429,7 +430,7 @@ InitMmc (
   @param  TimingMode   Timing mode to be set
 
 **/
-VOID
+EFI_STATUS
 SetIos (
   IN  VOID             *BaseAddress,
   IN  UINT32           BusClockFreq,
@@ -442,6 +443,10 @@ SetIos (
   Regs = BaseAddress;
 
   DEBUG_MSG ("BusClockFreq %d, BusWidth %d\n", BusClockFreq, BusWidth);
+
+  if ((TimingMode == EMMCHS52DDR1V8) || (TimingMode == EMMCHS52DDR1V2)) {
+    return EFI_UNSUPPORTED;
+  }
 
   // Set the clock speed
   if (BusClockFreq) {
@@ -459,6 +464,8 @@ SetIos (
   else if (BusWidth == 8) {
     MmcOr ((UINTN)&Regs->Proctl, PRCTL_DTW_8);
   }
+
+  return EFI_SUCCESS;
 }
 
 /**
