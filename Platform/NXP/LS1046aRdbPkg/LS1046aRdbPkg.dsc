@@ -125,6 +125,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdFManFwFlashAddr|0x40900000
   gNxpQoriqLsTokenSpaceGuid.PcdSgmiiPrtclInit|TRUE
 
+  gNxpQoriqLsTokenSpaceGuid.PcdFdtAddress|0x40F00000
 
 ################################################################################
 #

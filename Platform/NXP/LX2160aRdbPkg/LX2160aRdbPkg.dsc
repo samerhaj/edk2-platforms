@@ -155,6 +155,7 @@
   # - 0x40     Trace network packets sent/received
   gNxpQoriqLsTokenSpaceGuid.PcdDpaaDebugFlags|0x0
 
+  gNxpQoriqLsTokenSpaceGuid.PcdFdtAddress|0x20F00000
 ################################################################################
 #
 # Components Section - list of all EDK II Modules needed by this Platform

@@ -355,6 +355,14 @@ DtPlatformDxeEntryPoint (
   Svr = SocGetSvr ();
   ASSERT (Svr != 0);
 
+  if (PcdGet64 (PcdFdtAddress)) {
+    OrigDtb = (VOID *)PcdGet64 (PcdFdtAddress);
+
+    if (!fdt_check_header (OrigDtb)) {
+      goto FdtLoadedFromAddress;
+    }
+  }
+
   Status = GetSectionFromAnyFv (
              &gDtPlatformDefaultDtbFileGuid,
              EFI_SECTION_RAW,
@@ -372,6 +380,7 @@ DtPlatformDxeEntryPoint (
     return EFI_NOT_FOUND;
   }
 
+FdtLoadedFromAddress:
   // Assign extra memory for fixups
   DtbSize = fdt_totalsize (OrigDtb) + SIZE_512KB;
 

@@ -122,6 +122,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa1FmanMdio2Addr|0x01AFD000
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa1FmanAddr|0x01a00000
 
+  gNxpQoriqLsTokenSpaceGuid.PcdFdtAddress|0x60F00000
 
 ################################################################################
 #

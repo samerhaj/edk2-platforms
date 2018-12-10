@@ -56,5 +56,8 @@
   gFdtTableGuid
   gEdkiiPlatformHasDeviceTreeGuid
 
+[Pcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdFdtAddress
+
 [Depex]
   TRUE
