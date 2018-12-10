@@ -15,6 +15,8 @@
 #ifndef __DT_PLATFORM_DXE_H__
 #define __DT_PLATFORM_DXE_H__
 
+#define JR3_OFFSET                0x40000
+
 #define VIDMS_OFFSET              0xFF8
 #define CCBVID_OFFSET             0xFE4
 

@@ -218,6 +218,7 @@ FdtFixupCrypto (
   INTN       NodeOffset;
   INTN       FdtStatus;
   UINT64     CryptoAddress;
+  UINT64     JobRingOffset;
   UINT8      Era;
   EFI_STATUS Status;
 
@@ -258,6 +259,26 @@ FdtFixupCrypto (
       if (FdtStatus) {
         DEBUG ((DEBUG_ERROR, "fdt_setprop_u32/sec-era could not set property %a\n", fdt_strerror (FdtStatus)));
         return EFI_DEVICE_ERROR;
+      }
+    }
+
+    for (NodeOffset = fdt_node_offset_by_compatible (Dtb, NodeOffset, "fsl,sec-v4.0-job-ring");
+         NodeOffset != -FDT_ERR_NOTFOUND;
+         NodeOffset = fdt_node_offset_by_compatible (Dtb, NodeOffset, "fsl,sec-v4.0-job-ring")) {
+      FdtGetAddressSize (Dtb, NodeOffset, "reg", 0, &JobRingOffset, NULL);
+      if (EFI_ERROR (Status)) {
+        DEBUG ((DEBUG_ERROR, "Error: can't get regs base address(Status = %r)!\n", Status));
+        return EFI_SUCCESS;
+      }
+
+      if (JobRingOffset == JR3_OFFSET) {
+        FdtStatus = fdt_del_node (Dtb, NodeOffset);
+        if (FdtStatus) {
+          DEBUG ((DEBUG_ERROR, "fdt_del_node/crypto: Could not delete node, %a!!\n", fdt_strerror (FdtStatus)));
+          return EFI_DEVICE_ERROR;
+        }
+
+        break;
       }
     }
   }
