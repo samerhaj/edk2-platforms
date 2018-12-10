@@ -36,9 +36,11 @@
   DebugLib
   DxeServicesLib
   FdtLib
+  ItbParseLib
 
 [FixedPcd]
   gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdFlexSpiFdtCompatible
 
 [Guids]
   gDtPlatformDefaultDtbFileGuid

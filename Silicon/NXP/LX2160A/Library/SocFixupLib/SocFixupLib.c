@@ -16,6 +16,7 @@
 #include <Chassis.h>
 #include <Soc.h>
 #include <Library/DebugLib.h>
+#include <Library/ItbParse.h>
 #include <Library/SocFixupLib.h>
 
 /**
@@ -33,6 +34,44 @@ FdtSocFixup (
   IN  VOID  *Dtb
   )
 {
+  INTN        NodeOffset;
+  INTN        SubNodeOffset;
+  UINT64      ChipSelect;
+  EFI_STATUS  Status;
+  INT32       FdtStatus;
+
+  // Add uefi-runtime property in first Flexspi node and the Chip Select 0 (if not already present)
+  // TODO: Add this to the boot source node, which can be determined from RCW
+  NodeOffset = fdt_node_offset_by_compatible (Dtb, -1, (VOID *)(PcdGetPtr (PcdFlexSpiFdtCompatible)));
+  if (NodeOffset == FDT_ERR_NOTFOUND) {
+    DEBUG ((DEBUG_ERROR, "Error: can't find node %a in Dtb\n", (CHAR8* )PcdGetPtr (PcdFlexSpiFdtCompatible)));
+    return EFI_NOT_FOUND;
+  }
+
+  FdtStatus = fdt_setprop_empty (Dtb, NodeOffset, "uefi-runtime");
+  if (FdtStatus) {
+    DEBUG ((DEBUG_ERROR, "Error: can't set uefi-runtime %a\n", fdt_strerror (FdtStatus)));
+    return EFI_DEVICE_ERROR;
+  }
+
+  fdt_for_each_subnode (SubNodeOffset, Dtb, NodeOffset) {
+    Status = FdtGetAddressSize (Dtb, SubNodeOffset, "reg", 0, &ChipSelect, NULL);
+    if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "Error: can't get ChipSelect (Status = %r)!\n", Status));
+      return EFI_DEVICE_ERROR;
+    }
+
+    if (ChipSelect == 0) {
+      FdtStatus = fdt_setprop_empty (Dtb, SubNodeOffset, "uefi-runtime");
+      if (FdtStatus) {
+        DEBUG ((DEBUG_ERROR, "Error: can't set uefi-runtime %a\n", fdt_strerror (FdtStatus)));
+        return EFI_DEVICE_ERROR;
+      }
+
+      break;
+    }
+  }
+
   return EFI_SUCCESS;
 }
 

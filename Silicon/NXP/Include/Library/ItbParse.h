@@ -16,6 +16,8 @@
 #ifndef __ITB_PARSE__
 #define __ITB_PARSE__
 
+#include <Uefi.h>
+
 #define FIT_DESC_PROP      "description"
 #define FIT_IMAGES_PATH    "/images"
 #define FIT_KERNEL_IMAGE   "kernel"
