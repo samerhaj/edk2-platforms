@@ -31,6 +31,80 @@
 #include "DtPlatformDxe.h"
 
 /**
+  The functions fixes the cpu nodes present under cpus node in device tree with the
+  cpu enable-method as psci.
+
+  for more details please refer https://www.kernel.org/doc/Documentation/devicetree/bindings/arm/cpus.txt
+  // TODO: delete the CPU nodes that are not present in SOC depending on SOC flavor
+
+  @param[in] Dtb        Device Tree to fix up.
+
+  @retval EFI_SUCCESS       enable method fixed successfully in cpu nodes.
+  @retval EFI_NOT_FOUND     "cpus" node not found or cpus node doesn't contain any "cpu" subnode
+  @retval EFI_DEVICE_ERROR  Failed to set values in device tree
+**/
+
+STATIC
+EFI_STATUS
+FdtCpuFixup (
+  IN  VOID *Dtb
+  )
+{
+  INTN                        ParentOffset;
+  INTN                        NodeOffset;
+  INTN                        FdtStatus;
+  CONST struct fdt_property   *Prop;
+  INT32                       PropLen;
+
+  ParentOffset = fdt_subnode_offset (Dtb, 0, "cpus");
+  if (ParentOffset < 0) {
+    DEBUG ((DEBUG_ERROR, "Fdt: No cpus node found!!\n\n"));
+    return EFI_NOT_FOUND;
+  }
+
+  fdt_for_each_subnode (NodeOffset, Dtb, ParentOffset) {
+    Prop = fdt_get_property(Dtb, NodeOffset, "device_type", &PropLen);
+    if (!Prop) {
+      continue;
+    }
+    if (PropLen < 4) {
+      continue;
+    }
+    if (AsciiStrCmp (Prop->data, "cpu")) {
+      continue;
+    }
+
+    FdtStatus = fdt_setprop_string (Dtb, NodeOffset, "enable-method", "psci");
+  }
+
+  // Create the /psci node if it doesn't exist
+  NodeOffset = fdt_subnode_offset (Dtb, 0, "psci");
+  if (NodeOffset < 0) {
+    NodeOffset = fdt_add_subnode (Dtb, 0, "psci");
+    if (NodeOffset < 0) {
+      DEBUG ((DEBUG_ERROR, "fdt_add_subnode: Could not add psci!!, %a\n", fdt_strerror (NodeOffset)));
+      return EFI_DEVICE_ERROR;
+    }
+
+    FdtStatus = fdt_setprop_string (Dtb, NodeOffset, "compatible", "arm,psci-0.2");
+    if (FdtStatus) {
+      DEBUG ((DEBUG_ERROR, "fdt_setprop/psci: Could not add compatiblity, %a!!\n", fdt_strerror (FdtStatus)));
+      return EFI_DEVICE_ERROR;
+    }
+
+    FdtStatus = fdt_setprop_string (Dtb, NodeOffset, "method", "smc");
+    if (FdtStatus) {
+      DEBUG ((DEBUG_ERROR, "fdt_setprop/psci: Could not add method, %a!!\n", fdt_strerror (FdtStatus)));
+      return EFI_DEVICE_ERROR;
+    }
+  }
+
+  DEBUG ((DEBUG_INFO, "PSCI fixup done!!!!\n"));
+
+  return EFI_SUCCESS;
+}
+
+/**
   The functions fixes the Input system clock frequency (SYSCLK) in device tree
 
   for more details please refer https://www.kernel.org/doc/Documentation/devicetree/bindings/clock/qoriq-clock.txt
@@ -291,6 +365,12 @@ DtPlatformDxeEntryPoint (
     Status = EFI_BAD_BUFFER_SIZE;
     goto FreeDtb;
   }
+
+  // we use PSCI boot method for all platforms
+  Status = FdtCpuFixup (Dtb);
+  if (EFI_ERROR (Status)) {
+    goto FreeDtb;
+  };
 
   // All Platforms need SYS clock frequency
   Status = FdtSysClockFixup (Dtb);
