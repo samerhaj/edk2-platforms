@@ -14,6 +14,7 @@
 
 **/
 
+#include <libfdt.h>
 #include <Library/BaseLib.h>
 #include <Library/DevicePathLib.h>
 #include <Library/DpaaDebugLib.h>
@@ -1349,11 +1350,28 @@ Dpaa2NotifyExitBootServices (
   VOID      *Context
   )
 {
+  EFI_STATUS  Status;
+  VOID        *Dtb;
+  INT32       FdtStatus;
+  INT32       NodeOffset;
+
   ASSERT (Event == gDpaa2Driver.ExitBootServicesEvent);
   ASSERT (gDpaa2Driver.ExitBootServicesEvent != NULL);
 
   DPAA_DEBUG_MSG ("%a () called (Event: 0x%x, Context: 0x%p)\n",
                   __FUNCTION__, Event, Context);
+  Status = EfiGetSystemConfigurationTable (&gFdtTableGuid, &Dtb);
+  if (EFI_ERROR (Status)) {
+    DPAA_ERROR_MSG ("Did not find the Dtb Blob.\n");
+  }
+
+  NodeOffset = fdt_path_offset (Dtb, "/soc/fsl-mc");
+  if (NodeOffset < 0) {
+    NodeOffset = fdt_path_offset (Dtb, "/fsl-mc");
+  }
+  if (NodeOffset < 0) {
+    DPAA_ERROR_MSG ("Did not find fsl-mc node in the Dtb Blob.\n");
+  }
 
   if (gDpaa2Driver.McStatus == EFI_SUCCESS) {
     DestroyAllDpaa2NetworkInterfacesInMc ();
@@ -1366,7 +1384,18 @@ Dpaa2NotifyExitBootServices (
     /*
      * Deploy DPL:
      */
-    (VOID)Dpaa2McDeployDpl ();
+    Status = Dpaa2McDeployDpl ();
+    if (NodeOffset >= 0) {
+      if (EFI_ERROR(Status)) {
+        FdtStatus = fdt_setprop_string (Dtb, NodeOffset, "status", "disabled");
+      } else {
+        FdtStatus = fdt_setprop_string (Dtb, NodeOffset, "status", "okay");
+      }
+      if (FdtStatus) {
+        DPAA_ERROR_MSG ("Error %a disabling Node %a\n", fdt_strerror (FdtStatus),
+                        fdt_get_name (Dtb, NodeOffset, NULL));
+      }
+    }
   }
 }
 

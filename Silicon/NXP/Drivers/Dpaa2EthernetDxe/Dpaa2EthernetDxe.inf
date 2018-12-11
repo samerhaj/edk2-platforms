@@ -30,12 +30,14 @@
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
   Silicon/NXP/NxpQoriqLs.dec
+  EmbeddedPkg/EmbeddedPkg.dec
 
 [LibraryClasses]
   Dpaa2EthernetMacLib
   Dpaa2EthernetPhyLib
   Dpaa2BoardSpecificLib
   Dpaa2ManagementComplexLib
+  FdtLib
   NetLib
   SysEepromLib
   UefiDriverEntryPoint
