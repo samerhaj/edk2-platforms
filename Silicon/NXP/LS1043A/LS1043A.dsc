@@ -67,4 +67,6 @@
   gNxpQoriqLsTokenSpaceGuid.PcdRomBaseAddr|0x00000000
   gNxpQoriqLsTokenSpaceGuid.PcdRomSize|0x00100000
 
+[PcdsFeatureFlag.common]
+  gNxpQoriqLsTokenSpaceGuid.PcdCryptoBigEndian|TRUE
 ##

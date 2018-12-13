@@ -77,4 +77,6 @@
   gNxpQoriqLsTokenSpaceGuid.PcdQspiErratumA008886|TRUE
   gNxpQoriqLsTokenSpaceGuid.PcdSpiBusCount|2
 
+[PcdsFeatureFlag.common]
+  gNxpQoriqLsTokenSpaceGuid.PcdCryptoBigEndian|TRUE
 ##

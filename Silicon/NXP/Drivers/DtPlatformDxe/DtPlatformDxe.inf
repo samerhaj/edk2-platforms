@@ -59,5 +59,8 @@
 [Pcd]
   gNxpQoriqLsTokenSpaceGuid.PcdFdtAddress
 
+[FeaturePcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdCryptoBigEndian
+
 [Depex]
   TRUE

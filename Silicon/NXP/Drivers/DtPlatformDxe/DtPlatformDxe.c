@@ -248,7 +248,8 @@ FdtFixupCrypto (
       return EFI_SUCCESS;
     }
 
-    if (fdt_getprop (Dtb, NodeOffset, "big-endian", NULL) != NULL) {
+    if ((fdt_getprop (Dtb, NodeOffset, "big-endian", NULL) != NULL) ||
+        (FeaturePcdGet (PcdCryptoBigEndian) == TRUE)) {
       Era = GetCryptoEra (CryptoAddress, TRUE);
     } else {
       Era = GetCryptoEra (CryptoAddress, FALSE);

@@ -277,7 +277,8 @@ FdtFixupQman (
     return EFI_SUCCESS;
   }
 
-  if (fdt_getprop (Dtb, NodeOffset, "big-endian", NULL) != NULL) {
+  if ((fdt_getprop (Dtb, NodeOffset, "big-endian", NULL) != NULL) ||
+      (FeaturePcdGet (PcdQmanBigEndian) == TRUE)) {
     QmanRev1 = BeMmioRead32 (QmanAddress + QMAN_IP_REV_1);
     QmanRev2 = BeMmioRead32 (QmanAddress + QMAN_IP_REV_2);
   } else {
@@ -345,7 +346,8 @@ FdtFixupBmanVersion (
     return EFI_SUCCESS;
   }
 
-  if (fdt_getprop (Dtb, NodeOffset, "big-endian", NULL) != NULL) {
+  if ((fdt_getprop (Dtb, NodeOffset, "big-endian", NULL) != NULL) ||
+      (FeaturePcdGet (PcdBmanBigEndian) == TRUE)) {
     BmanRev1 = BeMmioRead32 (BmanAddress + BMAN_IP_REV_1);
     BmanRev2 = BeMmioRead32 (BmanAddress + BMAN_IP_REV_2);
   } else {

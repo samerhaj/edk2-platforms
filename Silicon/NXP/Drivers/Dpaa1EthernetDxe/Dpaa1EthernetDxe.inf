@@ -56,6 +56,10 @@
 [FixedPcd]
   gNxpQoriqLsTokenSpaceGuid.PcdFmanFwFlashAddr
 
+[FeaturePcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdQmanBigEndian
+  gNxpQoriqLsTokenSpaceGuid.PcdBmanBigEndian
+
 [Depex]
   TRUE
 
