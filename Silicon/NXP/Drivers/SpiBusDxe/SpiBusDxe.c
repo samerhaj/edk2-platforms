@@ -981,25 +981,16 @@ SpiBusTransaction (
 
   // The SPI transaction consists of:
   // 1. Adjusting the clock speed, polarity and phase for a SPI peripheral
-  if (RequestedClockHz == 0) {
-    if (SpiPeripheral->MaxClockHz != 0) {
-      ClockHz = MIN (SpiPeripheral->MaxClockHz, SpiPeripheral->SpiPart->MaxClockHz);
-    } else {
-      ClockHz = SpiPeripheral->SpiPart->MaxClockHz;
-    }
-    RequestedClockHz = ClockHz;
+  if (SpiPeripheral->MaxClockHz != 0) {
+    ClockHz = MIN (SpiPeripheral->MaxClockHz, SpiPeripheral->SpiPart->MaxClockHz);
   } else {
-    if (SpiPeripheral->MaxClockHz != 0) {
-      if (RequestedClockHz > MIN (SpiPeripheral->MaxClockHz, SpiPeripheral->SpiPart->MaxClockHz)) {
-        return EFI_UNSUPPORTED;
-      }
-    } else {
-      if (RequestedClockHz > SpiPeripheral->SpiPart->MaxClockHz) {
-        return EFI_UNSUPPORTED;
-      }
-    }
+    ClockHz = SpiPeripheral->SpiPart->MaxClockHz;
+  }
+  if (RequestedClockHz != 0) {
+    ClockHz = MIN (RequestedClockHz, ClockHz);
   }
 
+  RequestedClockHz = ClockHz;
   if (SpiBus->Clock != NULL) {
     Status = SpiBus->Clock (SpiPeripheral, &ClockHz);
   } else {
