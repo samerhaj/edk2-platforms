@@ -42,6 +42,7 @@
 #include <Library/MemoryAllocationLib.h>
 #include <Library/PcdLib.h>
 #include <Library/UefiBootServicesTableLib.h>
+#include <Library/UefiLib.h>
 
 /* Define external, global and module variables here */
 //
@@ -369,7 +370,6 @@ SpiConfigurationDxeEntryPoint (
   UINTN                              Index;
   EFI_SPI_DEVICE_PATH                *DevicePath;
   VOID                               *Fdt;
-  UINTN                              FdtSize;
   CONST fdt32_t                      *Prop;
   INT32                              PropLen;
   INT32                              SpiBusNodeOffset;
@@ -382,21 +382,10 @@ SpiConfigurationDxeEntryPoint (
   Runtime = FALSE;
   SpiPeripheral = NULL;
 
-  Status = GetSectionFromAnyFv (
-             &gDtPlatformDefaultDtbFileGuid,
-             EFI_SECTION_RAW,
-             0,
-             &Fdt,
-             &FdtSize
-             );
+  Status = EfiGetSystemConfigurationTable (&gFdtTableGuid, &Fdt);
   if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Failed to get device tree\n"));
-    return EFI_NOT_FOUND;
-  }
-
-  if (fdt_check_header (Fdt)) {
-    DEBUG ((DEBUG_ERROR, "Invalid Device Tree\n"));
-    return EFI_CRC_ERROR;
+    DEBUG ((DEBUG_ERROR, "Did not find the Dtb Blob.\n"));
+    return Status;
   }
 
   //

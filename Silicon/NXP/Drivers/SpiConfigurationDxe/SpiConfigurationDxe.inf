@@ -46,7 +46,7 @@
   gEfiQspiDriverGuid
   gEfiDspiDriverGuid
   gEfiFlexSpiDriverGuid
-  gDtPlatformDefaultDtbFileGuid
+  gFdtTableGuid
 
 [FixedPcd]
   gNxpQoriqLsTokenSpaceGuid.PcdQspiFdtCompatible
@@ -58,4 +58,4 @@
   gEfiSpiConfigurationProtocolGuid   ## BY_START
 
 [Depex]
-  TRUE
+  gEdkiiPlatformHasDeviceTreeGuid
