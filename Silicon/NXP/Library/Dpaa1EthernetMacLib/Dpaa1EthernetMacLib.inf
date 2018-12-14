@@ -26,5 +26,14 @@
   FmanMemac.c
 
 [Packages]
+  EmbeddedPkg/EmbeddedPkg.dec
   MdePkg/MdePkg.dec
   Silicon/NXP/NxpQoriqLs.dec  
+
+[LibraryClasses]
+  FdtLib
+  ItbParseLib
+  PcdLib
+
+[Pcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa1FmanAddr

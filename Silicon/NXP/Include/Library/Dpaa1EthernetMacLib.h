@@ -482,4 +482,19 @@ BOOLEAN
 IsMemacEnabled (
   IN  FMAN_MEMAC_ID MemacId
   );
+
+/**
+  Fix the Memac state in Fdt (Flattened Device tree)
+  Update the status field to "okay" or "disabled"
+  Update the phy-interface-type field.
+
+  @param[in]  Fdt   Fdt blob to fixup
+
+  @retval EFI_SUCCESS       Successfully fixed the device tree
+  @retval EFI_DEVICE_ERROR  Failed to fix the device tree
+**/
+EFI_STATUS
+FdtMemacFixup (
+  IN  VOID  *Fdt
+);
 #endif /* __DPAA1_ETHERTNET_MAC_LIB_H__ */

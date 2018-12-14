@@ -27,6 +27,7 @@
   Dpaa1EthernetDxe.c
 
 [Packages]
+  EmbeddedPkg/EmbeddedPkg.dec
   MdeModulePkg/MdeModulePkg.dec
   MdePkg/MdePkg.dec
   Silicon/NXP/NxpQoriqLs.dec
@@ -46,6 +47,7 @@
 #  SysEepromLib
 
 [Guids]
+  gFdtTableGuid
 
 [Protocols]
   gEfiBlockIoProtocolGuid

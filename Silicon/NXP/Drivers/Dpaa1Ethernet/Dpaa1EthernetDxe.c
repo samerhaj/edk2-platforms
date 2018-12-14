@@ -1568,6 +1568,13 @@ Dpaa1EthernetInitialize (
   DPAA1_ETHERNET_DEVICE *Dpaa1EthDev = NULL;
   BOOLEAN Dpaa1Enabled = PcdGetBool(PcdDpaa1Initialize);
   UINT64 Dpaa1UsedMemacsMask = PcdGet64(PcdDpaa1UsedMemacsMask);
+  VOID              *Fdt;
+
+  Status = EfiGetSystemConfigurationTable (&gFdtTableGuid, &Fdt);
+  if (EFI_ERROR (Status)) {
+    DEBUG ((DEBUG_ERROR, "Did not find the Dtb Blob.\n"));
+    return EFI_NOT_FOUND;
+  }
 
   gDpaa1DebugFlags = PcdGet32(PcdDpaa1DebugFlags);
   DPAA1_DEBUG_MSG("Initialize %a() %a %a\n", __func__, __DATE__, __TIME__);
@@ -1633,6 +1640,11 @@ Dpaa1EthernetInitialize (
     DPAA1_ERROR_MSG("No usable DPAA1 devices\n");
     Status = EFI_DEVICE_ERROR;
     goto ErroExitCleanupMemacsList;
+  }
+
+  Status = FdtMemacFixup (Fdt);
+  if (EFI_ERROR (Status)) {
+    goto ErrorExitCleanupDpaa1EthDevices;
   }
 
   Status = gBS->CreateEvent (

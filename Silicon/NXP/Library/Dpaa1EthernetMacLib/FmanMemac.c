@@ -12,10 +12,13 @@
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 **/
-
+#include <libfdt.h>
 #include <Library/Dpaa1DebugLib.h>
 #include <Library/Dpaa1EthernetMacLib.h>
+#include <Library/FrameManager.h>
 #include <Library/IoLib.h>
+#include <Library/ItbParse.h>
+#include <Library/PcdLib.h>
 #include <Library/Utils.h>
 
 CONST CHAR8 *CONST gFmanMemacStrings[] = {
@@ -213,6 +216,102 @@ PhyInterfaceTypeToString(PHY_INTERFACE_TYPE PhyInterfaceType)
   } else {
     return "Unknown";
   }
+}
+
+/**
+  Fix the Memac state in Fdt (Flattened Device tree)
+  Update the status field to "okay" or "disabled"
+  Update the phy-interface-type field.
+
+  @param[in]  Fdt   Fdt blob to fixup
+
+  @retval EFI_SUCCESS       Successfully fixed the device tree
+  @retval EFI_DEVICE_ERROR  Failed to fix the device tree
+**/
+EFI_STATUS
+FdtMemacFixup (
+  IN  VOID  *Fdt
+)
+{
+  UINTN       Index;
+  INTN        FdtStatus;
+  EFI_STATUS  Status;
+  INT32       NodeOffset;
+  FMAN_CCSR   *FmanCcsr;
+  UINT64      MemacOffset;
+  UINT64      Regs;
+  UINT32      Phandle;
+
+  FmanCcsr = (FMAN_CCSR *)PcdGet64(PcdDpaa1FmanAddr);
+
+  for (Index = 0; Index < ARRAY_SIZE (gFmanMemacs); Index++) {
+    if (gFmanMemacs[Index].Id == INVALID_FMAN_MEMAC_ID) {
+      continue;
+    }
+    MemacOffset = (UINT64)(&FmanCcsr->memac[gFmanMemacs[Index].Id - 1].FmanMemac) - (UINT64)FmanCcsr;
+
+    // Get the node
+    for (NodeOffset = fdt_node_offset_by_compatible (Fdt, -1, "fsl,fman-memac");
+         NodeOffset != -FDT_ERR_NOTFOUND;
+         NodeOffset = fdt_node_offset_by_compatible (Fdt, NodeOffset, "fsl,fman-memac")) {
+      Status = FdtGetAddressSize (Fdt, NodeOffset, "reg", 0, &Regs, NULL);
+      if (EFI_ERROR (Status)) {
+        DEBUG ((DEBUG_ERROR, "Error: can't get regs base address(Status = %r) for Memac Id %d!\n",
+                Status, gFmanMemacs[Index].Id));
+        continue;
+      }
+      if (Regs == MemacOffset) {
+        break;
+      }
+    }
+    if (NodeOffset == -FDT_ERR_NOTFOUND) {
+      DEBUG ((DEBUG_ERROR, "Error: can't get node for Memac Id %d!\n", gFmanMemacs[Index].Id));
+      continue;
+    }
+
+    // Disable or enable the node
+    if (gFmanMemacs[Index].Enabled) {
+      FdtStatus = fdt_setprop_string (Fdt, NodeOffset, "status", "okay");
+      if (FdtStatus) {
+        DEBUG ((DEBUG_ERROR, "could not set property %a for node %a error %a", "status",
+                fdt_strerror(FdtStatus), fdt_get_name (Fdt, NodeOffset, NULL)));
+        return EFI_DEVICE_ERROR;
+      }
+
+      // Set the phy interface string
+      if (gFmanMemacs[Index].Phy.PhyInterfaceType != PHY_INTERFACE_NONE) {
+        FdtStatus = fdt_setprop_string (Fdt, NodeOffset, "phy-connection-type",
+                                        PhyInterfaceTypeToString (gFmanMemacs[Index].Phy.PhyInterfaceType));
+        if (FdtStatus) {
+          DEBUG ((DEBUG_ERROR, "could not set property %a for node %a error %a", "status",
+                  fdt_strerror(FdtStatus), fdt_get_name (Fdt, NodeOffset, NULL)));
+          return EFI_DEVICE_ERROR;
+        }
+      }
+    } else {
+      /* disable the MAC node */
+      FdtStatus = fdt_setprop_string (Fdt, NodeOffset, "status", "disabled");
+      if (FdtStatus) {
+        DEBUG ((DEBUG_ERROR, "could not set property %a for node %a error %a", "phy-connection-type",
+                fdt_strerror(FdtStatus), fdt_get_name (Fdt, NodeOffset, NULL)));
+        return EFI_DEVICE_ERROR;
+      }
+      /* disable the fsl,dpa-ethernet node that points to the MAC */
+      Phandle = fdt_get_phandle (Fdt, NodeOffset);
+      for (NodeOffset = fdt_node_offset_by_prop_value (Fdt, -1, "fsl,fman-mac", &Phandle, sizeof (Phandle));
+           NodeOffset != -FDT_ERR_NOTFOUND;
+           NodeOffset = fdt_node_offset_by_prop_value (Fdt, NodeOffset, "fsl,fman-mac", &Phandle, sizeof (Phandle))) {
+        FdtStatus = fdt_setprop_string (Fdt, NodeOffset, "status", "disabled");
+        if (FdtStatus) {
+          DEBUG ((DEBUG_ERROR, "could not set property %a for node %a error %a", "status",
+                  fdt_strerror(FdtStatus), fdt_get_name (Fdt, NodeOffset, NULL)));
+          return EFI_DEVICE_ERROR;
+        }
+      }
+    }
+  }
+
+  return EFI_SUCCESS;
 }
 
 VOID InitializeMac (
