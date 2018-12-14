@@ -17,9 +17,12 @@
 
 #define JR3_OFFSET                0x40000
 
-#define VIDMS_OFFSET              0xFF8
-#define CCBVID_OFFSET             0xFE4
+#define VIDMS_OFFSET              0xFF8 // SEC Version ID Register, most-significant half (SECVID_MS)
+#define CCBVID_OFFSET             0xFE4 // CHA Cluster Block Version ID Register (CCBVID)
+#define SSTA_OFFSET               0xFD4 // SEC Status Register (SSTA)
 
+#define SSTA_PLEND                BIT10 // Platform Endianness
+#define SSTA_ALT_PLEND            BIT18
 #define SECVID_MS_IPID_MASK       0xffff0000
 #define SECVID_MS_IPID_SHIFT      16
 #define SECVID_MS_MAJ_REV_MASK    0x0000ff00

@@ -263,7 +263,6 @@
   gNxpQoriqLsTokenSpaceGuid.PcdFdtAddress|0|UINT64|0x000000357
 
 [PcdsFeatureFlag.common]
-  gNxpQoriqLsTokenSpaceGuid.PcdCryptoBigEndian|FALSE|BOOLEAN|0x00000358
   gNxpQoriqLsTokenSpaceGuid.PcdQmanBigEndian|TRUE|BOOLEAN|0x00000359
   gNxpQoriqLsTokenSpaceGuid.PcdBmanBigEndian|TRUE|BOOLEAN|0x00000360
 

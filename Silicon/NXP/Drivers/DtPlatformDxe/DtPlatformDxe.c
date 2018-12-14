@@ -218,6 +218,7 @@ FdtFixupCrypto (
   INTN       NodeOffset;
   INTN       FdtStatus;
   UINT64     CryptoAddress;
+  BOOLEAN    CryptoBigEndian;
   UINT64     JobRingOffset;
   UINT8      Era;
   EFI_STATUS Status;
@@ -248,12 +249,8 @@ FdtFixupCrypto (
       return EFI_SUCCESS;
     }
 
-    if ((fdt_getprop (Dtb, NodeOffset, "big-endian", NULL) != NULL) ||
-        (FeaturePcdGet (PcdCryptoBigEndian) == TRUE)) {
-      Era = GetCryptoEra (CryptoAddress, TRUE);
-    } else {
-      Era = GetCryptoEra (CryptoAddress, FALSE);
-    }
+    CryptoBigEndian = !!(BeMmioRead32 (CryptoAddress + SSTA_OFFSET) & (SSTA_PLEND | SSTA_ALT_PLEND));
+    Era = GetCryptoEra (CryptoAddress, CryptoBigEndian);
 
     if (Era) {
       FdtStatus = fdt_setprop_u32 (Dtb, NodeOffset, "fsl,sec-era", Era);
@@ -266,7 +263,7 @@ FdtFixupCrypto (
     for (NodeOffset = fdt_node_offset_by_compatible (Dtb, NodeOffset, "fsl,sec-v4.0-job-ring");
          NodeOffset != -FDT_ERR_NOTFOUND;
          NodeOffset = fdt_node_offset_by_compatible (Dtb, NodeOffset, "fsl,sec-v4.0-job-ring")) {
-      FdtGetAddressSize (Dtb, NodeOffset, "reg", 0, &JobRingOffset, NULL);
+      Status = FdtGetAddressSize (Dtb, NodeOffset, "reg", 0, &JobRingOffset, NULL);
       if (EFI_ERROR (Status)) {
         DEBUG ((DEBUG_ERROR, "Error: can't get regs base address(Status = %r)!\n", Status));
         return EFI_SUCCESS;
