@@ -25,6 +25,14 @@
 #define AQUNTIA_SPEED_LSB_MASK  0x2000
 #define AQUNTIA_SPEED_MSB_MASK  0x40
 
+#define SI_SR                   0xe812
+#define VENDOR_PROVISIONING_REG 0xC441
+
+#define USX_AUTONEG_CONTROL_ENA 0x0008
+#define SI_IN_USE_MASK          0x0078
+#define SI_USXGMII              0x0018
+
+
 /**
    Configures Aquantia PHY
 
@@ -52,6 +60,17 @@ AquantiaPhyConfig (
     Dpaa2PhyRegisterWrite (Dpaa2Phy, MDIO_CTL_DEV_PMAPMD,
                           PHY_CONTROL_REG,
                           AQUNTIA_SPEED_LSB_MASK | AQUNTIA_SPEED_MSB_MASK);
+  }
+  /* If SI is USXGMII then start USXGMII autoneg*/
+  PhyRegValue  = Dpaa2PhyRegisterRead (Dpaa2Phy, MDIO_MMD_PHYXS, SI_SR);
+
+  if ((PhyRegValue & SI_IN_USE_MASK) == SI_USXGMII) {
+    Dpaa2PhyRegisterWrite (
+      Dpaa2Phy,
+      MDIO_MMD_PHYXS,
+      VENDOR_PROVISIONING_REG,
+      USX_AUTONEG_CONTROL_ENA
+      );
   }
 
   return EFI_SUCCESS;

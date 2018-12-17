@@ -180,7 +180,8 @@ Dpaa2PhyRegisterWrite (
   ASSERT (MdioCtlDevAddr == MDIO_PHY_DEV_ADDR ||
          MdioCtlDevAddr == MDIO_CTL_DEVAD_NONE ||
          MdioCtlDevAddr == MDIO_CTL_DEV_PMAPMD ||
-         MdioCtlDevAddr == MDIO_CTL_DEV_AUTO_NEGOTIATION);
+         MdioCtlDevAddr == MDIO_CTL_DEV_AUTO_NEGOTIATION ||
+         MdioCtlDevAddr == MDIO_MMD_PHYXS);
 
   Dpaa2PhyMdioBusWrite (Dpaa2Phy->MdioBus,
                        Dpaa2Phy->PhyAddress,
@@ -306,7 +307,8 @@ Dpaa2PhyRegisterRead (
   ASSERT (MdioCtlDevAddr == MDIO_PHY_DEV_ADDR ||
          MdioCtlDevAddr == MDIO_CTL_DEVAD_NONE ||
          MdioCtlDevAddr == MDIO_CTL_DEV_PMAPMD ||
-         MdioCtlDevAddr == MDIO_CTL_DEV_AUTO_NEGOTIATION);
+         MdioCtlDevAddr == MDIO_CTL_DEV_AUTO_NEGOTIATION ||
+         MdioCtlDevAddr == MDIO_MMD_PHYXS);
 
   return Dpaa2PhyMdioBusRead (Dpaa2Phy->MdioBus,
                              Dpaa2Phy->PhyAddress,
@@ -404,9 +406,6 @@ Dpaa2PhyConfig (
   DPAA_DEBUG_MSG ("Configuring PHY (PHY address: 0x%x) ... Media %d \n",
                   Dpaa2Phy->PhyAddress, Dpaa2Phy->PhyMediaType);
 
-  /*
-   * For now we just support Aquantia PHY
-   */
   if (Dpaa2Phy->PhyId == QC_PHY) {
     return Ar8035PhyConfig( Dpaa2Phy);
   } else if (Dpaa2Phy->PhyMediaType == COPPER_PHY) {
