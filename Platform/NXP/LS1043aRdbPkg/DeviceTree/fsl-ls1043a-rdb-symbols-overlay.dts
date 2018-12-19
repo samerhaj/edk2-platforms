@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Device Tree Overlay for Freescale Layerscape-1043A SOC symbols.
+ *
+ * Copyright 2018 NXP
+ *
+ */
+
+/dts-v1/;
+/plugin/;  /* allow undefined label references and record them */
+
+/ {
+    /* indicates that the overlay file is for symbols*/
+    /* This should be the first compatible property in file, so that the overlay can be identified*/
+    compatible = "fsl,ls1043a-symbols";
+
+    fragment@0 {
+      target-path = "/";
+      __overlay__ {
+        __symbols__ {
+          gic = "/interrupt-controller@1400000";
+          msi1 = "/soc/msi-controller1@1571000";
+          msi2 = "/soc/msi-controller2@1572000";
+          msi3 = "/soc/msi-controller3@1573000";
+        };
+      };
+    };
+};

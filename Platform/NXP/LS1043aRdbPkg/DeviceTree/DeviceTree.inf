@@ -28,6 +28,7 @@
   # the fist file is main platform dtb file which is loaded by DtDxe driver
   # the order of the rest of the files in determined by their parsing in SocFixupLib
   fsl-ls1043a-rdb-sdk.dts
+  fsl-ls1043a-rdb-symbols-overlay.dts
   fsl-ls1043a-rdb-v1.1-overlay.dts
 
 [Packages]

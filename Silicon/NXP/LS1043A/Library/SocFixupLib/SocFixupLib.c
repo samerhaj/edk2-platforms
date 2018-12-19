@@ -78,6 +78,24 @@ FdtSocFixup (
       break;
     }
 
+    // Test if overlay is for symbols
+    if (!fdt_node_check_compatible (DtbOverlay, 0, "fsl,ls1043a-symbols")) {
+      NodeOffset = fdt_path_offset (Dtb, "/__symbols__");
+      if (NodeOffset < 0) {
+        // only apply if the device tree doesn't contain auto generated symbols
+        FdtStatus = fdt_overlay_apply (Dtb, DtbOverlay);
+        if (FdtStatus) {
+          DEBUG ((
+            EFI_D_ERROR,
+            "fdt_overlay_apply/failed to apply overlay file @ index %d: %a\n",
+            Index, fdt_strerror (FdtStatus)
+            ));
+          Status = EFI_DEVICE_ERROR;
+          break;
+        }
+      }
+    }
+
     // Test if overlay is for soc revision
     if (!fdt_node_check_compatible (DtbOverlay, 0, "fsl,ls1043a-rev")) {
       // Get SOC revision from overlay and compare with SOC revision present read from SOC
