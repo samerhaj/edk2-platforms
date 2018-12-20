@@ -33,11 +33,11 @@ CONST CHAR8 *CONST gFmanMemacStrings[] = {
 };
 
 STATIC CONST CHAR8 *CONST gPhyInterfaceTypeStrings[] = {
-  [PHY_INTERFACE_XFI] = "xfi",
+  [PHY_INTERFACE_XFI] = "xgmii",
   [PHY_INTERFACE_SGMII] = "sgmii",
   [PHY_INTERFACE_SGMII_2500] = "Sgmii_2500",
   [PHY_INTERFACE_QSGMII] = "qsgmii",
-  [PHY_INTERFACE_RGMII] = "rgmii",
+  [PHY_INTERFACE_RGMII] = "rgmii-txid",
 };
 
 #define FMAN_MEMAC_INITIALIZER(_MemacId) \
