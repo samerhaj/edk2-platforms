@@ -64,7 +64,7 @@
 
 typedef struct {
   EFI_ACPI_6_1_GENERIC_TIMER_DESCRIPTION_TABLE          Gt;
-  EFI_ACPI_6_1_GTDT_GT_BLOCK_STRUCTURE                  GtBlock[TIMER_BLOCK_COUNT];
+  EFI_ACPI_6_1_GTDT_GT_BLOCK_STRUCTURE                  GtBlock;
   EFI_ACPI_6_1_GTDT_GT_BLOCK_TIMER_STRUCTURE            Frames[TIMER_FRAME_COUNT];
   EFI_ACPI_6_1_GTDT_SBSA_GENERIC_WATCHDOG_STRUCTURE     Watchdogs[TIMER_WATCHDOG_COUNT];
 } EFI_ACPI_6_1_GENERIC_TIMER_DESCRIPTION_TABLES;
@@ -79,7 +79,7 @@ EFI_ACPI_6_1_GENERIC_TIMER_DESCRIPTION_TABLES Gtdt = {
       EFI_ACPI_6_1_GENERIC_TIMER_DESCRIPTION_TABLE_REVISION
     ),
     TIMER_BASE_ADDRESS,                                     // UINT64  PhysicalAddress
-    0,                                                      // UINT32  Reserved
+    EFI_ACPI_RESERVED_DWORD,                                // UINT32  Reserved
     TIMER_SEC_IT,                                           // UINT32  SecurePL1TimerGSIV
     GTDT_GTIMER_FLAGS,                                      // UINT32  SecurePL1TimerFlags
     TIMER_NON_SEC_IT,                                       // UINT32  NonSecurePL1TimerGSIV
@@ -94,27 +94,14 @@ EFI_ACPI_6_1_GENERIC_TIMER_DESCRIPTION_TABLES Gtdt = {
   }, // end of Gtdt.Gt
 
   {
-    {
-      EFI_ACPI_6_1_GTDT_GT_BLOCK,                                                  // UINT8 Type
-      sizeof (EFI_ACPI_6_1_GTDT_GT_BLOCK_STRUCTURE)                                // UINT16 Length
-        + sizeof (EFI_ACPI_6_1_GTDT_GT_BLOCK_TIMER_STRUCTURE) * TIMER_FRAME_COUNT ,
-      EFI_ACPI_RESERVED_BYTE,                                                      // UINT8 Reserved
-      TIMER_GT_BLOCK_0_ADDRESS,                                                    // UINT64 CntCtlBase
-      TIMER_FRAME_COUNT,                                                           // UINT32 GTBlockTimerCount
-      TIMER_BLOCK_COUNT * sizeof (EFI_ACPI_6_1_GTDT_GT_BLOCK_STRUCTURE)            // UINT32 GTBlockTimerOffset
-    }, // end of Gtdt.GtBlock[0]
-
-    {
-      EFI_ACPI_6_1_GTDT_GT_BLOCK,                                                  // UINT8 Type
-      sizeof (EFI_ACPI_6_1_GTDT_GT_BLOCK_STRUCTURE)                                // UINT16 Length
-        + sizeof (EFI_ACPI_6_1_GTDT_GT_BLOCK_TIMER_STRUCTURE) * TIMER_FRAME_COUNT ,
-      EFI_ACPI_RESERVED_BYTE,                                                      // UINT8 Reserved
-      TIMER_GT_BLOCK_1_ADDRESS,                                                    // UINT64 CntCtlBase
-      TIMER_FRAME_COUNT,                                                           // UINT32 GTBlockTimerCount
-      sizeof (EFI_ACPI_6_1_GTDT_GT_BLOCK_STRUCTURE)                                // UINT32 GTBlockTimerOffset
-    } // end of Gtdt.GtBlock[1]
-  },
-
+    EFI_ACPI_6_1_GTDT_GT_BLOCK,                                                  // UINT8 Type
+    sizeof (EFI_ACPI_6_1_GTDT_GT_BLOCK_STRUCTURE)                                // UINT16 Length
+      + sizeof (EFI_ACPI_6_1_GTDT_GT_BLOCK_TIMER_STRUCTURE) * TIMER_FRAME_COUNT ,
+    EFI_ACPI_RESERVED_BYTE,                                                      // UINT8 Reserved
+    TIMER_GT_BLOCK_0_ADDRESS,                                                    // UINT64 CntCtlBase
+    TIMER_FRAME_COUNT,                                                           // UINT32 GTBlockTimerCount
+    sizeof (EFI_ACPI_6_1_GTDT_GT_BLOCK_STRUCTURE)            // UINT32 GTBlockTimerOffset
+  }, // end of Gtdt.GtBlock
   {
     {
       0,                                    // UINT8 GTFrameNumber

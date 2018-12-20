@@ -123,7 +123,7 @@
 #define SDC1_IT   95
 
 // Timer
-#define TIMER_BLOCK_COUNT            2
+#define TIMER_BLOCK_COUNT            1
 #define TIMER_FRAME_COUNT            4
 #define TIMER_WATCHDOG_COUNT         2
 #define TIMER_BASE_ADDRESS           0x23E0000 // a.k.a CNTControlBase
