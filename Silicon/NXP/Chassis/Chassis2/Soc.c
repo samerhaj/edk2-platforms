@@ -175,6 +175,12 @@ ConfigScfgMux (VOID)
                 CCSR_SCFG_USBPWRFAULT_USB1_SHIFT);
   BeMmioWrite32 ((UINTN)&Scfg->UsbPwrFaultSelCr, UsbPwrFault);
   BeMmioWrite32 ((UINTN)&Scfg->UsbPwrFaultSelCr, UsbPwrFault);
+
+  /* Make SATA reads and writes snoopable */
+  MmioSetBitsBe32 (
+    (UINTN)&Scfg->SnpCnfGcr,
+    CCSR_SCFG_SNPCNFGCR_SATARDSNP | CCSR_SCFG_SNPCNFGCR_SATAWRSNP
+    );
 }
 
 /**
