@@ -89,6 +89,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp5BaseAddr|0x0|UINT64|0x0000011A
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp6BaseAddr|0x0|UINT64|0x0000011B
   gNxpQoriqLsTokenSpaceGuid.PcdEMmcBaseAddr|0x0|UINT64|0x0000011C
+  gNxpQoriqLsTokenSpaceGuid.PcdScfgIntPol|0|UINT32|0x0000011D
 
   gNxpQoriqLsTokenSpaceGuid.PcdQspiRegionBaseAddr|0x0|UINT64|0x00000120
   gNxpQoriqLsTokenSpaceGuid.PcdQspiRegionSize|0x0|UINT64|0x00000121

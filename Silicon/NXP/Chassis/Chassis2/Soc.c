@@ -197,7 +197,9 @@ SocInit (
 {
   CHAR8 Buffer[100];
   UINTN CharCount;
-
+  CCSR_SCFG    *Scfg;
+   
+  Scfg = (VOID *)PcdGet64 (PcdScfgBaseAddr);
   SmmuInit ();
 
   //
@@ -226,6 +228,9 @@ SocInit (
   // determined externel to RCW at Power-on Reset Sequence.
   //
   ConfigScfgMux ();
+
+   //Invert AQR105 IRQ pins interrupt polarity
+  MmioWriteBe32 ((UINTN)&Scfg->IntpCr, PcdGet32 (PcdScfgIntPol));
 
 
   return;

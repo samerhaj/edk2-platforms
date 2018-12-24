@@ -50,4 +50,5 @@
   gNxpQoriqLsTokenSpaceGuid.PcdGurBigEndian
   gNxpQoriqLsTokenSpaceGuid.PcdClkBaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdScfgBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdScfgIntPol
   gNxpQoriqLsTokenSpaceGuid.PcdMuxToUsb3
