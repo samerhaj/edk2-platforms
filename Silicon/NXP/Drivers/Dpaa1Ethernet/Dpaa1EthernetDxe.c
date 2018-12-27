@@ -16,6 +16,7 @@
 
 #include <Bitops.h>
 #include <Library/BaseLib.h>
+#include <Library/BeIoLib.h>
 #include <Library/DevicePathLib.h>
 #include <Library/Dpaa1DebugLib.h>
 #include <Library/Dpaa1Lib.h>
@@ -1545,6 +1546,56 @@ Dpaa1EthernetUnload (
   return EFI_SUCCESS;
 }
 
+VOID
+InhibitPs (
+  IN  VOID   *PAddr,
+  IN  UINT32 MaxPortals,
+  IN  UINT32 MaxArchPortals,
+  IN  UINT32 PortalSize
+  )
+{
+  UINT32     Value;
+  UINT32     Index;;
+
+  //
+  // MaxArchPortals is the maximum based on memory size. This includes
+  // the reserved memory in the SoC. MaxPortals is the number of physical
+  // portals in the SoC
+  //
+  if (MaxPortals > MaxArchPortals) {
+    DEBUG ((DEBUG_ERROR, "QBman portal config error\n"));
+    MaxPortals = MaxArchPortals;
+  }
+
+  for (Index = 0; Index < MaxPortals; Index++) {
+    BeMmioWrite32 ((UINTN)PAddr, -1);
+    Value = BeMmioRead32 ((UINTN)PAddr);
+    if (!Value) {
+      DEBUG ((DEBUG_ERROR, "Stopped after %d portals\n", Index));
+      break;
+    }
+    PAddr += PortalSize;
+  }
+
+  return;
+}
+
+VOID
+SetQBManPortals (VOID)
+{
+  VOID *BmanPAddr;
+  VOID *QmanPAddr;
+
+  BmanPAddr = (VOID *)BMAN_CINH_BASE + BMAN_SWP_ISDR_REG;
+  QmanPAddr = (VOID *)QMAN_CINH_BASE + QMAN_SWP_ISDR_REG;
+
+  //
+  // It will change default state of BMan
+  // ISDR portals to all 1s
+  //
+  InhibitPs (BmanPAddr, BMAN_NUM_PORTALS, MAX_BMAN_PORTALS, BMAN_SP_CINH_SIZE);
+  InhibitPs (QmanPAddr, QMAN_NUM_PORTALS, MAX_QMAN_PORTALS, QMAN_SP_CINH_SIZE);
+}
 
 /**
    DPAA1 Ethernet Driver initialization entry point
@@ -1569,6 +1620,8 @@ Dpaa1EthernetInitialize (
   BOOLEAN Dpaa1Enabled = PcdGetBool(PcdDpaa1Initialize);
   UINT64 Dpaa1UsedMemacsMask = PcdGet64(PcdDpaa1UsedMemacsMask);
   VOID              *Fdt;
+
+  SetQBManPortals ();
 
   Status = EfiGetSystemConfigurationTable (&gFdtTableGuid, &Fdt);
   if (EFI_ERROR (Status)) {

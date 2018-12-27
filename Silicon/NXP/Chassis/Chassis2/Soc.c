@@ -27,6 +27,7 @@
 #include <Library/PrintLib.h>
 #include <Library/SerialPortLib.h>
 
+#include "Erratum.h"
 #include "Soc.h"
 
 /**
@@ -175,12 +176,30 @@ ConfigScfgMux (VOID)
                 CCSR_SCFG_USBPWRFAULT_USB1_SHIFT);
   BeMmioWrite32 ((UINTN)&Scfg->UsbPwrFaultSelCr, UsbPwrFault);
   BeMmioWrite32 ((UINTN)&Scfg->UsbPwrFaultSelCr, UsbPwrFault);
+}
 
-  /* Make SATA reads and writes snoopable */
-  MmioSetBitsBe32 (
-    (UINTN)&Scfg->SnpCnfGcr,
-    CCSR_SCFG_SNPCNFGCR_SATARDSNP | CCSR_SCFG_SNPCNFGCR_SATAWRSNP
-    );
+STATIC
+VOID
+ApplyErratums (
+  VOID
+  )
+{
+  CCSR_SCFG    *Scfg;
+   
+  Scfg = (VOID *)PcdGet64 (PcdScfgBaseAddr);
+
+  /* Make SEC, SATA and USB reads and writes snoopable */
+  MmioSetBitsBe32((UINTN)&Scfg->SnpCnfgCr, CCSR_SCFG_SNPCNFGCR_SECRDSNP |
+    CCSR_SCFG_SNPCNFGCR_SECWRSNP | CCSR_SCFG_SNPCNFGCR_USB1RDSNP |
+    CCSR_SCFG_SNPCNFGCR_USB1WRSNP | CCSR_SCFG_SNPCNFGCR_USB2RDSNP |
+    CCSR_SCFG_SNPCNFGCR_USB2WRSNP | CCSR_SCFG_SNPCNFGCR_USB3RDSNP |
+    CCSR_SCFG_SNPCNFGCR_USB3WRSNP | CCSR_SCFG_SNPCNFGCR_SATARDSNP |
+    CCSR_SCFG_SNPCNFGCR_SATAWRSNP);
+
+  ErratumA009008 ();
+  ErratumA009798 ();
+  ErratumA008997 ();
+  ErratumA009007 ();
 }
 
 /**
@@ -189,6 +208,7 @@ ConfigScfgMux (VOID)
   SoC Personality
   Board Personality
   RCW prints
+  Apply Erratas
  **/
 VOID
 SocInit (
@@ -199,6 +219,8 @@ SocInit (
   UINTN CharCount;
   CCSR_SCFG    *Scfg;
    
+  ApplyErratums ();
+
   Scfg = (VOID *)PcdGet64 (PcdScfgBaseAddr);
   SmmuInit ();
 
@@ -229,7 +251,7 @@ SocInit (
   //
   ConfigScfgMux ();
 
-   //Invert AQR105 IRQ pins interrupt polarity
+  //Invert AQR105 IRQ pins interrupt polarity
   MmioWriteBe32 ((UINTN)&Scfg->IntpCr, PcdGet32 (PcdScfgIntPol));
 
 

@@ -217,7 +217,7 @@ typedef struct {
   UINT32 GicAlign;
   UINT32 DebugIcid;
   UINT8  Res190[0x1a4-0x190];
-  UINT32 SnpCnfGcr;
+  UINT32 SnpCnfgCr;
 #define CCSR_SCFG_SNPCNFGCR_SECRDSNP         BIT31
 #define CCSR_SCFG_SNPCNFGCR_SECWRSNP         BIT30
 #define CCSR_SCFG_SNPCNFGCR_SATARDSNP        BIT23

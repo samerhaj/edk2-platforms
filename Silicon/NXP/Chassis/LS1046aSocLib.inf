@@ -39,6 +39,7 @@
 
 [Sources.common]
   Chassis.c
+  Chassis2/Erratum.c
   Chassis2/Soc.c
   SerDes.c
 
@@ -52,3 +53,6 @@
   gNxpQoriqLsTokenSpaceGuid.PcdScfgBaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdScfgIntPol
   gNxpQoriqLsTokenSpaceGuid.PcdMuxToUsb3
+  gNxpQoriqLsTokenSpaceGuid.PcdUsbPhy1BaseAddress
+  gNxpQoriqLsTokenSpaceGuid.PcdUsbPhy2BaseAddress
+  gNxpQoriqLsTokenSpaceGuid.PcdUsbPhy3BaseAddress

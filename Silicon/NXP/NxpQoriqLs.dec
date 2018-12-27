@@ -108,6 +108,9 @@
   # USB PCDs
   #
   gNxpQoriqLsTokenSpaceGuid.PcdNumUsbController|0|UINT32|0x00000170
+  gNxpQoriqLsTokenSpaceGuid.PcdUsbPhy1BaseAddress|0|UINT64|0x00000171
+  gNxpQoriqLsTokenSpaceGuid.PcdUsbPhy2BaseAddress|0|UINT64|0x00000172
+  gNxpQoriqLsTokenSpaceGuid.PcdUsbPhy3BaseAddress|0|UINT64|0x00000173
 
   #
   # PCI PCDs

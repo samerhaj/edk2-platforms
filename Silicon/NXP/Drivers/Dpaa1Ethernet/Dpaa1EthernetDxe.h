@@ -21,6 +21,28 @@
 #include <Protocol/SimpleNetwork.h>
 #include <Library/UefiLib.h>
 
+/* QBMAN Definitions */
+#define BMAN_SWP_ISDR_REG          0x3E80
+#define BMAN_NUM_PORTALS           10
+#define BMAN_MEM_BASE              0x508000000
+#define BMAN_MEM_SIZE              0x08000000
+#define BMAN_CINH_SIZE             (BMAN_MEM_SIZE >> 1)
+#define BMAN_SP_CINH_SIZE          0x10000
+#define BMAN_CENA_SIZE             (BMAN_MEM_SIZE >> 1)
+#define BMAN_CINH_BASE             (BMAN_MEM_BASE + BMAN_CENA_SIZE)
+
+#define QMAN_SWP_ISDR_REG          0x3680
+#define QMAN_NUM_PORTALS           10
+#define QMAN_MEM_BASE              0x500000000
+#define QMAN_MEM_SIZE              0x08000000
+#define QMAN_CINH_SIZE             (QMAN_MEM_SIZE >> 1)
+#define QMAN_SP_CINH_SIZE          0x10000
+#define QMAN_CENA_SIZE             (QMAN_MEM_SIZE >> 1)
+#define QMAN_CINH_BASE             (QMAN_MEM_BASE + QMAN_CENA_SIZE)
+
+#define MAX_BMAN_PORTALS           (BMAN_CINH_SIZE / BMAN_SP_CINH_SIZE)
+#define MAX_QMAN_PORTALS           (QMAN_CINH_SIZE / QMAN_SP_CINH_SIZE)
+
 typedef VOID
 SerDesProbeLanesCallBack(
   UINT8 LaneProtocol,

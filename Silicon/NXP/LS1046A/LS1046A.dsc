@@ -78,4 +78,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdQspiErratumA008886|TRUE
   gNxpQoriqLsTokenSpaceGuid.PcdSpiBusCount|2
 
+  gNxpQoriqLsTokenSpaceGuid.PcdUsbPhy1BaseAddress|0x084F0000
+  gNxpQoriqLsTokenSpaceGuid.PcdUsbPhy2BaseAddress|0x08500000
+  gNxpQoriqLsTokenSpaceGuid.PcdUsbPhy3BaseAddress|0x08510000
 ##
