@@ -160,4 +160,9 @@ QoriqCoreToCluster (
   IN UINTN Core
   );
 
+VOID
+ApplyErratum (
+  VOID
+  );
+
 #endif /* __CHASSIS_H__ */

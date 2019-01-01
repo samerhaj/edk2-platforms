@@ -150,6 +150,11 @@ SocInit (
   UINTN CharCount;
 
   //
+  // Erratum of SOC
+  //
+  ApplyErratum();
+
+  //
   // Initialize SMMU
   //
   SmmuInit ();

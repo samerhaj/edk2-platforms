@@ -40,6 +40,7 @@
 [Sources.common]
   Chassis.c
   Chassis3/Soc.c
+  ErrataCh3Vx.c
   SerDes.c
   SocHelper.S
 
@@ -53,3 +54,6 @@
   gNxpQoriqLsTokenSpaceGuid.PcdDdrClk
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McHighRamSize
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLowRamSize
+  gNxpQoriqLsTokenSpaceGuid.PcdI2c0BaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdI2cSize
+  gNxpQoriqLsTokenSpaceGuid.PcdNumI2cController

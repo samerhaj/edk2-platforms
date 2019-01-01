@@ -185,6 +185,9 @@ SocInit (
   CHAR8 Buffer[100];
   UINTN CharCount;
 
+  // Apply Erratum
+  ApplyErratum();
+
   //
   // Initialize SMMU
   //
