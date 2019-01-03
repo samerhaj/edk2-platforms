@@ -51,6 +51,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSpeed
   gNxpQoriqLsTokenSpaceGuid.PcdI2c0BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSize
+  gNxpQoriqLsTokenSpaceGuid.PcdPlatformFreqDiv
   gNxpQoriqLsTokenSpaceGuid.PcdNumI2cController
 
 [Depex]

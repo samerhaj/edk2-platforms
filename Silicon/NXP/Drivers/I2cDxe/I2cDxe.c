@@ -64,7 +64,7 @@ GetClkDiv (
   UINT32             Div;
   UINT8              ClkDivx;
 
-  ClkRate = GetBusFrequency ();
+  ClkRate = GetBusFrequency () / PcdGet32 (PcdPlatformFreqDiv);
 
   Div = (ClkRate + Rate - 1) / Rate;
 
@@ -250,8 +250,9 @@ InitTransfer (
   if (Alen >= 0) {
     while (Alen--) {
       Ret = TransferByte (I2cRegs, (Offset >> (Alen * 8)) & 0xff);
-      if (Ret != EFI_SUCCESS)
+      if (Ret != EFI_SUCCESS) {
         return Ret;
+	}
     }
   }
   return EFI_SUCCESS;
@@ -307,10 +308,6 @@ InitDataTransfer (
     }
 
     I2cStop (I2cRegs);
-
-    if (EFI_NOT_FOUND == Status) {
-      return Status;
-    }
 
     // Disable controller
     if (Status != EFI_NOT_READY) {
@@ -492,6 +489,8 @@ SetBusFrequency (
 
   MemoryFence ();
 
+  // Apply frequency change
+  MmioWrite8 ((UINTN)&I2cRegs->I2cSr, 0);
   return EFI_SUCCESS;
 }
 

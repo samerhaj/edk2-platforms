@@ -46,3 +46,4 @@
   gNxpQoriqLsTokenSpaceGuid.PcdNumI2cController
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSize
   gNxpQoriqLsTokenSpaceGuid.PcdI2cClock
+  gNxpQoriqLsTokenSpaceGuid.PcdPlatformFreqDiv
