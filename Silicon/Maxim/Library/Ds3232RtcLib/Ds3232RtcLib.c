@@ -42,6 +42,7 @@ STATIC EFI_EVENT                  mRtcVirtualAddrChangeEvent;
   @retval                      Register Value read
 
 **/
+
 STATIC
 UINT8
 RtcRead (
@@ -52,25 +53,35 @@ RtcRead (
   RTC_I2C_REQUEST          Req;
   EFI_STATUS               Status;
   UINT8                    Val;
+  UINT8                    Count;
 
-  Val = 0;
+  Count  = 0;
 
-  Req.OperationCount = 2;
+  // This is WA for RTC on some LS2 boards, value is read as 0xFF
+  // When reading again, it give correct value of RTC
+  // This is very rare but could leads to assert
+  // Normally seen once is 100+ reboot
+  do {
+    Val = 0;
 
-  Req.SetAddressOp.Flags = 0;
-  Req.SetAddressOp.LengthInBytes = sizeof (RtcRegAddr);
-  Req.SetAddressOp.Buffer = &RtcRegAddr;
+    Req.OperationCount = 2;
 
-  Req.GetSetDateTimeOp.Flags = I2C_FLAG_READ;
-  Req.GetSetDateTimeOp.LengthInBytes = sizeof (Val);
-  Req.GetSetDateTimeOp.Buffer = &Val;
+    Req.SetAddressOp.Flags = 0;
+    Req.SetAddressOp.LengthInBytes = sizeof (RtcRegAddr);
+    Req.SetAddressOp.Buffer = &RtcRegAddr;
 
-  Status = mI2cMaster->StartRequest (mI2cMaster, SlaveDeviceAddress,
+    Req.GetSetDateTimeOp.Flags = I2C_FLAG_READ;
+    Req.GetSetDateTimeOp.LengthInBytes = sizeof (Val);
+    Req.GetSetDateTimeOp.Buffer = &Val;
+
+    Status = mI2cMaster->StartRequest (mI2cMaster, SlaveDeviceAddress,
                                      (VOID *)&Req,
                                      NULL,  NULL);
-  if (EFI_ERROR (Status)) {
-    BOOTTIME_DEBUG ((DEBUG_ERROR, "RTC read error at Addr:0x%x\n", RtcRegAddr));
-  }
+    if (EFI_ERROR (Status)) {
+      BOOTTIME_DEBUG ((DEBUG_ERROR, "RTC read error at Addr:0x%x\n", RtcRegAddr));
+    }
+    Count++;
+  } while (Val == 0xff && Count < 10);
 
   return Val;
 }
@@ -153,10 +164,13 @@ LibGetTime (
   UINT8                         Day;
   UINT8                         Month;
   UINT8                         Year;
+  UINT8                         Control;
+  UINT8                         Stat;
 
   if (mI2cMaster == NULL) {
     return EFI_DEVICE_ERROR;
   }
+
 
   Status = EFI_SUCCESS;
 
@@ -168,6 +182,8 @@ LibGetTime (
     ConfigureMuxDevice (FixedPcdGet8 (PcdMuxRtcChannelValue));
   }
 
+  Control = RtcRead (FixedPcdGet8 (PcdI2cSlaveAddress), DS3232_CTL_REG_ADDR);
+  Stat = RtcRead (FixedPcdGet8 (PcdI2cSlaveAddress), DS3232_STAT_REG_ADDR);
   Second = RtcRead (FixedPcdGet8 (PcdI2cSlaveAddress), DS3232_SEC_REG_ADDR);
   Minute = RtcRead (FixedPcdGet8 (PcdI2cSlaveAddress), DS3232_MIN_REG_ADDR);
   Hour = RtcRead (FixedPcdGet8 (PcdI2cSlaveAddress), DS3232_HR_REG_ADDR);
@@ -175,11 +191,16 @@ LibGetTime (
   Month = RtcRead (FixedPcdGet8 (PcdI2cSlaveAddress), DS3232_MON_REG_ADDR);
   Year = RtcRead (FixedPcdGet8 (PcdI2cSlaveAddress), DS3232_YR_REG_ADDR);
 
-  if (Second & DS3232_SEC_BIT_CH) {
+
+  DEBUG((DEBUG_VERBOSE, "\nGet RTC year: %02x Month: %02x  Day: %02x "
+                 "hr: %02x min: %02x sec: %02x control: %02x status: %02x\n",
+                Year, Month, Day, Hour, Minute, Second, Control, Stat));
+
+  if (Stat & DS3232_SEC_BIT_CH) {
     BOOTTIME_DEBUG ((DEBUG_ERROR, "### Warning: RTC oscillator has stopped\n"));
     /* clear the CH flag */
-    RtcWrite (FixedPcdGet8 (PcdI2cSlaveAddress), DS3232_SEC_REG_ADDR,
-              RtcRead (FixedPcdGet8 (PcdI2cSlaveAddress), DS3232_SEC_REG_ADDR) & ~DS3232_SEC_BIT_CH);
+    RtcWrite (FixedPcdGet8 (PcdI2cSlaveAddress), DS3232_STAT_REG_ADDR,
+              RtcRead (FixedPcdGet8 (PcdI2cSlaveAddress), DS3232_STAT_REG_ADDR) & ~DS3232_SEC_BIT_CH);
     Status = EFI_DEVICE_ERROR;
     goto EXIT;
   }
