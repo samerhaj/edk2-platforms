@@ -108,6 +108,10 @@ SendCmd (
   DEBUG_MSG ("0x%x : Cmd.Id %d, Arg 0x%x SdCmd.RespType 0x%x\n",
               Regs, Cmd->CmdIdx, Cmd->CmdArg, Cmd->RespType);
 
+  if (Cmd->CmdIdx == 12) {
+    return EFI_SUCCESS;
+  }
+
   MmcWrite ((UINTN)&Regs->Irqstat, 0xFFFFFFFF);
 
   asm ("Dmb :");

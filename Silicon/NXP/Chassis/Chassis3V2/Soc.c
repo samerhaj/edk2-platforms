@@ -169,7 +169,7 @@ GetSysInfo (
     CplxPll += CcGroup[Cluster];
     PtrSysInfo->FreqProcessor[Cpu] = FreqCPll[CplxPll] / CoreCplxPllDivisor[CPllSel];
   }
-  PtrSysInfo->FreqSdhc = PtrSysInfo->FreqSystemBus/PcdGet32 (PcdPlatformFreqDiv);
+  PtrSysInfo->FreqSdhc = PtrSysInfo->FreqSystemBus/2;
 }
 
 /**

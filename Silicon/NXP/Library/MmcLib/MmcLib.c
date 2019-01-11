@@ -267,6 +267,7 @@ SdxcXfertype (
     if (Data->Blocks > 1) {
       Xfertype |= XFERTYPE_MSBSEL;
       Xfertype |= XFERTYPE_BCEN;
+      Xfertype |= XFERTYPE_AC12EN;
     }
 
     if (Data->Flags & MMC_DATA_READ) {
@@ -347,7 +348,7 @@ SdxcSetupData (
   MmcWrite ((UINTN)&Regs->Blkattr, Data->Blocks << 16 | Data->Blocksize);
 
   // Calculate the timeout period for data transactions
-  Timeout = GenericFls (mMmc->Clock/4) - 13;
+  Timeout = GenericFls (mMmc->Clock/2) - 13;
 
   if (Timeout > 14) {
     Timeout = 14;
@@ -420,12 +421,15 @@ Transfer (
     Irqstat = MmcRead ((UINTN)&Regs->Irqstat);
 
     if (Irqstat & IRQSTATE_DTOE) {
+      DEBUG ((DEBUG_ERROR, "Mmc R/W Data Timeout 0x%x \n", Irqstat));
       DumpMmcRegs (BaseAddress);
       ResetCmdFailedData (Regs, 1);
       return EFI_TIMEOUT;
     }
 
     if (Irqstat & DATA_ERR) {
+      DEBUG ((DEBUG_ERROR, "Mmc R/W Data error 0x%x \n", Irqstat));
+      DumpMmcRegs (BaseAddress);
       ResetCmdFailedData (Regs, 1);
       return EFI_DEVICE_ERROR;
     }
@@ -480,10 +484,11 @@ SetSysctl (
     PreDiv = 2;
   }
 
-  for (Div = 1; Div <= 16; Div++)
+  for (Div = 1; Div <= 16; Div++) {
     if ((SdhcClk / (Div * PreDiv)) <= Clock) {
       break;
     }
+  }
 
   PreDiv >>= mMmc->DdrMode ? DIV_2 : DIV_1;
   Div -= 1;
