@@ -21,7 +21,9 @@
 #include <Library/ArmPlatformLib.h>
 #include <Ppi/ArmMpCoreInfo.h>
 
-extern VOID SocInit (VOID);
+#define AQUANTIA405_IRQ_MASK       0x36
+
+extern VOID SocInit (UINT32 ExternITMask);
 
 /**
   Return the current Boot Mode
@@ -46,7 +48,8 @@ ArmPlatformInitialize (
   IN  UINTN   MpId
   )
 {
- SocInit ();
+  // On board, AQR IRQ polarity needs to be inverted
+  SocInit (AQUANTIA405_IRQ_MASK);
 
  return EFI_SUCCESS;
 }

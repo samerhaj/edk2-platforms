@@ -16,6 +16,7 @@
 #include <Base.h>
 #include <Chassis.h>
 #include <DramInfo.h>
+#include <Library/ArmLib.h>
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib/MemLibInternals.h>
 #include <Library/DebugLib.h>
@@ -136,6 +137,64 @@ GetSysInfo (
   PtrSysInfo->FreqSdhc = PtrSysInfo->FreqSystemBus/PcdGet32 (PcdPlatformFreqDiv);
 }
 
+STATIC VOID ErratumA008751 (
+  VOID
+  )
+{
+  MmioWrite32((UINTN)(SCFG_BASE_ADDR + SCFG_USB3PRM1CR / 4), SCFG_USB3PRM1CR_INIT);
+}
+
+STATIC VOID  ErratumA009008 (
+  VOID
+  )
+{
+  UINT32 *Scfg = (VOID *)(SCFG_BASE_ADDR);
+  UINT32 Val = MmioRead32((UINTN)(Scfg + SCFG_USB3PRM1CR / 4));
+  Val &= ~(0xF << 6);
+  MmioWrite32((UINTN)(Scfg + SCFG_USB3PRM1CR / 4), Val|(USB_TXVREFTUNE << 6));
+}
+
+STATIC VOID ErratumA009798 (
+  VOID
+  )
+{
+  UINT32 *Scfg = (VOID *)(SCFG_BASE_ADDR);
+  UINT32 Val = MmioRead32((UINTN)(Scfg + SCFG_USB3PRM1CR / 4));
+  MmioWrite32((UINTN)(Scfg + SCFG_USB3PRM1CR / 4), Val & USB_SQRXTUNE);
+}
+
+/*
+  * A-009007: USB3PHY observing intermittent failure in receive compliance tests at
+  * higher jitter frequency using default register values
+  * Affects: USB
+  * Description: Receive compliance tests may fail intermittently at high jitter frequencies using default register
+  * values.
+  * Impact: Receive compliance test fails at default register setting.
+*/
+STATIC VOID ErratumA009007 (
+  VOID
+  )
+{
+  VOID *UsbPhyRxOvrdInHi = (VOID *)(DCSR_BASE + DCSR_USB_PHY1 + DCSR_USB_PHY_RX_OVRD_IN_HI);
+  ArmDataMemoryBarrier();
+  MmioWrite16((UINTN)UsbPhyRxOvrdInHi, USB_PHY_RX_EQ_VAL_1);
+  ArmDataMemoryBarrier();
+  MmioWrite16((UINTN)UsbPhyRxOvrdInHi, USB_PHY_RX_EQ_VAL_2);
+  ArmDataMemoryBarrier();
+  MmioWrite16((UINTN)UsbPhyRxOvrdInHi, USB_PHY_RX_EQ_VAL_3);
+  ArmDataMemoryBarrier();
+  MmioWrite16((UINTN)UsbPhyRxOvrdInHi, USB_PHY_RX_EQ_VAL_4);
+  UsbPhyRxOvrdInHi = (VOID *)(DCSR_BASE + DCSR_USB_PHY2 + DCSR_USB_PHY_RX_OVRD_IN_HI);
+  ArmDataMemoryBarrier();
+  MmioWrite16((UINTN)UsbPhyRxOvrdInHi, USB_PHY_RX_EQ_VAL_1);
+  ArmDataMemoryBarrier();
+  MmioWrite16((UINTN)UsbPhyRxOvrdInHi, USB_PHY_RX_EQ_VAL_2);
+  ArmDataMemoryBarrier();
+  MmioWrite16((UINTN)UsbPhyRxOvrdInHi, USB_PHY_RX_EQ_VAL_3);
+  ArmDataMemoryBarrier();
+  MmioWrite16((UINTN)UsbPhyRxOvrdInHi, USB_PHY_RX_EQ_VAL_4);
+}
+
 /**
   Perform the early initialization.
   This function is called by the ArmPlatformPkg/Pei or ArmPlatformPkg/Pei/PlatformPeim
@@ -143,7 +202,7 @@ GetSysInfo (
 **/
 VOID
 SocInit (
-  VOID
+  UINT32 ExternalITPolarity
   )
 {
   CHAR8 Buffer[100];
@@ -152,7 +211,14 @@ SocInit (
   //
   // Erratum of SOC
   //
+  // Common erratum with V3.x
   ApplyErratum();
+
+  // USB Erratum
+  ErratumA008751();
+  ErratumA009008();
+  ErratumA009798();
+  ErratumA009007();
 
   //
   // Initialize SMMU
@@ -196,6 +262,14 @@ SocInit (
   // Print Board Personality information
   //
   PrintBoardPersonality ();
+
+  //
+  // Set board specific IT ploarity
+  //
+  if (ExternalITPolarity !=0 ) {
+      MmioWrite32 ((UINTN)(INT_SAMPLING_CTRL_BASE + IRQCR_OFFSET),
+                   ExternalITPolarity);
+  }
 }
 
 VOID

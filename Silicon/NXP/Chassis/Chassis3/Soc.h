@@ -40,6 +40,27 @@
 #define SMMU_REG_NSCR0               (SMMU_BASE_ADDR + 0x400)
 #define SMMU_REG_NSACR               (SMMU_BASE_ADDR + 0x410)
 
+#define SCFG_BASE_ADDR               0x1FC0000
+#define SCFG_USB3PRM1CR              0x000
+#define SCFG_USB3PRM2CR              0x004
+#define SCFG_USB3PRM1CR_INIT         0x27672b2a
+#define USB_TXVREFTUNE               0x9
+#define USB_SQRXTUNE                 0xFC7FFFFF
+#define USB_PCSTXSWINGFULL           0x47
+#define DCSR_BASE                    0x700000000ULL
+#define DCSR_USB_PHY1                0x4600000
+#define DCSR_USB_PHY2                0x4610000
+#define DCSR_USB_PHY_RX_OVRD_IN_HI   0x1006
+#define USB_PHY_RX_EQ_VAL_1          0x0000
+#define USB_PHY_RX_EQ_VAL_2          0x0080
+#define USB_PHY_RX_EQ_VAL_3          0x0380
+#define USB_PHY_RX_EQ_VAL_4          0x0b80
+
+/* Interrupt Sampling Control */
+#define INT_SAMPLING_CTRL_BASE        0x01F70000
+#define IRQCR_OFFSET                  0x14
+
+
 #define SACR_PAGESIZE_MASK           0x00010000
 #define SCR0_CLIENTPD_MASK           0x00000001
 #define SCR0_USFCFG_MASK             0x00000400
