@@ -28,7 +28,7 @@
 
 [LibraryClasses]
   PcdLib
-  SocLib
+  SocClockLib
 
 [Packages]
   MdeModulePkg/MdeModulePkg.dec
@@ -38,4 +38,3 @@
 [Pcd]
   gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase
   gEfiMdePkgTokenSpaceGuid.PcdUartDefaultBaudRate
-  gNxpQoriqLsTokenSpaceGuid.PcdPlatformFreqDiv

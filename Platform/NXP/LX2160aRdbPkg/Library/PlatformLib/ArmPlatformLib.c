@@ -22,7 +22,6 @@
 #include <Ppi/ArmMpCoreInfo.h>
 
 extern VOID SocInit (VOID);
-EFI_STATUS EFIAPI FpgaInterfaceInit ();
 
 /**
   Return the current Boot Mode
@@ -47,7 +46,6 @@ ArmPlatformInitialize (
   IN  UINTN   MpId
   )
 {
-  (VOID)FpgaInterfaceInit();
   SocInit ();
   return EFI_SUCCESS;
 }

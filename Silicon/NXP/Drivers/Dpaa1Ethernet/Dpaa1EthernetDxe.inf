@@ -44,6 +44,7 @@
   HobLib
   NetLib
   PcdLib
+  SocLib
   UefiDriverEntryPoint
 #  SysEepromLib
 

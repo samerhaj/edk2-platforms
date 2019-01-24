@@ -136,8 +136,6 @@ GetSysInfo (
     DEBUG ((DEBUG_WARN, "Error: Unknown FMan1 clock select!\n"));
     break;
   }
-  PtrSysInfo->FreqSdhc = PtrSysInfo->FreqSystemBus/PcdGet32 (PcdPlatformFreqDiv);
-  PtrSysInfo->FreqQman = PtrSysInfo->FreqSystemBus/PcdGet32 (PcdPlatformFreqDiv);
 }
 
 /**

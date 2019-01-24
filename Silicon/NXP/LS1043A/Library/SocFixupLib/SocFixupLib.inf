@@ -37,6 +37,7 @@
   DebugLib
   DxeServicesLib
   FdtLib
+  SocLib
 
 [FixedPcd]
   gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr

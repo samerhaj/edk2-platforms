@@ -119,10 +119,4 @@
 #define USCR         0x7
 #define UDSR         0x10
 
-extern
-UINT64
-GetBusFrequency (
-  VOID
-  );
-
 #endif /* __DUART_H__ */

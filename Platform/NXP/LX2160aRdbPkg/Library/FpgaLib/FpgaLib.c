@@ -23,7 +23,6 @@
 #include <Library/FpgaLib.h>
 #include <Library/I2c.h>
 
-STATIC BOOLEAN I2CInitDone;
 /**
    Function to read FPGA register.
 
@@ -36,10 +35,6 @@ FpgaRead (
   )
 {
   UINT8 Val;
-
-  if (!I2CInitDone) {
-    (VOID)FpgaInterfaceInit ( );
-  }
 
   I2cDataRead (QIXIS_BASE_I2C_BUS, QIXIS_BASE_I2C_ADR, Reg, 1, &Val, 1);
   return Val;
@@ -58,10 +53,6 @@ FpgaWrite (
   IN  UINT8  Value
   )
 {
-  if (!I2CInitDone) {
-    (VOID)FpgaInterfaceInit ( );
-  }
-
   I2cDataWrite (QIXIS_BASE_I2C_BUS, QIXIS_BASE_I2C_ADR, Reg, 1, &Value, 1);
 }
 
@@ -109,17 +100,4 @@ PrintBoardPersonality (
 
   DEBUG ((DEBUG_INFO, "FPGA: v%d.%d\n", FPGA_READ (Ver),
         FPGA_READ (Minor)));
-}
-
-EFI_STATUS
-EFIAPI
-FpgaInterfaceInit (
-  )
-{
-  if (!I2CInitDone) {
-    I2cBusInit (QIXIS_BASE_I2C_BUS, QIXIS_BASE_I2C_SPEED);
-  }
-
-  I2CInitDone = TRUE;
-  return EFI_SUCCESS;
 }

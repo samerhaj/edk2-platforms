@@ -36,6 +36,7 @@ typedef enum {
   IP_SATA,
   IP_QMAN,
   IP_BMAN,
+  IP_PL011,
   IP_MAX
 } IP_MODULES;
 

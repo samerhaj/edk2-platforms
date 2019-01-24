@@ -22,6 +22,7 @@
 #include <Library/IoLib.h>
 #include <Library/PcdLib.h>
 #include <Library/SerialPortLib.h>
+#include <Library/SocClockLib.h>
 
 #include "DUart.h"
 
@@ -175,10 +176,8 @@ CalculateBaudDivisor (
   )
 {
   UINTN DUartClk;
-  UINTN FreqSystemBus;
 
-  FreqSystemBus = GetBusFrequency ();
-  DUartClk = FreqSystemBus/PcdGet32(PcdPlatformFreqDiv);
+  DUartClk = SocGetClock (IP_DUART, 0);
 
   return ((DUartClk)/(BaudRate * 16));
 }

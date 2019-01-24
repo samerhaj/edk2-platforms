@@ -212,6 +212,4 @@ ReadBlock (
   IN  MMC_CMD_INFO Cmd
   );
 
-extern UINT64 GetSdxcFrequency();
-
 #endif

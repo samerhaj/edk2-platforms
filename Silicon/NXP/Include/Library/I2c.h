@@ -19,7 +19,6 @@
 #include <Uefi.h>
 #include <Library/TimerLib.h>
 
-
 ///
 /// Define the I2C flags
 ///
@@ -47,9 +46,14 @@
 #define BUS_BUSY              (I2C_SR_IBB | (I2C_SR_IBB << 8))
 #define IIF                   (I2C_SR_IIF | (I2C_SR_IIF << 8))
 
-#ifndef ARRAY_SIZE
-#define ARRAY_SIZE (x) (sizeof (x) / sizeof ( (x)[0]))
-#endif
+#define I2C_IFDR_EARLY_DIV    0x7E
+
+#define I2C1                  0
+#define I2C2                  1
+#define I2C3                  2
+#define I2C4                  3
+
+#define I2C_SPEED             100000
 
 /**
   Record defining i2c registers
@@ -230,6 +234,20 @@ VOID
 EFIAPI
 I2cBusVirtualNotify (
   IN   UINT32  I2cBus
+  );
+
+/**
+  Function to early initialize i2c bus to prepare read the clock through i2c
+
+  @param   I2cBus     I2c Controller number
+  @param   Speed      Value to be set
+
+  @retval  EFI_SUCCESS
+**/
+VOID
+EFIAPI
+I2cBusEarlyInit (
+  IN   UINT32    I2cBus
   );
 
 #endif

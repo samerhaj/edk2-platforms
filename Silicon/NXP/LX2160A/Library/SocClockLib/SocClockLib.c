@@ -107,6 +107,10 @@ SocGetClock (
     case IP_ESDHC:
       ReturnValue = PlatformClk >> 1;
       break;
+    case IP_I2C:
+    case IP_PL011:
+      ReturnValue = PlatformClk >> 2;
+      break;
     default:
       break;
   }

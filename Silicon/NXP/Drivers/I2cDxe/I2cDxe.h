@@ -58,10 +58,4 @@ typedef struct {
   UINT8     I2cDr;
 } I2C_REGS ;
 
-extern
-UINT64
-GetBusFrequency (
-  VOID
-  );
-
 #endif

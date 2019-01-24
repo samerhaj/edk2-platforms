@@ -134,7 +134,6 @@ GetSysInfo (
     CplxPll += CcGroup[Cluster] - 1;
     PtrSysInfo->FreqProcessor[Cpu] = FreqCPll[CplxPll] / CoreCplxPllDivisor[CPllSel];
   }
-  PtrSysInfo->FreqSdhc = PtrSysInfo->FreqSystemBus/PcdGet32 (PcdPlatformFreqDiv);
 }
 
 STATIC VOID ErratumA008751 (
@@ -283,7 +282,7 @@ UpdateDpaaDram (
     DramInfo->DramRegion[0].Size -= FixedPcdGet64 (PcdDpaa2McLowRamSize);
     //
     // To align address boundary with DPAA2 requirements
-    // 
+    //
     DramInfo->DramRegion[0].Size &= 0xE0000000;
   }
 

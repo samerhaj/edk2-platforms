@@ -16,6 +16,7 @@
 #include <Library/DebugLib.h>
 #include <Library/DxeServicesTableLib.h>
 #include <Library/IoLib.h>
+#include <Library/SocClockLib.h>
 #include <Library/TimerLib.h>
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/UefiLib.h>
@@ -64,7 +65,7 @@ GetClkDiv (
   UINT32             Div;
   UINT8              ClkDivx;
 
-  ClkRate = GetBusFrequency () / PcdGet32 (PcdPlatformFreqDiv);
+  ClkRate = SocGetClock (IP_I2C, 0);
 
   Div = (ClkRate + Rate - 1) / Rate;
 

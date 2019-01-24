@@ -20,11 +20,7 @@
 #include <Library/I2c.h>
 #include <Library/IoLib.h>
 #include <Library/PcdLib.h>
-
-UINT32 I2cBusAddrArr(EFI_PHYSICAL_ADDRESS **I2cAddrArr);
-
-EFI_PHYSICAL_ADDRESS *I2cAddrArr;
-UINT32 I2cAddrArrSize;
+#include <Library/SocClockLib.h>
 
 EFI_PHYSICAL_ADDRESS I2cAddress[] = {
   (EFI_PHYSICAL_ADDRESS)(FixedPcdGet64 (PcdI2c0BaseAddr)),
@@ -52,21 +48,6 @@ UINT16 ClkDiv[60][2] = {
   { 3840, 0x3F }, { 4096, 0x7B }, { 5120, 0x7D }, { 6144, 0x7E },
 };
 
-extern
-UINT64
-GetBusFrequency (
-  VOID
-  );
-
-UINT32
-I2cBusAddrArr(
-  EFI_PHYSICAL_ADDRESS **Arr
-  )
-{
-  *Arr = (EFI_PHYSICAL_ADDRESS*)I2cAddress;
-  return FixedPcdGet32 (PcdNumI2cController);
-}
-
 /**
   Calculate and set proper clock divider
 
@@ -80,13 +61,11 @@ GetClk(
   IN   UINT32    Rate
   )
 {
-  UINTN ClkRate;
-  UINT32 Div;
-  UINT8 ClkDivx;
+  UINTN          ClkRate;
+  UINT32         Div;
+  UINT8          ClkDivx;
 
-  ClkRate = FixedPcdGet32 (PcdI2cClock) ?
-                 FixedPcdGet32 (PcdI2cClock) :
-                 GetBusFrequency () / PcdGet32 (PcdPlatformFreqDiv);
+  ClkRate = SocGetClock (IP_I2C, 0);
 
   Div = (ClkRate + Rate - 1) / Rate;
   if (Div < ClkDiv[0][0])
@@ -112,7 +91,9 @@ I2cReset (
   UINT32 I2cBus
   )
 {
-  struct I2cRegs *I2cRegs = (struct I2cRegs *)I2cAddrArr[I2cBus];
+  struct I2cRegs *I2cRegs;
+ 
+  I2cRegs = (struct I2cRegs *)I2cAddress[I2cBus];
 
   /** Reset module */
   MmioWrite8((UINTN)&I2cRegs->I2cCr, I2C_CR_IDIS);
@@ -134,10 +115,12 @@ I2cSetBusSpeed (
   IN   UINT32  Speed
   )
 {
-  struct I2cRegs *I2cRegs = (struct I2cRegs *)I2cAddrArr[I2cBus];
-  ASSERT(I2cRegs);
+  struct I2cRegs *I2cRegs;
+ 
   UINT8 ClkId = GetClk(Speed);
   UINT8 SpeedId = ClkDiv[ClkId][1];
+
+  I2cRegs = (struct I2cRegs *)I2cAddress[I2cBus];
 
   /** Store divider value */
   MmioWrite8((UINTN)&I2cRegs->I2cFdr, SpeedId);
@@ -405,8 +388,9 @@ I2cDataRead (
   EFI_STATUS Ret;
   UINT32 Temp;
   INT32 i;
-  struct I2cRegs *I2cRegs = (struct I2cRegs *)I2cAddrArr[I2cBus];
-  ASSERT(I2cRegs);
+  struct I2cRegs *I2cRegs;
+
+  I2cRegs = (struct I2cRegs *)I2cAddress[I2cBus];
   Ret = InitDataTransfer(I2cRegs, Chip, Offset, Alen);
   if (Ret != EFI_SUCCESS)
     return Ret;
@@ -487,8 +471,9 @@ I2cDataWrite (
 {
   EFI_STATUS Ret;
   INT32 I;
-  struct I2cRegs *I2cRegs = (struct I2cRegs *)I2cAddrArr[I2cBus];
-  ASSERT(I2cRegs);
+  struct I2cRegs *I2cRegs;
+ 
+  I2cRegs = (struct I2cRegs *)I2cAddress[I2cBus];
 
   Ret = InitDataTransfer(I2cRegs, Chip, Offset, Alen);
   if (Ret != EFI_SUCCESS)
@@ -521,10 +506,27 @@ I2cProbeDevices (
   IN   UINT8    ChipAdd
   )
 {
-  ASSERT(I2cAddrArr);
-  if(I2c >= I2cAddrArrSize || I2cAddrArr[I2c] == 0x0)
-  return EFI_INVALID_PARAMETER;
  return I2cDataWrite(I2c, ChipAdd, 0, 0, NULL, 0);
+}
+
+/**
+  Function to early initialize i2c bus to prepare read the clock through i2c
+  @param   I2cBus                  I2c Controller number
+  @param   Speed                   value to be set
+**/
+VOID
+EFIAPI
+I2cBusEarlyInit (
+  IN   UINT32  I2cBus
+  )
+{
+  struct I2cRegs *I2cRegs;
+ 
+  I2cRegs = (struct I2cRegs *)I2cAddress[I2cBus];
+
+  /** Store divider value */
+  MmioWrite8((UINTN)&I2cRegs->I2cFdr, I2C_IFDR_EARLY_DIV);
+  I2cReset(I2cBus);
 }
 
 /**
@@ -539,6 +541,5 @@ I2cBusInit (
   IN   UINT32  Speed
   )
 {
-  I2cAddrArrSize = I2cBusAddrArr(&I2cAddrArr);
   return I2cSetBusSpeed(I2cBus, Speed);
 }

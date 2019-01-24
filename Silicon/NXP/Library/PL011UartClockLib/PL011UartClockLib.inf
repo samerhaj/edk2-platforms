@@ -28,7 +28,6 @@
   PL011UartClockLib.c
 
 [LibraryClasses]
-  SocLib
+  SocClockLib
 
 [Pcd]
-  gNxpQoriqLsTokenSpaceGuid.PcdPlatformFreqDiv

@@ -28,7 +28,7 @@
   BaseMemoryLib
   BeIoLib
   DmaLib
-  SocLib
+  SocClockLib
 
 [Packages]
   EmbeddedPkg/EmbeddedPkg.dec

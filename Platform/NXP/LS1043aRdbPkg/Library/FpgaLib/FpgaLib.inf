@@ -30,6 +30,7 @@
 [LibraryClasses]
   BaseLib
   IoLib
+  SocLib
 
 [FixedPcd]
   gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr

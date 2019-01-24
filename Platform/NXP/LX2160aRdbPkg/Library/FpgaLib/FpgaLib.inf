@@ -17,7 +17,6 @@
   MODULE_TYPE                    = BASE
   VERSION_STRING                 = 1.0
   LIBRARY_CLASS                  = FpgaLib
-  CONSTRUCTOR                    = FpgaInterfaceInit
 
 [Sources.common]
   FpgaLib.c

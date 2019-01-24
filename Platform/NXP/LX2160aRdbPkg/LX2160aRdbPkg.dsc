@@ -95,7 +95,6 @@
   gNxpQoriqLsTokenSpaceGuid.PcdI2cBus|4
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSpeed|100000
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSlaveAddress|0x51
-  gNxpQoriqLsTokenSpaceGuid.PcdI2cClock|200000000
 
   gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cBus|0
   gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cAddress|0x57

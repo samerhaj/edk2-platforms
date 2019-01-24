@@ -13,17 +13,13 @@
 **/
 
 #include <Base.h>
+#include <Library/SocClockLib.h>
 
 /**
   Return clock in for PL011 Uart IP
 
   @return Pcd PL011UartClkInHz
 **/
-extern
-UINT64
-GetBusFrequency (
-  VOID
-  );
 
 UINT32
 EFIAPI
@@ -31,5 +27,5 @@ PL011UartClockGetFreq (
   VOID
   )
 {
-  return GetBusFrequency () / PcdGet32(PcdPlatformFreqDiv);
+  return SocGetClock (IP_PL011, 0);
 }

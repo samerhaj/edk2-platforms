@@ -149,8 +149,6 @@ PrintBoardPersonality (
 
 #define QIXIS_BASE_I2C_BUS            0
 #define QIXIS_BASE_I2C_ADR            0x66
-#define QIXIS_BASE_I2C_SPEED          100000
-
 
 //SYSCLK
 #define FPGA_CLK_MASK            0x03     // FPGA Clock Mask

@@ -19,6 +19,7 @@
 #include <Library/BaseLib.h>
 #include <Library/BaseMemoryLib/MemLibInternals.h>
 #include <Library/DebugLib.h>
+#include <Library/I2c.h>
 #include <Library/IfcLib.h>
 #include <Library/IoLib.h>
 #include <Library/PcdLib.h>
@@ -194,9 +195,14 @@ SocInit (
   SmmuInit ();
 
   //
-  //  Initialize the Serial Port.
-  //  Early serial port initialization is required to print RCW, Soc and CPU infomation at
-  //  the begining of UEFI boot.
+  // Early init i2c, needed to read Fpga register for Serial initialization.
+  //
+  I2cBusEarlyInit (I2C1);
+
+  //
+  // Initialize the Serial Port.
+  // Early serial port initialization is required to print RCW, Soc and CPU infomation at
+  // the begining of UEFI boot.
   //
   SerialPortInitialize ();
 

@@ -268,36 +268,6 @@ PrintCpuInfo (
 }
 
 /*
- * Return system bus frequency
- */
-UINT64
-GetBusFrequency (
-   VOID
-  )
-{
-  SYS_INFO SocSysInfo;
-
-  GetSysInfo (&SocSysInfo);
-
-  return SocSysInfo.FreqSystemBus;
-}
-
-/*
- * Return SDXC bus frequency
- */
-UINT64
-GetSdxcFrequency (
-   VOID
-  )
-{
-  SYS_INFO SocSysInfo;
-
-  GetSysInfo (&SocSysInfo);
-
-  return SocSysInfo.FreqSdhc;
-}
-
-/*
  * Print Soc information
  */
 VOID

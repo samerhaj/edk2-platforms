@@ -19,6 +19,7 @@
 #include <Library/BeIoLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/MmcLib.h>
+#include <Library/SocClockLib.h>
 #include <Library/TimerLib.h>
 #include <Protocol/MmcHost.h>
 
@@ -525,7 +526,7 @@ MmcInitialize (
 
   InternalMemZeroMem (mMmc, sizeof (MMC));
 
-  mMmc->SdhcClk = GetSdxcFrequency ();
+  mMmc->SdhcClk = SocGetClock (IP_ESDHC, 0);
 
   mMmc->HostCaps = MMC_MODE_4_BIT | MMC_MODE_8_BIT | MMC_MODE_HC;
 

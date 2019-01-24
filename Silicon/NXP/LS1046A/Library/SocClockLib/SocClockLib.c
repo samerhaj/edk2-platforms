@@ -74,6 +74,7 @@ SocGetClock (
     case IP_DUART:
     case IP_ESDHC:
     case IP_QMAN:
+    case IP_I2C:
       ReturnValue = ((UINT64)Rcw->SysPllRat * SysClkHz) >> 1;
       break;
     case IP_QSPI:
