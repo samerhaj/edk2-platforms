@@ -103,6 +103,13 @@
 #define SATA3_IT_2 133
 #define SATA3_IT_3 134
 
+//USB
+#define USB0_BASE 0x3100000
+#define USB1_BASE 0x3110000
+#define USB_LEN   0x10000
+#define USB0_IT   112
+#define USB1_IT   113
+
 // DSPI
 #define SPI0_BASE 0x2100000
 #define SPI1_BASE 0x2110000

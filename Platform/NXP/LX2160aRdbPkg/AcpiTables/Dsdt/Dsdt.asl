@@ -3,7 +3,7 @@
 
   Copyright (c) 2014, ARM Ltd. All rights reserved.<BR>
   Copyright (c) 2015, Linaro Limited. All rights reserved.<BR>
-  Copyright 2017-2018 NXP
+  Copyright 2017-2019 NXP
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -27,4 +27,5 @@ DefinitionBlock("DsdtTable.aml", "DSDT", 1, "NXP  ", "LX2160  ", EFI_ACPI_ARM_OE
   include ("I2c.asl")
   include ("Sata.asl")
   include ("SPI.asl")
+  include ("Usb.asl")
 }
