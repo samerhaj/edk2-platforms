@@ -197,6 +197,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdDisableMcLogging|FALSE|BOOLEAN|0x00000202
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McHighRamSize|0x0|UINT64|0x00000203
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLowRamSize|0x0|UINT64|0x00000204
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2PhyAutoNegWait|FALSE|BOOLEAN|0x00000205
 
   #
   # NV Pcd

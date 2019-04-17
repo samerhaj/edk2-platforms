@@ -35,3 +35,4 @@
 [FixedPcd]
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2CortinaFwNorAddr
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2CortinaFwMaxLen
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2PhyAutoNegWait

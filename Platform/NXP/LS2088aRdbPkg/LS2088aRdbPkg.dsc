@@ -126,6 +126,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McBootTimeoutMs|200000
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2UsedDpmacsMask|0xff
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2McLogMcDramOffset|0x1000000
+  gNxpQoriqLsTokenSpaceGuid.PcdDpaa2PhyAutoNegWait|FALSE
 
   # Valid values for PcdDpaa2McLogLevel:
   # - 0x01: LOG_LEVEL_DEBUG

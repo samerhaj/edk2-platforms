@@ -99,45 +99,45 @@ AquantiaPhyStartup (
   Dpaa2Phy->FullDuplex = TRUE;
   Dpaa2Phy->AutoNegotiation = TRUE;
 
-  /*
-   * If the auto-negotiation is still in progress, wait:
-   *
-   * NOTE: Read twice because link state is latched and a
-   * read moves the current state into the register
-   */
-  (VOID)Dpaa2PhyRegisterRead (Dpaa2Phy,
-                             MDIO_CTL_DEV_AUTO_NEGOTIATION,
-                             PHY_STATUS_REG);
+  if (FixedPcdGetBool (PcdDpaa2PhyAutoNegWait)) {
+    /*
+     * NOTE: Read twice because link state is latched and a
+     * read moves the current state into the register
+     */
+    (VOID)Dpaa2PhyRegisterRead (Dpaa2Phy,
+        MDIO_CTL_DEV_AUTO_NEGOTIATION,
+        PHY_STATUS_REG);
 
-  PhyRegValue = Dpaa2PhyRegisterRead (Dpaa2Phy,
-                                     MDIO_CTL_DEV_AUTO_NEGOTIATION,
-                                     PHY_STATUS_REG);
+    PhyRegValue = Dpaa2PhyRegisterRead (Dpaa2Phy,
+        MDIO_CTL_DEV_AUTO_NEGOTIATION,
+        PHY_STATUS_REG);
 
-  if (!(PhyRegValue & PHY_STATUS_AUTO_NEGOTIATION_COMPLETE)) {
-    DPAA_DEBUG_MSG ("Waiting for PHY (PHY address: 0x%x) auto negotiation to complete ",
-                    Dpaa2Phy->PhyAddress);
-    for (I = 0; I < PHY_AUTO_NEGOTIATION_TIMEOUT; I ++) {
-      MicroSecondDelay (1000);
-      PhyRegValue = Dpaa2PhyRegisterRead (Dpaa2Phy,
-                                         MDIO_CTL_DEV_AUTO_NEGOTIATION,
-                                         PHY_STATUS_REG);
-      if (I % 500 == 0) {
-        DPAA_DEBUG_MSG_NO_PREFIX (".");
+    if (!(PhyRegValue & PHY_STATUS_AUTO_NEGOTIATION_COMPLETE)) {
+      DPAA_DEBUG_MSG ("Waiting for PHY (PHY address: 0x%x) auto negotiation to complete ",
+          Dpaa2Phy->PhyAddress);
+      for (I = 0; I < PHY_AUTO_NEGOTIATION_TIMEOUT; I ++) {
+        MicroSecondDelay (1000);
+        PhyRegValue = Dpaa2PhyRegisterRead (Dpaa2Phy,
+            MDIO_CTL_DEV_AUTO_NEGOTIATION,
+            PHY_STATUS_REG);
+        if (I % 500 == 0) {
+          DPAA_DEBUG_MSG_NO_PREFIX (".");
+        }
+
+        if (PhyRegValue & PHY_STATUS_AUTO_NEGOTIATION_COMPLETE) {
+          break;
+        }
       }
 
-      if (PhyRegValue & PHY_STATUS_AUTO_NEGOTIATION_COMPLETE) {
-        break;
+      if (I == PHY_AUTO_NEGOTIATION_TIMEOUT) {
+        DPAA_DEBUG_MSG_NO_PREFIX ("TIMEOUT!\n");
+        DPAA_ERROR_MSG ("PHY auto-negotiation failed\n");
+        Dpaa2Phy->AutoNegotiation = FALSE;
+        return EFI_TIMEOUT;
       }
-    }
 
-    if (I == PHY_AUTO_NEGOTIATION_TIMEOUT) {
-      DPAA_DEBUG_MSG_NO_PREFIX ("TIMEOUT!\n");
-      DPAA_ERROR_MSG ("PHY auto-negotiation failed\n");
-      Dpaa2Phy->AutoNegotiation = FALSE;
-      return EFI_TIMEOUT;
+      DPAA_DEBUG_MSG_NO_PREFIX ("\n");
     }
-
-    DPAA_DEBUG_MSG_NO_PREFIX ("\n");
   }
 
   /*
