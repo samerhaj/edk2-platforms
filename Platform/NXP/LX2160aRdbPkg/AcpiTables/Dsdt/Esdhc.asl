@@ -22,7 +22,7 @@ Scope(_SB)
   Device(SDC0) {
     Name(_HID, "NXP0003")
     Name(_CID, "PNP0D40")
-    Name(_CCA, 1)
+    Name(_CCA, 0)
     Name(_UID, 0)
     Name(_CRS, ResourceTemplate() {
       Memory32Fixed(ReadWrite, SDC0_BASE, SDC_LEN)
@@ -35,13 +35,13 @@ Scope(_SB)
       ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
       Package () {
          Package () {"clock-frequency", DEFAULT_PLAT_FREQ},
-         Package () {"little-endian"},
+         Package () {"little-endian", 1},
          Package () {"voltage-range", "1800,3300,330"},
-         Package () {"sdhci", "auto-cmd12"},
-         Package () {"sd-uhs-sdr104"},
-         Package () {"sd-uhs-sdr50"},
-         Package () {"sd-uhs-sdr25"},
-         Package () {"sd-uhs-sdr12"},
+         Package () {"sdhci,auto-cmd12", 1},
+         Package () {"sd-uhs-sdr104", 1},
+         Package () {"sd-uhs-sdr50", 1},
+         Package () {"sd-uhs-sdr25", 1},
+         Package () {"sd-uhs-sdr12", 1},
 
       }
     })
@@ -50,7 +50,7 @@ Scope(_SB)
   Device(SDC1) {
     Name(_HID, "NXP0003")
     Name(_CID, "PNP0D40")
-    Name(_CCA, 1)
+    Name(_CCA, 0)
     Name(_UID, 1)
     Name(_CRS, ResourceTemplate() {
       Memory32Fixed(ReadWrite, SDC1_BASE, SDC_LEN)
@@ -63,13 +63,13 @@ Scope(_SB)
       ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
       Package () {
          Package () {"clock-frequency", DEFAULT_PLAT_FREQ},
-         Package () {"little-endian"},
-         Package () {"voltage-range", "1800,3300,330"},
-         Package () {"sdhci", "auto-cmd12"},
-         Package () {"sd-uhs-sdr104"},
-         Package () {"sd-uhs-sdr50"},
-         Package () {"sd-uhs-sdr25"},
-         Package () {"sd-uhs-sdr12"},
+         Package () {"little-endian", 1},
+         Package () {"voltage-range", "1800,1800,3300,3330"},
+         Package () {"sdhci,auto-cmd12", 1},
+         Package () {"broken-cd", 1},
+         Package () {"bus-width", 8},
+         Package () {"mmc-hs200-1_8v", 1},
+         Package () {"mmc-hs400-1_8v", 1},
       }
     })
   }

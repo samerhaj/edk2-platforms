@@ -158,5 +158,5 @@
 #define TIMER_WDT0_IT                91
 #define TIMER_WDT1_IT                108
 
-#define DEFAULT_PLAT_FREQ            350000000
+#define DEFAULT_PLAT_FREQ            700000000
 #endif
