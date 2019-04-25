@@ -30,12 +30,6 @@ Scope(_SB)
          SATA0_IT_1, SATA0_IT_2, SATA0_IT_3
        }
     })
-    Name (_DSD, Package () {
-      ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-      Package () {
-         Package () {"clock-frequency", DEFAULT_PLAT_FREQ}, //This is device specific data, Need to see how to pass clk stuff
-      }
-    })
   }
 
   Device(SAT1) {
@@ -48,12 +42,6 @@ Scope(_SB)
        {
          SATA1_IT_1, SATA1_IT_2, SATA1_IT_3
        }
-    })
-    Name (_DSD, Package () {
-      ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-      Package () {
-         Package () {"clock-frequency", DEFAULT_PLAT_FREQ}, //This is device specific data, Need to see how to pass clk stuff
-      }
     })
   }
 
@@ -68,12 +56,6 @@ Scope(_SB)
          SATA2_IT_1, SATA2_IT_2, SATA2_IT_3
        }
     })
-    Name (_DSD, Package () {
-      ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-      Package () {
-         Package () {"clock-frequency", DEFAULT_PLAT_FREQ}, //This is device specific data, Need to see how to pass clk stuff
-      }
-    })
   }
 
   Device(SAT3) {
@@ -86,12 +68,6 @@ Scope(_SB)
        {
          SATA3_IT_1, SATA3_IT_2, SATA3_IT_3
        }
-    })
-    Name (_DSD, Package () {
-      ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-        Package () {
-         Package () {"clock-frequency", DEFAULT_PLAT_FREQ}, //This is device specific data, Need to see how to pass clk stuff
-      }
     })
   }
 }
