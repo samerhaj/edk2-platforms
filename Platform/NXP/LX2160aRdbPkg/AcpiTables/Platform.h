@@ -135,8 +135,7 @@
 #define TIMER_WATCHDOG_COUNT         2
 #define TIMER_BASE_ADDRESS           0x23E0000 // a.k.a CNTControlBase
 #define TIMER_READ_BASE_ADDRESS      0x23F0000 // a.k.a CNTReadBase
-#define TIMER_GT_BLOCK_0_ADDRESS     0x2880000 // a.k.a CNTCTLBase (Secure)
-#define TIMER_GT_BLOCK_1_ADDRESS     0x2890000 // a.k.a CNTCTLBase (Secure)
+#define TIMER_GT_BLOCK_0_ADDRESS     0x2890000 // a.k.a CNTCTLBase (Secure)
 #define TIMER_GT_BASE_0_ADDRESS      0x28A0000  // a.k.a CNTBase0
 #define TIMER_GT_BASE_1_ADDRESS      0x28B0000  // a.k.a CNTBase1
 #define TIMER_GT_BASE_2_ADDRESS      0x28C0000  // a.k.a CNTBase2

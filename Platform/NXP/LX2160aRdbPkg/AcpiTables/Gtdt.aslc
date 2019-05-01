@@ -58,6 +58,7 @@
  * Non secure (Bit 2 as 0)
  */
 #define SBSA_WATCHDOG_FLAGS 0
+#define SBSA_SEC_WATCHDOG_FLAGS EFI_ACPI_6_1_GTDT_GT_BLOCK_COMMON_FLAG_SECURE_TIMER
 
 #define GT_BLOCK_FRAME_RES_BASE  MAX_UINT64
 #pragma pack (1)
@@ -180,7 +181,7 @@ EFI_ACPI_6_1_GENERIC_TIMER_DESCRIPTION_TABLES Gtdt = {
       TIMER_WDT1_REFRESH_BASE,                                    // UINT64 RefreshFramePhysicalAddress
       TIMER_WDT1_CONTROL_BASE,                                    // UINT64 WatchdogControlFramePhysicalAddress
       TIMER_WDT1_IT,                                              // UINT32 WatchdogTimerGSIV
-      SBSA_WATCHDOG_FLAGS                                         // UINT32 WatchdogTimerFlags
+      SBSA_SEC_WATCHDOG_FLAGS                                     // UINT32 WatchdogTimerFlags
     } //Gtdt.Watchdogs[1]
   }
 };
