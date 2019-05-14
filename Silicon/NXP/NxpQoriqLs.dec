@@ -103,6 +103,9 @@
   gNxpQoriqLsTokenSpaceGuid.PcdRomBaseAddr|0x0|UINT64|0x0000012B
   gNxpQoriqLsTokenSpaceGuid.PcdRomSize|0x0|UINT64|0x0000012C
 
+  gNxpQoriqLsTokenSpaceGuid.PcdIn112525FwNorBaseAddr|0x0|UINT64|0x0000012D
+  gNxpQoriqLsTokenSpaceGuid.PcdIn112525FwSize|0x0|UINT64|0x0000012E
+
   #
   # USB PCDs
   #

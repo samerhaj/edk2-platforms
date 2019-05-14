@@ -26,6 +26,42 @@ STATIC CONST CHAR8 *CONST gPhyMediaTypeStrings[] = {
   [OPTICAL_PHY] = "Optical PHY",
 };
 
+#define IS_SEPARATOR(_Char) \
+  ((_Char) == ' ' || (_Char) == '\t' || (_Char) == '\n')
+
+CHAR8 *
+SkipSeparators (
+  CHAR8 *Str
+  )
+{
+  CHAR8 *Ptr;
+
+  for (Ptr = Str; *Ptr != '\0'; Ptr ++) {
+    if (!IS_SEPARATOR (*Ptr)) {
+        break;
+    }
+  }
+
+  return Ptr;
+}
+
+CHAR8 *
+FindNextSeparator (
+  CHAR8 *Str
+  )
+{
+  CHAR8 *Ptr;
+
+  for (Ptr = Str; *Ptr != '\0'; Ptr ++) {
+    if (IS_SEPARATOR (*Ptr)) {
+        break;
+    }
+  }
+
+  return Ptr;
+}
+
+
 /**
    Initializes the given DPAA2 PHY MDIO bus
 
@@ -181,6 +217,7 @@ Dpaa2PhyRegisterWrite (
          MdioCtlDevAddr == MDIO_CTL_DEVAD_NONE ||
          MdioCtlDevAddr == MDIO_CTL_DEV_PMAPMD ||
          MdioCtlDevAddr == MDIO_CTL_DEV_AUTO_NEGOTIATION ||
+         MdioCtlDevAddr == MDIO_MMD_VEND1 ||
          MdioCtlDevAddr == MDIO_MMD_PHYXS);
 
   Dpaa2PhyMdioBusWrite (Dpaa2Phy->MdioBus,
@@ -308,6 +345,7 @@ Dpaa2PhyRegisterRead (
          MdioCtlDevAddr == MDIO_CTL_DEVAD_NONE ||
          MdioCtlDevAddr == MDIO_CTL_DEV_PMAPMD ||
          MdioCtlDevAddr == MDIO_CTL_DEV_AUTO_NEGOTIATION ||
+         MdioCtlDevAddr == MDIO_MMD_VEND1 ||
          MdioCtlDevAddr == MDIO_MMD_PHYXS);
 
   return Dpaa2PhyMdioBusRead (Dpaa2Phy->MdioBus,
@@ -411,7 +449,7 @@ Dpaa2PhyConfig (
   } else if (Dpaa2Phy->PhyMediaType == COPPER_PHY) {
     return AquantiaPhyConfig (Dpaa2Phy);
   } else if (Dpaa2Phy->PhyMediaType == OPTICAL_PHY) {
-    return CortinaPhyConfig (Dpaa2Phy);
+    return In112525S03PhyConfig (Dpaa2Phy);
   } else {
     DPAA_ERROR_MSG ("PHY media type not supported: 0x%x\n",
                     Dpaa2Phy->PhyMediaType);
@@ -480,7 +518,7 @@ Dpaa2PhyStartup (
   } else if (Dpaa2Phy->PhyMediaType == COPPER_PHY) {
     return AquantiaPhyStartup (Dpaa2Phy);
   } else if (Dpaa2Phy->PhyMediaType == OPTICAL_PHY) {
-    return CortinaPhyStartup (Dpaa2Phy);
+    return In112525S03PhyStartup (Dpaa2Phy);
   } else {
     DPAA_ERROR_MSG ("PHY media type not supported: 0x%x (%a)\n",
                     Dpaa2Phy->PhyMediaType,

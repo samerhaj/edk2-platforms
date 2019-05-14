@@ -148,6 +148,7 @@ typedef enum _PHY_INTERFACE_TYPE {
   PHY_INTERFACE_SGMII,
   PHY_INTERFACE_QSGMII,
   PHY_INTERFACE_RGMII,
+  PHY_INTERFACE_25G_AUI,
 
   /*
    * New values must added above this entry
@@ -213,7 +214,7 @@ typedef struct _DPAA2_PHY {
   BOOLEAN FullDuplex;
 
   /**
-   * Speed in MBits/s. Valid values: 10000, 1000, 100, 10
+   * Speed in MBits/s. Valid values: 100000, 10000, 1000, 100, 10
    */
   UINT16 Speed;
 

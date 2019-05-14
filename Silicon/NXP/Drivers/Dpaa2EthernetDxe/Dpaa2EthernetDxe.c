@@ -218,7 +218,7 @@ Dpaa2SnpStart (
   /*
    * Create DPAA2 network interface in the MC:
    */
-  DPAA_INFO_MSG ("Creating DPAA2 Ethernet physical device for %a "
+  DEBUG ((DEBUG_ERROR, "Creating DPAA2 Ethernet physical device for %a "
                  "(MAC address %02x:%02x:%02x:%02x:%02x:%02x) ...\n",
                  gWriopDpmacStrings[WriopDpmac->Id],
                  SnpMode->CurrentAddress.Addr[0],
@@ -226,7 +226,7 @@ Dpaa2SnpStart (
                  SnpMode->CurrentAddress.Addr[2],
                  SnpMode->CurrentAddress.Addr[3],
                  SnpMode->CurrentAddress.Addr[4],
-                 SnpMode->CurrentAddress.Addr[5]);
+                 SnpMode->CurrentAddress.Addr[5]));
 
   Status = Dpaa2McCreateNetworkInterface (&Dpaa2EthDev->Dpaa2NetInterface);
   if (EFI_ERROR (Status)) {

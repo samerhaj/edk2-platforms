@@ -51,6 +51,7 @@ STATIC const CHAR8 *const gPhyInterfaceTypeStrings[] = {
   [PHY_INTERFACE_SGMII] = "sgmii",
   [PHY_INTERFACE_QSGMII] = "qsgmii",
   [PHY_INTERFACE_RGMII] = "rgmii",
+  [PHY_INTERFACE_25G_AUI] = "25gaui",
 };
 
 #define WRIOP_DPMAC_INITIALIZER(_DpmacId) \

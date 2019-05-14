@@ -36,48 +36,10 @@
 #define MSEQ_EDC_BIST_DONE  BIT(0)
 #define MSEQ_EDC_BIST_FAIL  BIT(8)
 
-#define IS_SEPARATOR(_Char) \
-  ((_Char) == ' ' || (_Char) == '\t' || (_Char) == '\n')
-
 typedef struct _CORTINA_REG_CONFIG {
   UINT16 RegAddr;
   UINT16 RegValue;
 } CORTINA_REG_CONFIG;
-
-
-STATIC
-CHAR8 *
-SkipSeparators (
-  CHAR8 *Str
-  )
-{
-  CHAR8 *Ptr;
-
-  for (Ptr = Str; *Ptr != '\0'; Ptr ++) {
-    if (!IS_SEPARATOR (*Ptr)) {
-        break;
-    }
-  }
-
-  return Ptr;
-}
-
-STATIC
-CHAR8 *
-FindNextSeparator (
-  CHAR8 *Str
-  )
-{
-  CHAR8 *Ptr;
-
-  for (Ptr = Str; *Ptr != '\0'; Ptr ++) {
-    if (IS_SEPARATOR (*Ptr)) {
-        break;
-    }
-  }
-
-  return Ptr;
-}
 
 STATIC
 EFI_STATUS

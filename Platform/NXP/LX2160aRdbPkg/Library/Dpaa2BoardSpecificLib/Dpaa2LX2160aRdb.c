@@ -67,6 +67,7 @@ DPAA2_PHY_MDIO_BUS gDpaa2MdioBuses[] = {
 // 17 and 18 for rgmii
 
 static const DPMAC_PHY_MAPPING gDpmacToPhyMap[] = {
+
   [WRIOP_DPMAC1] = {
     .MdioBus = &gDpaa2MdioBuses[0],
     .PhyAddress = CORTINA_PHY_ADDR1,
@@ -93,14 +94,14 @@ static const DPMAC_PHY_MAPPING gDpmacToPhyMap[] = {
 
   [WRIOP_DPMAC5] = {
     .MdioBus = &gDpaa2MdioBuses[1],
-    .PhyAddress = AQUANTIA_PHY_ADDR1,
-    .PhyMediaType = COPPER_PHY,
+    .PhyAddress = INPHI_PHY_ADDR1,
+    .PhyMediaType = OPTICAL_PHY,
   },
 
   [WRIOP_DPMAC6] = {
     .MdioBus = &gDpaa2MdioBuses[1],
-    .PhyAddress = AQUANTIA_PHY_ADDR2,
-    .PhyMediaType = COPPER_PHY,
+    .PhyAddress = INPHI_PHY_ADDR1,
+    .PhyMediaType = OPTICAL_PHY,
   },
 
   [WRIOP_DPMAC17] = {
@@ -165,6 +166,7 @@ Dpaa2DiscoverWriopDpmac (
 {
   WRIOP_DPMAC_ID DpmacId;
   ASSERT (LaneProtocol != NONE);
+
   if (LaneProtocol >= XFI1 && LaneProtocol <= XFI14) {
     GetDpMacId(LaneProtocol, &DpmacId);
     if (!DpmacId || AssignedMac[DpmacId]) {
@@ -174,13 +176,37 @@ Dpaa2DiscoverWriopDpmac (
     }
     AssignedMac[DpmacId] = LaneProtocol;
     ASSERT (DpmacId < ARRAY_SIZE (gDpmacToPhyMap));
-    WriopDpmacInit (DpmacId,
-                   PHY_INTERFACE_XGMII,
-                   gDpmacToPhyMap[DpmacId].MdioBus,
-                   gDpmacToPhyMap[DpmacId].PhyAddress,
-                   gDpmacToPhyMap[DpmacId].PhyMediaType,
-                   gDpmacToPhyMap[DpmacId].PhyId,
-                   Arg);
+
+    if (DpmacId == 3 || DpmacId ==4) {
+      WriopDpmacInit (DpmacId,
+                     PHY_INTERFACE_XGMII,
+                     gDpmacToPhyMap[DpmacId].MdioBus,
+                     gDpmacToPhyMap[DpmacId].PhyAddress,
+                     gDpmacToPhyMap[DpmacId].PhyMediaType,
+                     gDpmacToPhyMap[DpmacId].PhyId,
+                     Arg);
+    }
+  }
+ 
+  if (LaneProtocol >= GE25_5 && LaneProtocol <= GE25_6) {
+    GetDpMacId(LaneProtocol, &DpmacId);
+    if (!DpmacId || AssignedMac[DpmacId]) {
+      DEBUG((DEBUG_INFO, "Lane protocol %d, has mac %d, New Lane %d\n",
+                           AssignedMac[DpmacId], DpmacId, LaneProtocol));
+      return;
+    }
+    AssignedMac[DpmacId] = LaneProtocol;
+    ASSERT (DpmacId < ARRAY_SIZE (gDpmacToPhyMap));
+
+    if (DpmacId == 5 || DpmacId == 6 ) {
+      WriopDpmacInit (DpmacId,
+                     PHY_INTERFACE_25G_AUI,
+                     gDpmacToPhyMap[DpmacId].MdioBus,
+                     gDpmacToPhyMap[DpmacId].PhyAddress,
+                     gDpmacToPhyMap[DpmacId].PhyMediaType,
+                     gDpmacToPhyMap[DpmacId].PhyId,
+                     Arg);
+    }
   }
 }
 

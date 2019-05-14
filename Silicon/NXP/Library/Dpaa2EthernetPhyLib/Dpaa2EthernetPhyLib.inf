@@ -26,6 +26,7 @@
   Atheros.c
   Aquantia.c
   Cortina.c
+  Inphi112525.c
   PhyCommon.c
 
 [Packages]
@@ -36,3 +37,5 @@
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2CortinaFwNorAddr
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2CortinaFwMaxLen
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2PhyAutoNegWait
+  gNxpQoriqLsTokenSpaceGuid.PcdIn112525FwNorBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdIn112525FwSize

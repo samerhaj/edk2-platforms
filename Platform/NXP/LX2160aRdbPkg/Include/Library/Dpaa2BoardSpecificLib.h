@@ -42,6 +42,7 @@
 #define QC_PHY_ADDR1  0x1
 #define QC_PHY_ADDR2  0x2
 
+#define INPHI_PHY_ADDR1     0x0
 
 VOID
 Dpaa2DiscoverWriopDpmac (

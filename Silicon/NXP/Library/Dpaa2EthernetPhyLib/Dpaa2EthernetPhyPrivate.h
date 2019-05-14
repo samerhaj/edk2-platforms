@@ -129,4 +129,24 @@ Dpaa2PhyWriteMmdIndirect (
   IN  UINT32    Data
   );
 
+CHAR8 *
+FindNextSeparator (
+  CHAR8 *Str
+  );
+
+CHAR8 *
+SkipSeparators (
+  CHAR8 *Str
+  );
+
+EFI_STATUS
+In112525S03PhyConfig (
+  DPAA2_PHY *Dpaa2Phy
+  );
+
+EFI_STATUS
+In112525S03PhyStartup (
+  DPAA2_PHY *Dpaa2Phy
+  );
+
 #endif /* __DPAA2_ETHERNET_PHY_PRIVATE_H__ */

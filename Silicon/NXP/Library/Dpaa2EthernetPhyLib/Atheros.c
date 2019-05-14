@@ -99,12 +99,12 @@ Ar8035PhyConfig (
 }
 
 /**
-   Start Aquantia PHY
+   Start Atheros PHY
 
-   @param[in] Dpaa2Phy          Pointer to PHY object
+   @param[in] Dpaa2Phy    Pointer to PHY object
 
-   @retval EFI_SUCCESS, on success
-   @retval error code, on failure
+   @Status EFI_SUCCESS    on success
+   @Status error code     on failure
 
  **/
 EFI_STATUS

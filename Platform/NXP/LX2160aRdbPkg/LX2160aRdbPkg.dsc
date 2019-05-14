@@ -78,6 +78,10 @@
   #
   # Board Specific Pcds
   #
+
+  gNxpQoriqLsTokenSpaceGuid.PcdIn112525FwNorBaseAddr|0x20980000
+  gNxpQoriqLsTokenSpaceGuid.PcdIn112525FwSize|0x40000
+
   # ARM SBSA WDT
   gArmTokenSpaceGuid.PcdGenericWatchdogControlBase|0x23A0000
   gArmTokenSpaceGuid.PcdGenericWatchdogRefreshBase|0x2390000
