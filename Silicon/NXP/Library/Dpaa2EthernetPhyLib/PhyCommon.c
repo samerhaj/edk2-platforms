@@ -449,7 +449,11 @@ Dpaa2PhyConfig (
   } else if (Dpaa2Phy->PhyMediaType == COPPER_PHY) {
     return AquantiaPhyConfig (Dpaa2Phy);
   } else if (Dpaa2Phy->PhyMediaType == OPTICAL_PHY) {
-    return In112525S03PhyConfig (Dpaa2Phy);
+    if (Dpaa2Phy->PhyAddress == INPHI_PHY_ADDR) {
+      return In112525S03PhyConfig (Dpaa2Phy);
+    } else {
+      return CortinaPhyConfig (Dpaa2Phy);
+    }
   } else {
     DPAA_ERROR_MSG ("PHY media type not supported: 0x%x\n",
                     Dpaa2Phy->PhyMediaType);

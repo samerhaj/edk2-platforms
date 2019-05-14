@@ -64,6 +64,11 @@ typedef struct _MEMAC_MDIO_BUS_REGS {
  */
 #define QC_PHY            0x5A
 
+/**
+ * Phy Address of INPHI Phy
+ */
+#define INPHI_PHY_ADDR    0x0
+
 /* MDIO Manageable Devices (MMDs). */
 #define MDIO_MMD_PMAPMD   1  /* Physical Medium Attachment Physical Medium Dependent */
 #define MDIO_MMD_WIS      2  /* WAN Interface Sublayer */
