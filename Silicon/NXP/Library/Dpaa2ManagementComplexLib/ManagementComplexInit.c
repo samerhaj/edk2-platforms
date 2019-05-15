@@ -308,6 +308,12 @@ FdtImageFixupPropU32 (
     INT32 PropSize;
     PropValuePtr = fdt_getprop (FdtImage, NodeOffset, Property, &PropSize);
 
+    if (!PropValuePtr) {
+      DPAA_ERROR_MSG ( "Can't get property '%a' for node offset 0x%x\n",
+          Property, NodeOffset);
+      return EFI_UNSUPPORTED;
+    }
+
     ASSERT (FdtError == 0);
     ASSERT (PropSize == sizeof (FdtValue));
     ASSERT (*PropValuePtr == FdtValue);
@@ -354,6 +360,12 @@ FdtImageFixupPropString (
   if (gDpaaDebugFlags & DPAA_DEBUG_EXTRA_CHECKS) {
     INT32 PropSize;
     PropValuePtr = fdt_getprop (FdtImage, NodeOffset, Property, &PropSize);
+
+    if (!PropValuePtr) {
+      DPAA_ERROR_MSG ( "Can't get property '%a' for node offset 0x%x \n",
+          Property, NodeOffset);
+      return EFI_UNSUPPORTED;
+    }
 
     ASSERT (FdtError == 0);
     ASSERT (PropSize == strlen (Value) + 1);
