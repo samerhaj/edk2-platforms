@@ -61,7 +61,6 @@ FindNextSeparator (
   return Ptr;
 }
 
-
 /**
    Initializes the given DPAA2 PHY MDIO bus
 
@@ -425,6 +424,27 @@ Dpaa2PhyReset (
   return EFI_SUCCESS;
 }
 
+STATIC
+BOOLEAN
+GetInphiPhyId (
+  IN  DPAA2_PHY *Dpaa2Phy
+  )
+{
+  UINT32 PhyReg;
+  UINT32 PhyId;
+
+  PhyReg = Dpaa2PhyRegisterRead (Dpaa2Phy, MDIO_MMD_VEND1, MII_PHYSID1);
+  PhyId = (PhyReg & 0xffff) << 16;
+
+  PhyReg = Dpaa2PhyRegisterRead (Dpaa2Phy, MDIO_MMD_VEND1, MII_PHYSID2);
+  PhyId |= (PhyReg & 0xffff);
+
+  if (PhyId == PHY_UID_IN112525_S03) {
+    return TRUE;
+  } else {
+    return FALSE;
+  }
+}
 
 /**
    Configures the PHY for a given DPAA2 DPMAC
@@ -450,7 +470,11 @@ Dpaa2PhyConfig (
     return AquantiaPhyConfig (Dpaa2Phy);
   } else if (Dpaa2Phy->PhyMediaType == OPTICAL_PHY) {
     if (Dpaa2Phy->PhyAddress == INPHI_PHY_ADDR) {
-      return In112525S03PhyConfig (Dpaa2Phy);
+      if (!GetInphiPhyId (Dpaa2Phy)) {
+        return EFI_NO_MEDIA;
+      } else {
+        return In112525S03PhyConfig (Dpaa2Phy);
+      }
     } else {
       return CortinaPhyConfig (Dpaa2Phy);
     }
@@ -522,7 +546,15 @@ Dpaa2PhyStartup (
   } else if (Dpaa2Phy->PhyMediaType == COPPER_PHY) {
     return AquantiaPhyStartup (Dpaa2Phy);
   } else if (Dpaa2Phy->PhyMediaType == OPTICAL_PHY) {
-    return In112525S03PhyStartup (Dpaa2Phy);
+    if (Dpaa2Phy->PhyAddress == INPHI_PHY_ADDR) {
+      if (!GetInphiPhyId (Dpaa2Phy)) {
+        return EFI_NO_MEDIA;
+      } else {
+        return In112525S03PhyStartup (Dpaa2Phy);
+      }
+    } else {
+      return CortinaPhyStartup (Dpaa2Phy);
+    }
   } else {
     DPAA_ERROR_MSG ("PHY media type not supported: 0x%x (%a)\n",
                     Dpaa2Phy->PhyMediaType,

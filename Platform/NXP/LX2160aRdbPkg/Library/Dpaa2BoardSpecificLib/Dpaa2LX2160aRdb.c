@@ -177,7 +177,7 @@ Dpaa2DiscoverWriopDpmac (
     AssignedMac[DpmacId] = LaneProtocol;
     ASSERT (DpmacId < ARRAY_SIZE (gDpmacToPhyMap));
 
-    if (DpmacId == 3 || DpmacId ==4) {
+    if (DpmacId == WRIOP_DPMAC3 || DpmacId == WRIOP_DPMAC4) {
       WriopDpmacInit (DpmacId,
                      PHY_INTERFACE_XGMII,
                      gDpmacToPhyMap[DpmacId].MdioBus,
@@ -198,7 +198,7 @@ Dpaa2DiscoverWriopDpmac (
     AssignedMac[DpmacId] = LaneProtocol;
     ASSERT (DpmacId < ARRAY_SIZE (gDpmacToPhyMap));
 
-    if (DpmacId == 5 || DpmacId == 6 ) {
+    if (DpmacId == WRIOP_DPMAC5 || DpmacId == WRIOP_DPMAC6 ) {
       WriopDpmacInit (DpmacId,
                      PHY_INTERFACE_25G_AUI,
                      gDpmacToPhyMap[DpmacId].MdioBus,
@@ -217,7 +217,7 @@ VOID ProbeDpaaLanes (
    WRIOP_DPMAC_ID DpmacId;
   // Probe SerDes Lanes
   SerDesProbeLanes (Dpaa2DiscoverWriopDpmac, Arg);
-   for (DpmacId = 17; DpmacId <=18; DpmacId++) {
+   for (DpmacId = WRIOP_DPMAC17; DpmacId <= WRIOP_DPMAC18; DpmacId++) {
     WriopDpmacInit (DpmacId,
                    PHY_INTERFACE_RGMII,
                    gDpmacToPhyMap[DpmacId].MdioBus,

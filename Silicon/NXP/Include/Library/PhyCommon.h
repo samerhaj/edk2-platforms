@@ -143,6 +143,9 @@
 #define MII_MMD_DATA                  0x0e   /* MMD Access Data Register */
 #define MII_MMD_CTRL_NOINCR           0x4000 /* no post increment */
 
+/* INPHI PHY ID */
+#define PHY_UID_IN112525_S03       0x02107440
+
 EFI_STATUS
 UpdatePhyLink (
   DPAA2_PHY *Dpaa2Phy
