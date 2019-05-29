@@ -148,10 +148,13 @@ ParseDeviceTree (
       continue;
     }
 
-    FspiIndex = fdt_stringlist_search (Fdt, NodeOffset, "reg-names", "FSPI");
+    FspiIndex = fdt_stringlist_search (Fdt, NodeOffset, "reg-names", "fspi_base");
     if (FspiIndex < 0) {
-      DEBUG ((DEBUG_WARN, "Error: can't get regs base addresses(ret = %d)!\n", FspiIndex));
-      continue;
+      FspiIndex = fdt_stringlist_search (Fdt, NodeOffset, "reg-names", "FSPI");
+      if (FspiIndex < 0) {
+        DEBUG ((DEBUG_WARN, "Error: can't get regs base addresses(ret = %d)!\n", FspiIndex));
+        continue;
+      }
     }
 
     Status = FdtGetAddressSize (Fdt, NodeOffset, "reg", FspiIndex, &Regs, NULL);
@@ -160,10 +163,13 @@ ParseDeviceTree (
       continue;
     }
 
-    FspiMemIndex = fdt_stringlist_search (Fdt, NodeOffset, "reg-names", "FSPI-memory");
+    FspiMemIndex = fdt_stringlist_search (Fdt, NodeOffset, "reg-names", "fspi_mmap");
     if (FspiMemIndex < 0) {
-      DEBUG ((DEBUG_WARN, "Error: can't get AMBA base addresses(ret = %d)!\n", FspiMemIndex));
-      continue;
+      FspiMemIndex = fdt_stringlist_search (Fdt, NodeOffset, "reg-names", "FSPI-memory");
+      if (FspiMemIndex < 0) {
+        DEBUG ((DEBUG_WARN, "Error: can't get AMBA base addresses(ret = %d)!\n", FspiMemIndex));
+        continue;
+      }
     }
 
     Status = FdtGetAddressSize (Fdt, NodeOffset, "reg", FspiMemIndex, &AmbaBase, &AmbaTotalSize);
