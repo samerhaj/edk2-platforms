@@ -31,11 +31,14 @@
 #include <Library/BaseMemoryLib/MemLibInternals.h>
 #include <Library/IoLib.h>
 #include <Library/TimerLib.h>
+#include <Library/UefiBootServicesTableLib.h>
 
 #include "Dpaa2EthernetPhyPrivate.h"
 #include "Inphi112525.h"
 
+BOOLEAN gLaneRecovery;
 IN112525_S03_VCO_CODES S03VcoCodes;
+EFI_EVENT gExitBootServicesEvent = NULL;
 
 IN112525_CONFIG  InphiS03Config = {
   .EnableOtuProtocol = 0,
@@ -547,12 +550,10 @@ In112525S03LaneRecovery (
 
   if (Lane == NUMBER_OF_LANES) {
     if (BitTest(Dpaa2PhyRegisterRead (Dpaa2Phy, MDIO_MMD_VEND1, PHYMISC_REG2), 6) == 0) {
-      DPAA_ERROR_MSG ("TX PLL not Locked on ALL Lanes \n");
       return EFI_DEVICE_ERROR;
     }
   } else {
     if (TxPllLockTest (Dpaa2Phy,Lane) == 0) {
-      DPAA_ERROR_MSG ("TX PLL not Locked on Lane %d\n", Lane);
       return EFI_DEVICE_ERROR;
     }
   }
@@ -582,7 +583,21 @@ In112525S03LaneRecovery (
   Dpaa2PhyRegisterRead (Dpaa2Phy, MDIO_MMD_VEND1, PHYSTAT_REG2);
 
   DEBUG ((DEBUG_ERROR, "TX PLL Lock Success for lane %d \n", Lane));
+  gLaneRecovery = TRUE;
+
   return EFI_SUCCESS;
+}
+STATIC
+VOID
+EFIAPI
+InphiNotifyExitBootServices (
+  EFI_EVENT Event,
+  VOID      *Context
+  )
+{
+  if (!gLaneRecovery) {
+    In112525S03LaneRecovery ((DPAA2_PHY *)Context, NUMBER_OF_LANES);
+  }
 }
 
 EFI_STATUS
@@ -590,6 +605,7 @@ In112525S03PhyConfig (
   IN  DPAA2_PHY *Dpaa2Phy
   )
 {
+  EFI_STATUS    Status;
   UINT32        I;
   UINT32        RegValue;
   UINT32        Reg;
@@ -726,7 +742,22 @@ In112525S03PhyConfig (
   MicroSecondDelay (100000);
 
   /* start fresh */
-  In112525S03LaneRecovery (Dpaa2Phy, NUMBER_OF_LANES);
+  if (!gLaneRecovery) {
+    In112525S03LaneRecovery (Dpaa2Phy, NUMBER_OF_LANES);
+  }
+
+  if (gExitBootServicesEvent == NULL) {
+    Status = gBS->CreateEvent (
+                EVT_SIGNAL_EXIT_BOOT_SERVICES,
+                TPL_CALLBACK,
+                InphiNotifyExitBootServices,
+                Dpaa2Phy,
+                &gExitBootServicesEvent
+                );
+    if (EFI_ERROR (Status)) {
+      DPAA_ERROR_MSG ("Failed to create Inphi event (error %u)\n", Status);
+    }
+  }
 
   return EFI_SUCCESS;
 }
@@ -914,7 +945,9 @@ In112525S03PhyStartup (
   Dpaa2Phy->FullDuplex = TRUE;
 
   /* start fresh */
-  In112525S03LaneRecovery (Dpaa2Phy, NUMBER_OF_LANES);
+  if (!gLaneRecovery) {
+    In112525S03LaneRecovery (Dpaa2Phy, NUMBER_OF_LANES);
+  }
 
   return EFI_SUCCESS;
 }
