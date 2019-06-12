@@ -29,6 +29,19 @@ Scope(_SB)
        {
          SATA0_IT_1, SATA0_IT_2, SATA0_IT_3
        }
+    QwordMemory (
+      ResourceConsumer,
+      PosDecode,         // _DEC
+      MinFixed,          // _MIF
+      MaxFixed,          // _MAF
+      NonCacheable,      // _MEM
+      ReadWrite,         // _RW
+      0,                 // _GRA
+      0x700100520,       // _MIN MinAddress
+      0x700100523,       // _MAX MaxAddress
+      0,                 // _TRA
+      0x4,               // _LEN
+      ,)
     })
   }
 
