@@ -11,7 +11,6 @@ user need to run only build command.
 2. Build desired board
    ./build.sh <SoC-name> <board-type> <build-candidate> <clean> (optional)
 
-   Soc-name        : LS1043 / LS1046 / LS2088 / LX2160
+   Soc-name        : LS1043 / LS1046 / LS2088 / LX2160 / LS1028
    board-type      : RDB / QDS
    build-candidate : DEBUG / RELEASE
-

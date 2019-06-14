@@ -2,7 +2,7 @@
 
 # UEFI build script for NXP LS SoCs
 #
-# Copyright 2017 NXP
+# Copyright 2017-2019 NXP
 #
 # This program and the accompanying materials
 # are licensed and made available under the terms and conditions of the BSD License
@@ -30,7 +30,7 @@ print_usage_banner()
 {
     echo ""
     echo "This shell script expects:"
-    echo "    Arg 1 (mandatory): SoC Type (can be LS1043 / LS1046 / LS2088 / LX2160)."
+    echo "    Arg 1 (mandatory): SoC Type (can be LS1043 / LS1046 / LS2088 / LX2160 / LS1028)."
     echo "    Arg 2 (mandatory): Board Type (can be RDB / QDS)."
     echo "    Arg 3 (mandatory): Build candidate (can be RELEASE or DEBUG). By
               default we build the RELEASE candidate."
@@ -59,7 +59,7 @@ if [[ $1 == "" || $2 == "" || $3 == "" ]]; then
 fi
 
 # Check for input arguments
-if [[ $1 != "LS1043" && $1 != "LS1046" && $1 != "LS2088" && $1 != "LX2160" ]]; then
+if [[ $1 != "LS1043" && $1 != "LS1046" && $1 != "LS2088" && $1 != "LX2160" && $1 != "LS1028" ]]; then
   echo "Error ! Incorrect Soc Type specified."
   print_usage_banner
   exit
