@@ -59,6 +59,9 @@
   gNxpQoriqLsTokenSpaceGuid.PcdWdog1BaseAddr|0x02AD0000
   gNxpQoriqLsTokenSpaceGuid.PcdSdxcBaseAddr|0x01560000
   gNxpQoriqLsTokenSpaceGuid.PcdI2c0BaseAddr|0x02180000
+  gNxpQoriqLsTokenSpaceGuid.PcdUsbBaseAddr|0x2F00000
+  gNxpQoriqLsTokenSpaceGuid.PcdUsbSize|0x100000
+  gNxpQoriqLsTokenSpaceGuid.PcdNumUsbController|3
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSize|0x10000
   gNxpQoriqLsTokenSpaceGuid.PcdNumI2cController|4
   gNxpQoriqLsTokenSpaceGuid.PcdQspiRegionBaseAddr|0x40000000
