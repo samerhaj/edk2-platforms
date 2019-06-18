@@ -1259,6 +1259,17 @@ PciHostBridgeGetRootBridges (
         mPciRootBridges[Loop].Mem.Limit             = PCI_SEG_MMIO32_MAX +
                                                       (PciEnabled[Loop] *
                                                       PCI_SEG_MMIO32_DIFF);
+
+        /* TODO: Fixme: This is a temporary fix to avoid PCIe using NOR flash range
+         * for MMIO access. For LS1043 Platform, NOR flash starts at 0x60000000 and
+         * reserve RUN_TIME memory from this region. If PCIe uses this memory for MMIO
+         * access then it will overwrite the RUN_TIME region reserved in NOR Flash.
+         */
+        if ((PciEnabled[Loop] == 0x2) && ((PcdGet32(PcdSocSvr) & SVR_LS1043A_MASK) == SVR_LS1043A)) {
+          mPciRootBridges[Loop].Mem.Base += PCI_SEG_MMIO32_DIFF;
+          mPciRootBridges[Loop].Mem.Limit += PCI_SEG_MMIO32_DIFF;
+        }
+
         mPciRootBridges[Loop].MemAbove4G.Base       = PciPhyMemAddr[PciEnabled[Loop]];
         mPciRootBridges[Loop].MemAbove4G.Limit      = PciPhyMemAddr[PciEnabled[Loop]] +
                                                       PCI_SEG_MMIO64_MAX_DIFF;

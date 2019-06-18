@@ -29,6 +29,7 @@
 // Handle for the CPU I/O 2 Protocol
 //
 STATIC EFI_HANDLE  mHandle;
+static UINT32 SocSvr;
 
 //
 // Lookup table for increment values based on transfer widths
@@ -245,6 +246,10 @@ CpuMemoryServiceRead (
     return Status;
   }
 
+  if (SocSvr == 0) {
+    SocSvr = (UINT32)PcdGet32 (PcdSocSvr);
+  }
+
   if ((Address >= PCI_SEG0_MMIO32_MIN) &&
       (Address <= PCI_SEG0_MMIO32_MAX)) {
     Address += PCI_SEG0_MMIO_MEMBASE;
@@ -256,7 +261,18 @@ CpuMemoryServiceRead (
     Address += PCI_SEG2_MMIO_MEMBASE;
   } else if ((Address >= PCI_SEG3_MMIO32_MIN) &&
              (Address <= PCI_SEG3_MMIO32_MAX)) {
-    Address += PCI_SEG3_MMIO_MEMBASE;
+
+    /* TODO: Fixme: This is a temporary fix to avoid PCIe using NOR flash range
+     * for MMIO access. For LS1043 Platform, NOR flash starts at 0x60000000 and
+     * reserve RUN_TIME memory from this region. If PCIe uses this memory for MMIO
+     * access then it will overwrite the RUN_TIME region reserved in NOR Flash.
+     */
+    if ((PcdGet32(PcdSocSvr) & SVR_LS1043A_MASK) == SVR_LS1043A) {
+      Address += PCI_SEG2_MMIO_MEMBASE;
+    } else {
+      Address += PCI_SEG3_MMIO_MEMBASE;
+    }
+
   } else if ((Address >= PCI_SEG4_MMIO32_MIN) &&
              (Address <= PCI_SEG4_MMIO32_MAX)) {
     Address += PCI_SEG4_MMIO_MEMBASE;
@@ -348,6 +364,10 @@ CpuMemoryServiceWrite (
     return Status;
   }
 
+  if (SocSvr == 0) {
+    SocSvr = (UINT32)PcdGet32 (PcdSocSvr);
+  }
+
   if ((Address >= PCI_SEG0_MMIO32_MIN) &&
       (Address <= PCI_SEG0_MMIO32_MAX)) {
     Address += PCI_SEG0_MMIO_MEMBASE;
@@ -359,7 +379,18 @@ CpuMemoryServiceWrite (
     Address += PCI_SEG2_MMIO_MEMBASE;
   } else if ((Address >= PCI_SEG3_MMIO32_MIN) &&
              (Address <= PCI_SEG3_MMIO32_MAX)) {
-    Address += PCI_SEG3_MMIO_MEMBASE;
+
+    /* TODO: Fixme: This is a temporary fix to avoid PCIe using NOR flash range
+     * for MMIO access. For LS1043 Platform, NOR flash starts at 0x60000000 and
+     * reserve RUN_TIME memory from this region. If PCIe uses this memory for MMIO
+     * access then it will overwrite the RUN_TIME region reserved in NOR Flash.
+     */
+    if ((PcdGet32(PcdSocSvr) & SVR_LS1043A_MASK) == SVR_LS1043A) {
+      Address += PCI_SEG2_MMIO_MEMBASE;
+    } else {
+      Address += PCI_SEG3_MMIO_MEMBASE;
+    }
+
   } else if ((Address >= PCI_SEG4_MMIO32_MIN) &&
              (Address <= PCI_SEG4_MMIO32_MAX)) {
     Address += PCI_SEG4_MMIO_MEMBASE;

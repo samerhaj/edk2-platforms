@@ -273,3 +273,5 @@
   gNxpQoriqLsTokenSpaceGuid.PcdQmanBigEndian|TRUE|BOOLEAN|0x00000359
   gNxpQoriqLsTokenSpaceGuid.PcdBmanBigEndian|TRUE|BOOLEAN|0x00000360
 
+[PcdsDynamic.common]
+  gNxpQoriqLsTokenSpaceGuid.PcdSocSvr|0xffffffff|UINT32|0x00000400

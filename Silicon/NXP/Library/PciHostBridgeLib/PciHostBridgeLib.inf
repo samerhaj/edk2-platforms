@@ -68,3 +68,4 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp6BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdPciFdtCompatible
   gNxpQoriqLsTokenSpaceGuid.PcdPcieConfigurePex
+  gNxpQoriqLsTokenSpaceGuid.PcdSocSvr

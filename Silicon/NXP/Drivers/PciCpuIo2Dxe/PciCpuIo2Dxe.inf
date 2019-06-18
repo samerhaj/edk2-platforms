@@ -43,6 +43,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp5BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdPciExp6BaseAddr
   gNxpQoriqLsTokenSpaceGuid.PcdNumPciController
+  gNxpQoriqLsTokenSpaceGuid.PcdSocSvr
 
 [Protocols]
   gEfiCpuIo2ProtocolGuid                         ## PRODUCES

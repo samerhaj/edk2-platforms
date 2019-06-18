@@ -45,6 +45,7 @@
 [Pcd]
   gArmTokenSpaceGuid.PcdGicDistributorBase
   gArmTokenSpaceGuid.PcdGicInterruptInterfaceBase
+  gNxpQoriqLsTokenSpaceGuid.PcdSocSvr
 
 [Guids]
   gDtPlatformDefaultDtbFileGuid

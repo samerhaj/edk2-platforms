@@ -16,6 +16,9 @@
 #ifndef __PCI_H__
 #define __PCI_H__
 
+#define SVR_LS1043A_MASK        0xffff0000
+#define SVR_LS1043A             0x87920000
+
 // Segment 0
 #define PCI_SEG0_NUM              0
 #define PCI_SEG0_MMIO32_MIN       0x40000000

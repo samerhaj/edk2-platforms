@@ -207,9 +207,15 @@ SocGetSvr (
   )
 {
   CCSR_GUR     *GurBase;
+  UINT32        Svr;
 
   GurBase = (VOID *)PcdGet64 (PcdGutsBaseAddr);
   ASSERT (GurBase != NULL);
 
-  return GurRead ( (UINTN)&GurBase->Svr);
+  Svr = GurRead ((UINTN)&GurBase->Svr);
+
+  /* Store the SVR value */
+  PcdSet32(PcdSocSvr, (UINT32)Svr);
+
+  return Svr;
 }
