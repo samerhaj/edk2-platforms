@@ -99,7 +99,7 @@
   #
   gArmTokenSpaceGuid.PcdVFPEnabled|1
   gNxpQoriqLsTokenSpaceGuid.PcdFlashDeviceBase64|0x060000000
-  gNxpQoriqLsTokenSpaceGuid.PcdFlashReservedRegionBase64|0x60300000
+  gNxpQoriqLsTokenSpaceGuid.PcdFlashReservedRegionBase64|0x60500000
 
   #
   # PCI PCDs.
