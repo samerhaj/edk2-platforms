@@ -645,6 +645,9 @@ NorFlashPlatformFlashGetAttributes (
   // Limit the Size of Nor Flash that can be programmed
   for (Index = 0; Index < Count; Index++) {
     NorFlashDevices[Index].RegionBaseAddress = PcdGet64 (PcdFlashReservedRegionBase64);
+
+    // flash size available is half of total flash size
+    NorFlashDevices[Index].Size >>= 1;
     NorFlashDevices[Index].Size -= (NorFlashDevices[Index].RegionBaseAddress -
                                     NorFlashDevices[Index].DeviceBaseAddress);
     if((NorFlashDevices[Index].RegionBaseAddress - NorFlashDevices[Index].DeviceBaseAddress) %
