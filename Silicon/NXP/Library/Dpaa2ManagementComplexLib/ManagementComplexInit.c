@@ -1,7 +1,7 @@
 /** ManagementComplexInit.c
   DPAA2 Management Complex initialization
 
-  Copyright 2017 NXP
+  Copyright 2017, 2019 NXP
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -1196,10 +1196,10 @@ Dpaa2McInit (
     goto Out;
   }
 
-  DPAA_INFO_MSG (
-    "Management Complex booted (version: %d.%d.%d, boot status: 0x%x)\n",
+  DEBUG ((
+    DEBUG_ERROR, "Management Complex booted (version: %d.%d.%d, boot status: 0x%x)\n",
     McVerInfo.major, McVerInfo.minor, McVerInfo.revision,
-    RegGsr & GSR_FS_MASK);
+    RegGsr & GSR_FS_MASK));
 
   /*
    * Open root container:
