@@ -1,7 +1,7 @@
 /** Soc.h
 *  Header defining the Base addresses, sizes, flags etc for chassis 1
 *
-*  Copyright 2018 NXP
+*  Copyright 2018-2019 NXP
 *
 *  This program and the accompanying materials
 *  are licensed and made available under the terms and conditions of the BSD License
@@ -41,6 +41,10 @@
 #define SMMU_REG_IDR1                (SMMU_BASE_ADDR + 0x24)
 #define SMMU_REG_NSCR0               (SMMU_BASE_ADDR + 0x400)
 #define SMMU_REG_NSACR               (SMMU_BASE_ADDR + 0x410)
+
+/* Interrupt Sampling Control */
+#define INT_SAMPLING_CTRL_BASE        0x01F70000
+#define IRQCR_OFFSET                  0x14
 
 #define SACR_PAGESIZE_MASK           0x00010000
 #define SCR0_CLIENTPD_MASK           0x00000001

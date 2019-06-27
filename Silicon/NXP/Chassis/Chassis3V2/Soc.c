@@ -1,7 +1,7 @@
 /** @Soc.c
   SoC specific Library containg functions to initialize various SoC components
 
-  Copyright 2018 NXP
+  Copyright 2018-2019 NXP
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -180,7 +180,7 @@ GetSysInfo (
 **/
 VOID
 SocInit (
-  VOID
+  UINT32 ExternalITPolarity
   )
 {
   CHAR8 Buffer[100];
@@ -229,6 +229,11 @@ SocInit (
   // Print Board Personality information
   //
   PrintBoardPersonality ();
+
+  // AQR Polarity
+  if (ExternalITPolarity)
+    MmioWrite32 ((UINTN)(INT_SAMPLING_CTRL_BASE + IRQCR_OFFSET),
+                 ExternalITPolarity);
 }
 
 VOID
