@@ -1,7 +1,7 @@
 /*
  * Device Tree Include file for Layerscape-LX2160A family SoC.
  *
- * Copyright 2018 NXP
+ * Copyright 2018-2019 NXP
  *
  * Sriram Dash <sriram.dash@nxp.com>
  *
@@ -443,13 +443,10 @@
     };
 
     emdio2: mdio@0x8B97000 { /* WRIOP0: 0x8B8_0000, E-MDIO2: 0x1_7000 */
-      compatible = "fsl,fman-memac-mdio";
-      reg = <0x0 0x8B97000 0x0 0x1000>;
-      device_type = "mdio";      /* TODO: is this necessary? */
-      little-endian;  /* force the driver in LE mode */
-
-      #address-cells = <1>;
-      #size-cells = <0>;
+	inphi_phy: ethernet-phy@0 {
+                compatible = "ethernet-phy-id0210.7440";
+                reg = <0x0>;
+	};
     };
 
     pcs_mdio3: mdio@0x8c0f000 {

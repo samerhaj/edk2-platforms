@@ -1,7 +1,7 @@
 /*
  * Device Tree file for LX2160ARDB
  *
- * Copyright 2018 NXP
+ * Copyright 2018-2019 NXP
  *
  * Sriram Dash <sriram.dash@nxp.com>
  *
@@ -246,24 +246,21 @@
   aquantia_phy3: ethernet-phy@3 {
     /* AQR107 PHY - "compatible" property not strictly needed */
     compatible = "ethernet-phy-ieee802.3-c45";
+    interrupts = <0 2 4>;
     reg = <0x4>;
-    /* Poll mode - no "interrupts" property defined */
   };
   aquantia_phy4: ethernet-phy@4 {
     /* AQR107 PHY - "compatible" property not strictly needed */
     compatible = "ethernet-phy-ieee802.3-c45";
+    interrupts = <0 3 4>;
     reg = <0x5>;
-    /* Poll mode - no "interrupts" property defined */
   };
 };
 
 &emdio2 {
-  inphi_phy: emdio2_phy@0 {
-    compatible = "ethernet-phy-ieee802.3-c45";
+  inphi_phy: ethernet-phy@0 {
+    compatible = "ethernet-phy-id0210.7440";
     reg = <0x0>;
-    dev-addr = <0x1e>;
-    phy-connection-type = "xfi";
-    interrupts = <0 9 0x2>, <0 10 0x2>; /* high-to-low edge triggered */
   };
 };
 
