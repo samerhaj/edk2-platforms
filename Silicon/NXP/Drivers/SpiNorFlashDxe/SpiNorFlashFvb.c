@@ -1,7 +1,7 @@
 /*++ @file  SpiNorFlashFvbDxe.c
 
  Copyright (c) 2011 - 2014, ARM Ltd. All rights reserved.<BR>
- Copyright 2017-2018 NXP.
+ Copyright 2017-2019 NXP
 
  Based on ArmPlatformPkg/Drivers/NorFlashDxe/NorFlashFvbDxe.c
 
@@ -35,8 +35,7 @@
 #include "SpiNorFlashDxe.h"
 
 STATIC EFI_EVENT mFvbVirtualAddrChangeEvent;
-STATIC UINTN     mFlashNvStorageVariableBase;
-
+STATIC UINTN mFlashNvStorageBase;
 ///
 /// The Firmware Volume Block Protocol is the low-level interface
 /// to a firmware volume. File-level access to a firmware volume
@@ -51,12 +50,14 @@ STATIC UINTN     mFlashNvStorageVariableBase;
   Initialises the FV Header and Variable Store Header
   to support variable operations.
 
-  @param[in]  Ptr - Location to initialise the headers
+  @param[in]  Context - SPI_NOR_FLASH_CONTEXT pointer
+  @param[in]  StartLba - Location to initialise the headers
 
 **/
 EFI_STATUS
 InitializeFvAndVariableStoreHeaders (
-  IN SPI_NOR_FLASH_CONTEXT *Context
+  IN SPI_NOR_FLASH_CONTEXT *Context,
+  IN EFI_LBA               StartLba
   )
 {
   EFI_STATUS                          Status;
@@ -124,7 +125,7 @@ InitializeFvAndVariableStoreHeaders (
   VariableStoreHeader->State             = VARIABLE_STORE_HEALTHY;
 
   // Install the combined super-header in the SpiNorFlash
-  Status = FvbWrite (&Context->FvbProtocol, 0, 0, &HeadersLength, Headers);
+  Status = FvbWrite (&Context->FvbProtocol, StartLba, 0, &HeadersLength, Headers);
 
   FreePool (Headers);
   return Status;
@@ -299,17 +300,11 @@ FvbGetPhysicalAddress (
   OUT       EFI_PHYSICAL_ADDRESS                 *Address
   )
 {
-  SPI_NOR_FLASH_CONTEXT                   *Context;
-  CONST SPI_FLASH_CONFIGURATION_DATA      *ConfigData;
-
-  Context = CONTEXT_FROM_FVB_THIS(This);
-  ConfigData = Context->SpiIo->SpiPeripheral->ConfigurationData;
-
-  DEBUG ((DEBUG_BLKIO, "FvbGetPhysicalAddress(BaseAddress=0x%08x)\n", ConfigData->DeviceBaseAddress));
+  DEBUG ((DEBUG_BLKIO, "FvbGetPhysicalAddress(BaseAddress=0x%08x)\n", mFlashNvStorageBase));
 
   ASSERT(Address != NULL);
 
-  *Address = mFlashNvStorageVariableBase;
+  *Address = mFlashNvStorageBase;
   return EFI_SUCCESS;
 }
 
@@ -437,7 +432,7 @@ FvbRead (
   SpiNorParams = Context->SpiNorParams;
   ParamTable = SpiNorParams->ParamTable;
 
-  DEBUG ((DEBUG_BLKIO, "FvbRead(Parameters: Lba=%ld, Offset=0x%x, *NumBytes=0x%x, Buffer @ 0x%08x)\n", Context->StartLba + Lba, Offset, *NumBytes, Buffer));
+  DEBUG ((DEBUG_BLKIO, "FvbRead(Parameters: Lba=%ld, Offset=0x%x, *NumBytes=0x%x, Buffer @ 0x%08x)\n", Lba, Offset, *NumBytes, Buffer));
 
   // Cache the block size to avoid de-referencing pointers all the time
   BlockSize = SFDP_PARAM_ERASE_SIZE (ParamTable);
@@ -463,7 +458,7 @@ FvbRead (
   return ReadFlashData (
            SpiIo,
            SpiNorParams,
-           GET_BLOCK_OFFSET ((Context->StartLba + Lba)) + Offset,
+           GET_BLOCK_OFFSET (Lba) + Offset,
            *NumBytes,
            Buffer
            );
@@ -542,7 +537,7 @@ FvbWrite (
   SpiNorParams = Context->SpiNorParams;
   ParamTable = SpiNorParams->ParamTable;
 
-  DEBUG ((DEBUG_BLKIO, "FvbWrite(Parameters: Lba=%ld, Offset=0x%x, *NumBytes=0x%x, Buffer @ 0x%08x)\n", Context->StartLba + Lba, Offset, *NumBytes, Buffer));
+  DEBUG ((DEBUG_BLKIO, "FvbWrite(Parameters: Lba=%ld, Offset=0x%x, *NumBytes=0x%x, Buffer @ 0x%08x)\n", Lba, Offset, *NumBytes, Buffer));
 
   // Cache the block size to avoid de-referencing pointers all the time
   BlockSize = SFDP_PARAM_ERASE_SIZE (ParamTable);
@@ -567,7 +562,7 @@ FvbWrite (
 
   return SpiNorFlashWrite (
            Context,
-           Context->StartLba + Lba,
+           Lba,
            Offset,
            *NumBytes,
            Buffer
@@ -660,11 +655,11 @@ FvbEraseBlocks (
     DEBUG ((
       DEBUG_BLKIO,
       "FvbEraseBlocks: Check if: ( StartingLba=%ld + NumOfLba=%Lu - 1 ) > LastBlock=%ld.\n",
-      Context->StartLba + StartingLba,
+      StartingLba,
       (UINT64)NumOfLba,
       Context->LastLba
       ));
-    if ((NumOfLba == 0) || ((Context->StartLba + StartingLba + NumOfLba - 1) > Context->LastLba)) {
+    if ((NumOfLba == 0) || ((StartingLba + NumOfLba - 1) > Context->LastLba)) {
       VA_END (Args);
       DEBUG ((DEBUG_ERROR, "FvbEraseBlocks: ERROR - Lba range goes past the last Lba.\n"));
       Status = EFI_INVALID_PARAMETER;
@@ -694,13 +689,13 @@ FvbEraseBlocks (
     while (NumOfLba > 0) {
 
       // Get the offset of Lba to erase
-      BlockOffset = GET_BLOCK_OFFSET((Context->StartLba + StartingLba));
+      BlockOffset = GET_BLOCK_OFFSET(StartingLba);
 
       // Erase it
       DEBUG ((
         DEBUG_BLKIO,
         "FvbEraseBlocks: Erasing Lba=%ld @ Offset 0x%08x.\n",
-        Context->StartLba + StartingLba, BlockOffset
+        StartingLba, BlockOffset
         ));
       Status = EraseFlashBlock (Context->SpiIo, SpiNorParams, BlockOffset);
       if (EFI_ERROR (Status)) {
@@ -734,7 +729,7 @@ FvbVirtualNotifyEvent (
   IN VOID             *Context
   )
 {
-  EfiConvertPointer (0x0, (VOID**)&mFlashNvStorageVariableBase);
+  EfiConvertPointer (0x0, (VOID**)&mFlashNvStorageBase);
   return;
 }
 
@@ -750,6 +745,7 @@ SpiNorFlashFvbInitialize (
   CONST SPI_FLASH_CONFIGURATION_DATA      *ConfigData;
   SPI_NOR_PARAMS                          *SpiNorParams;
   SFDP_FLASH_PARAM                        *ParamTable;
+  EFI_LBA                                 StartLba;
 
   DEBUG ((DEBUG_BLKIO,"SpiNorFlashFvbInitialize\n"));
   ASSERT((Context != NULL));
@@ -776,10 +772,10 @@ SpiNorFlashFvbInitialize (
                    );
   ASSERT_EFI_ERROR (Status);
 
-  mFlashNvStorageVariableBase = FixedPcdGet64 (PcdFlashNvStorageVariableBase64);
+  mFlashNvStorageBase = ConfigData->DeviceBaseAddress;
 
   // Set the index of the first LBA for the FVB
-  Context->StartLba = (PcdGet64 (PcdFlashNvStorageVariableBase64) - ConfigData->DeviceBaseAddress) / SFDP_PARAM_ERASE_SIZE(ParamTable);
+  StartLba = (PcdGet64 (PcdFlashNvStorageVariableBase64) - ConfigData->DeviceBaseAddress) / SFDP_PARAM_ERASE_SIZE(ParamTable);
   Context->LastLba = (ConfigData->FlashSize / SFDP_PARAM_ERASE_SIZE(ParamTable)) - 1;
 
   BootMode = GetBootModeHob ();
@@ -800,13 +796,13 @@ SpiNorFlashFvbInitialize (
     // Erase all the SpiNorFlash that is reserved for variable storage
     FvbNumLba = (PcdGet32(PcdFlashNvStorageVariableSize) + PcdGet32(PcdFlashNvStorageFtwWorkingSize) + PcdGet32(PcdFlashNvStorageFtwSpareSize)) / SFDP_PARAM_ERASE_SIZE(ParamTable);;
 
-    Status = FvbEraseBlocks (&Context->FvbProtocol, (EFI_LBA)0, FvbNumLba, EFI_LBA_LIST_TERMINATOR);
+    Status = FvbEraseBlocks (&Context->FvbProtocol, StartLba, FvbNumLba, EFI_LBA_LIST_TERMINATOR);
     if (EFI_ERROR (Status)) {
       return Status;
     }
 
     // Install all appropriate headers
-    Status = InitializeFvAndVariableStoreHeaders (Context);
+    Status = InitializeFvAndVariableStoreHeaders (Context, StartLba);
     if (EFI_ERROR (Status)) {
       return Status;
     }
@@ -831,7 +827,7 @@ SpiNorFlashFvbInitialize (
                   EVT_NOTIFY_SIGNAL,
                   TPL_NOTIFY,
                   FvbVirtualNotifyEvent,
-                  NULL,
+                  Context,
                   &gEfiEventVirtualAddressChangeGuid,
                   &mFvbVirtualAddrChangeEvent
                   );

@@ -1,5 +1,5 @@
 /** @file
-  Copyright 2018 NXP
+  Copyright 2018-2019 NXP
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -33,7 +33,6 @@ typedef struct _SPI_NOR_FLASH_CONTEXT {
   SPI_NOR_PARAMS                        *SpiNorParams;
 
   EFI_FIRMWARE_VOLUME_BLOCK2_PROTOCOL   FvbProtocol;
-  EFI_LBA                               StartLba;
   EFI_LBA                               LastLba;
   VOID*                                 ShadowBuffer;
 
