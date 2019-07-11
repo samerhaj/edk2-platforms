@@ -93,10 +93,7 @@ InitializeFvAndVariableStoreHeaders (
   //
   FirmwareVolumeHeader = (EFI_FIRMWARE_VOLUME_HEADER*)Headers;
   CopyGuid (&FirmwareVolumeHeader->FileSystemGuid, &gEfiSystemNvDataFvGuid);
-  FirmwareVolumeHeader->FvLength =
-      PcdGet32(PcdFlashNvStorageVariableSize) +
-      PcdGet32(PcdFlashNvStorageFtwWorkingSize) +
-      PcdGet32(PcdFlashNvStorageFtwSpareSize);
+  FirmwareVolumeHeader->FvLength = SFDP_PARAM_FLASH_SIZE(ParamTable);
   FirmwareVolumeHeader->Signature = EFI_FVH_SIGNATURE;
   FirmwareVolumeHeader->Attributes = (EFI_FVB_ATTRIBUTES_2) (
                                           EFI_FVB2_READ_ENABLED_CAP   | // Reads may be enabled
@@ -150,11 +147,15 @@ ValidateFvHeader (
   VARIABLE_STORE_HEADER       *VariableStoreHeader;
   UINTN                       VariableStoreLength;
   UINTN                       FvLength;
+  SPI_NOR_PARAMS              *SpiNorParams;
+  SFDP_FLASH_PARAM            *ParamTable;
+
+  SpiNorParams = Context->SpiNorParams;
+  ParamTable = SpiNorParams->ParamTable;
 
   FwVolHeader = (EFI_FIRMWARE_VOLUME_HEADER *)PcdGet64 (PcdFlashNvStorageVariableBase64);
 
-  FvLength = PcdGet32(PcdFlashNvStorageVariableSize) + PcdGet32(PcdFlashNvStorageFtwWorkingSize) +
-      PcdGet32(PcdFlashNvStorageFtwSpareSize);
+  FvLength = SFDP_PARAM_FLASH_SIZE(ParamTable);
 
   //
   // Verify the header revision, header signature, length
@@ -426,23 +427,29 @@ FvbRead (
   SPI_NOR_PARAMS              *SpiNorParams;
   SFDP_FLASH_PARAM            *ParamTable;
   EFI_SPI_IO_PROTOCOL         *SpiIo;
+  EFI_STATUS                  Status;
+  EFI_STATUS                  TmpStatus;
 
   Context = CONTEXT_FROM_FVB_THIS(This);
   SpiIo = Context->SpiIo;
   SpiNorParams = Context->SpiNorParams;
   ParamTable = SpiNorParams->ParamTable;
-
-  DEBUG ((DEBUG_BLKIO, "FvbRead(Parameters: Lba=%ld, Offset=0x%x, *NumBytes=0x%x, Buffer @ 0x%08x)\n", Lba, Offset, *NumBytes, Buffer));
+  TmpStatus = EFI_SUCCESS;
 
   // Cache the block size to avoid de-referencing pointers all the time
   BlockSize = SFDP_PARAM_ERASE_SIZE (ParamTable);
 
-  DEBUG ((DEBUG_BLKIO, "FvbRead: Check if (Offset=0x%x + NumBytes=0x%x) <= BlockSize=0x%x\n", Offset, *NumBytes, BlockSize ));
+  DEBUG ((
+    DEBUG_BLKIO,
+    "FvbRead(Parameters: Lba=%ld, Offset=0x%x, *NumBytes=0x%x, Buffer @ 0x%08x), BlockSize=0x%x\n",
+    Lba, Offset, *NumBytes, Buffer, BlockSize
+    ));
 
   // The read must not span block boundaries.
   // We need to check each variable individually because adding two large values together overflows.
   if (Offset >= BlockSize) {
     DEBUG ((DEBUG_ERROR, "FvbRead: ERROR - EFI_BAD_BUFFER_SIZE: (Offset=0x%x + NumBytes=0x%x) > BlockSize=0x%x\n", Offset, *NumBytes, BlockSize ));
+    *NumBytes = 0;
     return EFI_BAD_BUFFER_SIZE;
   }
 
@@ -452,16 +459,25 @@ FvbRead (
   }
 
   if ((Offset + *NumBytes) > BlockSize) {
-    *NumBytes = BlockSize-Offset;
+    *NumBytes = BlockSize - Offset;
+    TmpStatus = EFI_BAD_BUFFER_SIZE;
   }
 
-  return ReadFlashData (
-           SpiIo,
-           SpiNorParams,
-           GET_BLOCK_OFFSET (Lba) + Offset,
-           *NumBytes,
-           Buffer
-           );
+  Status = ReadFlashData (
+             SpiIo,
+             SpiNorParams,
+             GET_BLOCK_OFFSET (Lba) + Offset,
+             *NumBytes,
+             Buffer
+             );
+  if (!EFI_ERROR(Status)) {
+    return TmpStatus;
+  } else {
+    DEBUG ((DEBUG_ERROR, "ReadFlashData returned %r\n", Status));
+    Status = EFI_DEVICE_ERROR;
+  }
+
+  return Status;
 }
 
 /**
@@ -532,22 +548,28 @@ FvbWrite (
   SPI_NOR_FLASH_CONTEXT       *Context;
   SPI_NOR_PARAMS              *SpiNorParams;
   SFDP_FLASH_PARAM            *ParamTable;
+  EFI_STATUS                  Status;
+  EFI_STATUS                  TmpStatus;
 
   Context = CONTEXT_FROM_FVB_THIS(This);
   SpiNorParams = Context->SpiNorParams;
   ParamTable = SpiNorParams->ParamTable;
-
-  DEBUG ((DEBUG_BLKIO, "FvbWrite(Parameters: Lba=%ld, Offset=0x%x, *NumBytes=0x%x, Buffer @ 0x%08x)\n", Lba, Offset, *NumBytes, Buffer));
+  TmpStatus = EFI_SUCCESS;
 
   // Cache the block size to avoid de-referencing pointers all the time
   BlockSize = SFDP_PARAM_ERASE_SIZE (ParamTable);
 
-  DEBUG ((DEBUG_BLKIO, "FvbWrite: Check if (Offset=0x%x + NumBytes=0x%x) <= BlockSize=0x%x\n", Offset, *NumBytes, BlockSize ));
+  DEBUG ((
+    DEBUG_BLKIO,
+    "FvWrite(Parameters: Lba=%ld, Offset=0x%x, *NumBytes=0x%x, Buffer @ 0x%08x), BlockSize=0x%x\n",
+    Lba, Offset, *NumBytes, Buffer, BlockSize
+    ));
 
   // The read must not span block boundaries.
   // We need to check each variable individually because adding two large values together overflows.
   if (Offset >= BlockSize) {
     DEBUG ((DEBUG_ERROR, "FvbWrite: ERROR - EFI_BAD_BUFFER_SIZE: (Offset=0x%x + NumBytes=0x%x) > BlockSize=0x%x\n", Offset, *NumBytes, BlockSize ));
+    *NumBytes = 0;
     return EFI_BAD_BUFFER_SIZE;
   }
 
@@ -557,16 +579,25 @@ FvbWrite (
   }
 
   if ((Offset + *NumBytes) > BlockSize) {
-    *NumBytes = BlockSize-Offset;
+    *NumBytes = BlockSize - Offset;
+    TmpStatus = EFI_BAD_BUFFER_SIZE;
   }
 
-  return SpiNorFlashWrite (
-           Context,
-           Lba,
-           Offset,
-           *NumBytes,
-           Buffer
-           );
+   Status = SpiNorFlashWrite (
+              Context,
+              Lba,
+              Offset,
+              *NumBytes,
+              Buffer
+              );
+  if (!EFI_ERROR(Status)) {
+    return TmpStatus;
+  } else {
+    DEBUG ((DEBUG_ERROR, "SpiNorFlashWrite returned %r\n", Status));
+    Status = EFI_DEVICE_ERROR;
+  }
+
+  return Status;
 }
 
 /**
