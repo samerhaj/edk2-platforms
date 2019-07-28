@@ -1,0 +1,350 @@
+/*
+ * Device Tree file for LX2160ACEX7
+ *
+ * Copyright 2018 NXP
+ *
+ * Sriram Dash <sriram.dash@nxp.com>
+ *
+ * This file is dual-licensed: you can use it either under the terms
+ * of the GPL or the X11 license, at your option. Note that this dual
+ * licensing only applies to this file, and not this project as a
+ * whole.
+ *
+ *  a) This library is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License as
+ *     published by the Free Software Foundation; either version 2 of the
+ *     License, or (at your option) any later version.
+ *
+ *     This library is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ * Or, alternatively,
+ *
+ *  b) Permission is hereby granted, free of charge, to any person
+ *     obtaining a copy of this software and associated documentation
+ *     files (the "Software"), to deal in the Software without
+ *     restriction, including without limitation the rights to use,
+ *     copy, modify, merge, publish, distribute, sublicense, and/or
+ *     sell copies of the Software, and to permit persons to whom the
+ *     Software is furnished to do so, subject to the following
+ *     conditions:
+ *
+ *     The above copyright notice and this permission notice shall be
+ *     included in all copies or substantial portions of the Software.
+ *
+ *     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ *     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ *     OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ *     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ *     HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ *     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ *     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ *     OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+/dts-v1/;
+
+#include <DeviceTreeInclude/fsl-lx2160a.dtsi>
+
+/ {
+  model = "SolidRun LX2160A COM express type 7 module";
+  compatible = "fsl,lx2160a-cex7", "fsl,lx2160a";
+
+  aliases {
+    crypto = &crypto;
+    serial0 = &uart0;
+    serial1 = &uart1;
+    serial2 = &uart2;
+    serial3 = &uart3;
+  };
+
+  chosen {
+    stdout-path = "serial0:115200n8";
+  };
+
+  gpio-keys {
+    compatible = "gpio-keys";
+    key {
+      label = "power";
+      linux,can-disable;
+      linux,code = <116>;
+      gpios = <&gpio2 6 1>;
+    };
+  };
+
+  sb_3v3: regulator-sb3v3 {
+    compatible = "regulator-fixed";
+    regulator-name = "RT7290";
+    regulator-min-microvolt = <3300000>;
+    regulator-max-microvolt = <3300000>;
+    regulator-boot-on;
+    regulator-always-on;
+  };
+
+  sfp0: sfp-0 {
+    compatible = "sff,sfp";
+    i2c-bus = <&sfp0_i2c>;
+    mod-def0-gpio = <&gpio2 0 1>;
+  };
+  sfp1: sfp-1 {
+    compatible = "sff,sfp";
+    i2c-bus = <&sfp1_i2c>;
+    mod-def0-gpio = <&gpio2 9 1>;
+  };
+  sfp2: sfp-2 {
+    compatible = "sff,sfp";
+    i2c-bus = <&sfp2_i2c>;
+    mod-def0-gpio = <&gpio2 10 1>;
+  };
+  sfp3: sfp-3 {
+    compatible = "sff,sfp";
+    i2c-bus = <&sfp3_i2c>;
+    mod-def0-gpio = <&gpio2 11 1>;
+  };
+};
+
+&crypto {
+  status = "okay";
+};
+
+&dpmac3 {
+  fixed-link {
+    speed = <10000>;
+    full-duplex;
+  };
+};
+
+&dpmac4 {
+  fixed-link {
+    speed = <10000>;
+    full-duplex;
+  };
+};
+
+&dpmac5 {
+  fixed-link {
+    speed = <10000>;
+    full-duplex;
+  };
+};
+
+&dpmac6 {
+  fixed-link {
+    speed = <10000>;
+    full-duplex;
+  };
+};
+
+&dpmac7 {
+  sfp = <&sfp0>;
+  managed = "in-band-status";
+};
+
+&dpmac8 {
+  sfp = <&sfp1>;
+  managed = "in-band-status";
+};
+
+&dpmac9 {
+  sfp = <&sfp2>;
+  managed = "in-band-status";
+};
+
+&dpmac10 {
+  sfp = <&sfp3>;
+  managed = "in-band-status";
+};
+
+&dpmac17 {
+	phy-handle = <&rgmii_phy1>;
+	phy-connection-type = "rgmii-id";
+};
+
+&dpmac18 {
+  status = "disabled";
+};
+
+&emdio1 {
+  rgmii_phy1: ethernet-phy@1 {
+    /* AR8035 PHY - "compatible" property not strictly needed */
+    compatible = "ethernet-phy-id004d.d072";
+    reg = <0x1>;
+    /* Poll mode - no "interrupts" property defined */
+  };
+};
+
+&emdio2 {
+  status = "okay";
+};
+
+&esdhc0 {
+  sd-uhs-sdr104;
+  sd-uhs-sdr50;
+  sd-uhs-sdr25;
+  sd-uhs-sdr12;
+  status = "okay";
+};
+
+&esdhc1 {
+  mmc-hs200-1_8v;
+  mmc-hs400-1_8v;
+  bus-width = <8>;
+  status = "okay";
+};
+
+&fspi {
+  status = "okay";
+//  nxp,fspi-has-second-chip;
+  uefi-runtime;
+
+  flash0: mt35xu512aba@0 {
+    #address-cells = <1>;
+    #size-cells = <1>;
+    compatible = "micron,m25p80";
+    m25p,fast-read;
+    spi-max-frequency = <50000000>;
+    reg = <0>;
+    /* The following setting enables 1-1-8 (CMD-ADDR-DATA) mode */
+    spi-rx-bus-width = <8>; /* 8 SPI Rx lines */
+    spi-tx-bus-width = <1>; /* 1 SPI Tx line */
+    uefi-runtime;
+  };
+
+};
+
+&i2c0 {
+  status = "okay";
+
+  i2c-mux@77 {
+    compatible = "nxp,pca9547";
+    reg = <0x77>;
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    i2c@1 {
+      #address-cells = <1>;
+      #size-cells = <0>;
+      reg = <0x1>;
+      fan-temperature-ctrlr@18 {
+        compatible = "ti,amc6821";
+        reg = <0x18>;
+        cooling-min-state = <0>;
+        cooling-max-state = <9>;
+        #cooling-cells = <2>;
+      };
+    };
+    i2c@3 {
+      #address-cells = <1>;
+      #size-cells = <0>;
+      reg = <0x3>;
+
+      temperature-sensor@48 {
+        compatible = "nxp,sa56004";
+        reg = <0x48>;
+        vcc-supply = <&sb_3v3>;
+      };
+    };
+    sfp0_i2c: i2c@4 {
+      #address-cells = <1>;
+      #size-cells = <0>;
+      reg = <0x4>;
+    };
+    sfp1_i2c: i2c@5 {
+      #address-cells = <1>;
+      #size-cells = <0>;
+      reg = <0x5>;
+    };
+    sfp2_i2c: i2c@6 {
+      #address-cells = <1>;
+      #size-cells = <0>;
+      reg = <0x6>;
+    };
+    sfp3_i2c: i2c@7 {
+      #address-cells = <1>;
+      #size-cells = <0>;
+      reg = <0x7>;
+    };
+  };
+};
+
+&i2c1 {
+  status = "disabled";
+};
+
+&i2c2 {
+  status = "okay";
+};
+
+&i2c3 {
+  status = "disabled";
+};
+
+&i2c4 {
+  status = "okay";
+
+  rtc@51 {
+    compatible = "nxp,pcf2129";
+    reg = <0x51>;
+    /* IRQ10_B */
+    interrupts = <0 150 0x4>;
+  };
+
+};
+
+&i2c5 {
+  status = "disabled";
+};
+
+&i2c6 {
+  status = "disabled";
+};
+
+&i2c7 {
+  status = "disabled";
+};
+
+&pcie2 {
+  iommu-map = <0 &smmu 0 0>;
+  msi-map-mask = <0xfff>;
+  status = "okay";
+};
+
+&pcie4 {
+  iommu-map = <0 &smmu 0 0>;
+  msi-map-mask = <0xfff>;
+  status = "okay";
+};
+
+&sata0 {
+  status = "okay";
+};
+
+&sata1 {
+  status = "okay";
+};
+
+&sata2 {
+  status = "okay";
+};
+
+&sata3 {
+  status = "okay";
+};
+
+&uart0 {
+  status = "okay";
+};
+
+&uart1 {
+  status = "okay";
+};
+
+&usb0 {
+  status = "okay";
+};
+
+&usb1 {
+  status = "okay";
+};
