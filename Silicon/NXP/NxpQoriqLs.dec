@@ -51,6 +51,15 @@
   gNxpQoriqLsTokenSpaceGuid.PcdI2cSlaveAddress|0|UINT32|0x00000004
 
   #
+  # Pcds for Pcf2129 I2C MUX 
+  #
+  gNxpQoriqLsTokenSpaceGuid.PcdIsRtcDeviceMuxed|FALSE|BOOLEAN|0x00000005
+  gNxpQoriqLsTokenSpaceGuid.PcdMuxDeviceAddress|0|UINT32|0x00000006
+  gNxpQoriqLsTokenSpaceGuid.PcdMuxControlRegOffset|0|UINT32|0x00000007
+  gNxpQoriqLsTokenSpaceGuid.PcdMuxRtcChannelValue|0|UINT32|0x00000008
+  gNxpQoriqLsTokenSpaceGuid.PcdMuxDefaultChannelValue|0|UINT32|0x00000009
+
+  #
   # Pcd for I2c based devices
   #
   gNxpQoriqLsTokenSpaceGuid.PcdSysEepromI2cBus|0|UINT32|0x0000000A

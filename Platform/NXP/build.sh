@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # UEFI build script for NXP LS SoCs
 #
 # Copyright 2017-2019 NXP
@@ -30,8 +29,8 @@ print_usage_banner()
 {
     echo ""
     echo "This shell script expects:"
-    echo "    Arg 1 (mandatory): SoC Type (can be LS1043 / LS1046 / LS2088 / LX2160 / LS1028)."
-    echo "    Arg 2 (mandatory): Board Type (can be RDB / QDS)."
+    echo "    Arg 1 (mandatory): SoC Type (can be LS1043 / LS1046 / LS2088 / LX2160)."
+    echo "    Arg 2 (mandatory): Board Type (can be RDB / QDS / FRWY)."
     echo "    Arg 3 (mandatory): Build candidate (can be RELEASE or DEBUG). By
               default we build the RELEASE candidate."
     echo "    Arg 4 (optional): clean - To do a 'make clean' operation."
@@ -59,14 +58,14 @@ if [[ $1 == "" || $2 == "" || $3 == "" ]]; then
 fi
 
 # Check for input arguments
-if [[ $1 != "LS1043" && $1 != "LS1046" && $1 != "LS2088" && $1 != "LX2160" && $1 != "LS1028" ]]; then
+if [[ $1 != "LS1043" && $1 != "LS1046" && $1 != "LS2088" && $1 != "LX2160" ]]; then
   echo "Error ! Incorrect Soc Type specified."
   print_usage_banner
   exit
 fi
 
 # Check for input arguments
-if [[ $2 != "RDB" && $2 != "QDS" ]]; then
+if [[ $2 != "RDB" && $2 != "QDS" && $2 != "FRWY" ]]; then
   echo "Error ! Incorrect Board Type specified."
   print_usage_banner
   exit
@@ -87,6 +86,8 @@ if [[ $2 == "RDB" ]]; then
   if [[ $2 == "QDS" ]]; then
     PKG="aQdsPkg"
   fi
+elif [[ $2 == "FRWY" ]]; then
+  PKG="aFrwyPkg"
 fi
 
 echo ".........................................."

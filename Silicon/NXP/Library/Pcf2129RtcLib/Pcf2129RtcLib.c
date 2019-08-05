@@ -5,7 +5,7 @@
   EmbeddedPkg/Library/TemplateRealTimeClockLib/RealTimeClockLib.c
 
   Copyright (c) 2008 - 2009, Apple Inc. All rights reserved.<BR>
-  Copyright 2017 NXP
+  Copyright 2017, 2019 NXP
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -97,6 +97,56 @@ RtcWrite (
   }
 
 }
+/**
+  Write RTC register.
+
+  @param  SlaveDeviceAddress   Slave device address offset of RTC to be read.
+  @param  RtcRegAddr           Register offset of RTC to write.
+  @param  Val                  Value to be written
+
+**/
+STATIC
+VOID
+I2CWriteMux (
+  IN  UINT8                SlaveDeviceAddress,
+  IN  UINT8                RtcRegAddr,
+  IN  UINT8                Val
+  )
+{
+  RTC_I2C_REQUEST          Req;
+  EFI_STATUS               Status;
+
+  Req.OperationCount = 2;
+
+  Req.SetAddressOp.Flags = 0;
+  Req.SetAddressOp.LengthInBytes = sizeof (RtcRegAddr);
+  Req.SetAddressOp.Buffer = &RtcRegAddr;
+
+  Req.GetSetDateTimeOp.Flags = 0;
+  Req.GetSetDateTimeOp.LengthInBytes = sizeof (Val);
+  Req.GetSetDateTimeOp.Buffer = &Val;
+
+  Status = mI2cMaster->StartRequest (mI2cMaster, SlaveDeviceAddress,
+                                     (VOID *)&Req,
+                                     NULL,  NULL);
+  if (EFI_ERROR (Status)) {
+    BOOTTIME_DEBUG ((DEBUG_ERROR, "RTC write error at Addr:0x%x\n", RtcRegAddr));
+  }
+}
+
+/**
+  Configure the MUX device connected to I2C.
+
+  @param  RegValue               Value to write on mux device register address
+
+**/
+VOID
+ConfigureMuxDevice (
+  IN  UINT8                RegValue
+  )
+{
+  I2CWriteMux (FixedPcdGet8 (PcdMuxDeviceAddress), FixedPcdGet8 (PcdMuxControlRegOffset), RegValue);
+}
 
 /**
   Returns the current time and date information, and the time-keeping capabilities
@@ -130,6 +180,14 @@ LibGetTime (
 
   if (mI2cMaster == NULL) {
     return EFI_DEVICE_ERROR;
+  }
+
+  //
+  // Check if the I2C device is connected though a MUX device.
+  //
+  if (FixedPcdGetBool (PcdIsRtcDeviceMuxed)) {
+    // Switch to the channel connected to Ds3232 RTC
+    ConfigureMuxDevice (FixedPcdGet8 (PcdMuxRtcChannelValue));
   }
 
   RtcWrite (PCF2129_CTRL1_REG_ADDR, Buffer[0]);
@@ -168,6 +226,11 @@ LibGetTime (
   Time->Month  = BcdToDecimal8 (Buffer[PCF2129_MON_REG_ADDR] & 0x1F);
   Time->Year = BcdToDecimal8 (Buffer[PCF2129_YR_REG_ADDR]) + ( BcdToDecimal8 (Buffer[PCF2129_YR_REG_ADDR]) >= 98 ? 1900 : 2000);
 
+  if (FixedPcdGetBool (PcdIsRtcDeviceMuxed)) {
+    // Switch to the default channel
+    ConfigureMuxDevice (FixedPcdGet8 (PcdMuxDefaultChannelValue));
+  }
+
   return Status;
 }
 
@@ -201,6 +264,13 @@ LibSetTime (
   if (mI2cMaster == NULL) {
     return EFI_DEVICE_ERROR;
   }
+  //
+  // Check if the I2C device is connected though a MUX device.
+  //
+  if (FixedPcdGetBool (PcdIsRtcDeviceMuxed)) {
+    // Switch to the channel connected to Ds3232 RTC
+    ConfigureMuxDevice (FixedPcdGet8 (PcdMuxRtcChannelValue));
+  }
 
   // start register address
   Buffer[Index++] = PCF2129_SEC_REG_ADDR;
@@ -229,6 +299,10 @@ LibSetTime (
   if (EFI_ERROR (Status)) {
     BOOTTIME_DEBUG ((DEBUG_ERROR, "RTC write error at Addr:0x%x\n", RtcRegAddr));
     return Status;
+  }
+    if (FixedPcdGetBool (PcdIsRtcDeviceMuxed)) {
+    // Switch to the default channel
+    ConfigureMuxDevice (FixedPcdGet8 (PcdMuxDefaultChannelValue));
   }
 
   return Status;
