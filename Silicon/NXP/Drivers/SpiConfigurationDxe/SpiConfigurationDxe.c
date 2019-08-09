@@ -16,7 +16,7 @@
     -Whether the SPI controller or a GPIO pin is used for the chip select
     -The data sampling edge for the SPI part
 
- Copyright 2018 NXP
+ Copyright 2018-2019 NXP
 
  This program and the accompanying materials
  are licensed and made available under the terms and conditions of
@@ -98,7 +98,8 @@ STATIC CONST struct {
   GUID*   SpiPeripheralDriverGuid;
 } gSpiPeripheralIds[] = {
   { "spansion,m25p80", &gEfiSpiNorFlashDriverGuid },
-  { "micron,m25p80", &gEfiSpiNorFlashDriverGuid }
+  { "micron,m25p80", &gEfiSpiNorFlashDriverGuid },
+  { "jedec,spi-nor", &gEfiSpiNorFlashDriverGuid }
 };
 
 CONST EFI_SPI_BUS    *gSpiBuses[FixedPcdGet32 (PcdSpiBusCount)];
