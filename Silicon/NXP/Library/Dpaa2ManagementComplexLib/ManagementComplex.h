@@ -1,7 +1,7 @@
 /** ManagementComplex.h
   DPAA2 Management Complex private declarations
 
-  Copyright 2017 NXP
+  Copyright 2017, 2019 NXP
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -17,7 +17,9 @@
 #define __MANAGEMENT_COMPLEX_H__
 
 #include <Bitops.h>
+#include <Library/Dpaa2EthernetMacLib.h>
 #include <Library/Dpaa2McIo.h>
+#include <Library/PrintLib.h>
 #include <Uefi.h>
 
 #define DPAA2_MC_CCSR_BASE_ADDR 0x8340000ULL
@@ -41,6 +43,10 @@
         (((UINT32)'M' << 24) |  ((UINT32)'C' << 16))
 
 #define MC_FIXED_SIZE_512MB 0x20000000
+
+#define MC_INCREASE_SIZE_DT 64
+
+#define IsDpni(S) (S != NULL ? !AsciiStrnCmp (S, "dpni@", 5) : 0)
 
 /**
  * DPAA2 Management complex CCSR registers
@@ -200,6 +206,11 @@ typedef enum _DPAA2_MC_FW_SOURCE {
   MC_IMAGES_IN_NOR_FLASH =  0x01,
   MC_IMAGES_IN_QSPI_FLASH = 0x02,
 } DPAA2_MC_FW_SOURCE;
+
+typedef enum _MC_FIXUP_TYPE {
+  FIXUP_DPL,
+  FIXUP_DPC
+} MC_FIXUP_TYPE;
 
 VOID DumpMcLogTail (
   DPAA2_MANAGEMENT_COMPLEX *Mc,

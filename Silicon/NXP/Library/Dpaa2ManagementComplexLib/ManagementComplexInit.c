@@ -24,6 +24,7 @@
 #include <Library/ItbParse.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/PcdLib.h>
+#include <Library/SysEepromLib.h>
 #include <Library/TimerLib.h>
 #include <libfdt.h>
 
@@ -520,6 +521,278 @@ McFixupDpcMcLogLevel (
   return EFI_SUCCESS;
 }
 
+STATIC
+EFI_STATUS
+FixupMac (
+  VOID          *Blob,
+  INT32         NodeOffset,
+  CONST CHAR8   *PropName,
+  MC_FIXUP_TYPE Type,
+  UINT32        DpmacId
+  )
+{
+  INT32         Err;
+  UINT32        Size;
+  UINT32        I;
+  UINTN         NewLength;
+  UINT8         MacAddress[6];
+
+  /* TODO: Give first priority to EEPROM when we have
+   * an application or shell command to update data in
+   * EEPROM
+   */
+  if (EFI_ERROR (MacReadFromEeprom (DpmacId, MacAddress))) {
+    if (EFI_ERROR (GenerateMacAddress (DpmacId, MacAddress))) {
+      DPAA_ERROR_MSG ("Failed to get mac address\n");
+      return EFI_DEVICE_ERROR;
+    }
+  }
+
+  if (Type == FIXUP_DPL) {
+      /* DPL likes its addresses on 32 * ARP_HLEN bits */
+    for (I = 0; I < 6; I++) {
+       MacAddress[I] = cpu_to_fdt32(MacAddress[I]);
+    }
+  }
+
+  DPAA_DEBUG_MSG ("Dpmac ID %d : MAC addr: %02X:%02X:%02X:%02X:%02X:%02X\n",
+                   DpmacId,
+                   MacAddress[0],
+                   MacAddress[1],
+                   MacAddress[2],
+                   MacAddress[3],
+                   MacAddress[4],
+                   MacAddress[5]);
+
+  /* MAC address property already present */
+  if (fdt_get_property (Blob, NodeOffset, PropName, NULL)) {
+    DEBUG ((DEBUG_ERROR, "DPC: Mac Address present, fixup not needed\n"));
+    return EFI_SUCCESS;
+  } else {
+    Size = MC_INCREASE_SIZE_DT + AsciiStrLen (PropName) + sizeof (MacAddress);
+    NewLength = fdt_totalsize (Blob) + Size;
+
+    Err = fdt_open_into (Blob, Blob, NewLength);
+    if (Err) {
+      DPAA_ERROR_MSG ("err=%s i increasing fdt size\n", fdt_strerror (Err));
+      return EFI_OUT_OF_RESOURCES;
+    }
+  }
+
+  Err = fdt_setprop (Blob, NodeOffset, PropName, MacAddress, sizeof (MacAddress));
+
+  if (Err) {
+    DPAA_ERROR_MSG ("fdt_setprop: err=%s\n", fdt_strerror (Err));
+    return EFI_DEVICE_ERROR;
+  }
+
+  return EFI_SUCCESS;
+}
+
+STATIC
+CONST CHAR8 *GetDplConnectionEP (
+  IN  VOID     *Blob,
+  IN  CHAR8    *EP
+  )
+{
+  INT32        Offset;
+  INT32        COffset;
+  CONST CHAR8  *S1;
+  CONST CHAR8  *S2;
+
+  COffset = fdt_path_offset (Blob, "/connections");
+
+  for (Offset = fdt_first_subnode (Blob, COffset); Offset >= 0;
+    Offset = fdt_next_subnode (Blob, Offset)) {
+    S1 = fdt_stringlist_get (Blob, Offset, "endpoint1", 0, NULL);
+    S2 = fdt_stringlist_get (Blob, Offset, "endpoint2", 0, NULL);
+
+    if (!S1 || !S2) {
+      continue;
+    }
+
+    if (AsciiStrCmp (EP, S1) == 0) {
+      return S2;
+    }
+
+    if (AsciiStrCmp (EP, S2) == 0) {
+      return S1;
+    }
+  }
+
+  return NULL;
+}
+
+STATIC
+EFI_STATUS
+FixupDplMacAddress (
+  IN  VOID    *Blob,
+  IN  UINT32  DpmacId
+  )
+{
+  EFI_STATUS  Status;
+  UINT32      PathOffset;
+  INT32       POff;
+  CHAR8       MacName[10];
+  CONST CHAR8 *EP;
+
+  AsciiSPrint (MacName, sizeof (MacName), "dpmac@%d", DpmacId);
+  PathOffset = fdt_path_offset (Blob, "/objects");
+
+  POff = fdt_subnode_offset (Blob, PathOffset, (CONST CHAR8 *)MacName);
+  if (POff < 0) {
+    /* dpmac not defined, skip it */
+    return EFI_SUCCESS;
+  }
+
+  Status = FixupMac (Blob, POff, "mac_addr", FIXUP_DPL, DpmacId);
+  if (EFI_ERROR (Status)) {
+    DPAA_ERROR_MSG ("Error fixing dpmac mac_addr in DPL\n");
+    return Status;
+  }
+
+  /* walk the connection list to figure out if there is any
+   * DPNI connected to this MAC
+   */
+  EP = GetDplConnectionEP (Blob, MacName);
+  if (!IsDpni (EP)) {
+    return EFI_SUCCESS;
+  }
+
+  /* Try to fixup the DPNI */
+  POff = fdt_subnode_offset (Blob, PathOffset, EP);
+  if (POff < 0) {
+    /* DPNI not defined in DPL */
+    return EFI_SUCCESS;
+  }
+
+  return FixupMac (Blob, POff, "mac_addr", FIXUP_DPL, DpmacId);
+}
+
+STATIC
+EFI_STATUS
+FixupDpcMacAddress (
+  IN  VOID    *Blob,
+  IN  UINT32  DpmacId
+  )
+{
+  UINT32      PathOffset;
+  INT32       POff;
+  INT32       Err;
+  CHAR8       MacName[10];
+  CONST CHAR8 LinkTypeMode[] = "MAC_LINK_TYPE_FIXED";
+
+  AsciiSPrint (MacName, sizeof (MacName), "mac@%d", DpmacId);
+  PathOffset = fdt_path_offset(Blob, "/board_info/ports");
+
+  /* node not found - create it */
+  POff = fdt_subnode_offset(Blob, PathOffset, (CONST CHAR8 *)MacName);
+  if (POff < 0) {
+    Err = fdt_open_into (Blob, Blob, (fdt_totalsize (Blob) + EFI_PAGE_SIZE));
+    if (Err) {
+        DPAA_ERROR_MSG ("err=%s in increasing DPC FDT size\n", fdt_strerror (Err));
+        return EFI_OUT_OF_RESOURCES;
+    }
+
+    POff = fdt_add_subnode(Blob, PathOffset, MacName);
+    if (POff < 0) {
+        DPAA_ERROR_MSG ("fdt_add_subnode: err=%s\n", fdt_strerror (Err));
+        return EFI_DEVICE_ERROR;
+    }
+
+    /* add default property of fixed link */
+    Err = fdt_appendprop_string (Blob, POff, "link_type", LinkTypeMode);
+    if (Err) {
+        DPAA_ERROR_MSG ("fdt_appendprop_string: err=%s\n", fdt_strerror (Err));
+        return EFI_DEVICE_ERROR;
+    }
+  }
+
+  return FixupMac (Blob, POff, "port_mac_address", FIXUP_DPC, DpmacId);
+}
+
+/**
+* Fix up MAC address node in dpc/dpl with mac address read
+* from EEPROM, if not found in EEPROM, then create a unique
+* MAC address on basis of SoC and update that in dpc/dpl.
+* */
+STATIC
+EFI_STATUS
+FixupMacAddress (
+  IN  VOID          *Blob,
+  IN  MC_FIXUP_TYPE Type
+  )
+{
+  EFI_STATUS        Status;
+  WRIOP_DPMAC_ID    DpmacId;
+
+  Status = EFI_SUCCESS;
+
+  for (DpmacId = WRIOP_DPMAC1; DpmacId < WRIOP_DPMAC19; DpmacId++) {
+    if (!IsDpmacEnabled (DpmacId)) {
+      continue;
+    }
+
+    switch (Type) {
+    case FIXUP_DPL:
+      Status = FixupDplMacAddress (Blob, DpmacId);
+      break;
+
+    case FIXUP_DPC:
+      Status = FixupDpcMacAddress (Blob, DpmacId);
+      break;
+
+    default:
+      break;
+    }
+
+    if (EFI_ERROR (Status)) {
+      DPAA_ERROR_MSG ("Failed to Fixup Mac Address for DPMAC ID %d\n", DpmacId);
+    }
+  }
+
+  return Status;
+}
+
+/**
+ * Fix up DPL blob (FDT)
+ */
+STATIC
+EFI_STATUS
+McFixupDpl (
+  EFI_PHYSICAL_ADDRESS     DplRamAddr
+  )
+{
+  VOID                     *DplBlob;
+  CONST UINT32*            Version;
+  INT32                    Size;
+  EFI_STATUS               Status;
+
+  DplBlob = (VOID *)DplRamAddr;
+  Version = fdt_getprop (DplBlob, fdt_path_offset (DplBlob, "/"),
+             "dpl-version", &Size);
+
+  DPAA_DEBUG_MSG ("DPL VERSION %d\n", fdt32_to_cpu (*Version));
+  /**
+   * The DPL fixup for mac addresses is only relevant for old-style DPLs
+   */
+  if (*Version >= 10) {
+    return EFI_SUCCESS;
+  }
+
+  Status = FixupMacAddress (DplBlob, FIXUP_DPL);
+
+  if (EFI_ERROR (Status)) {
+    DPAA_ERROR_MSG ("DPL: mac address fixup failed \n");
+    return Status;
+  }
+
+# ifdef DPAA2_USE_UEFI_ALLOCATOR_FOR_MC_MEM
+  CleanDcacheRange (DplRamAddr, DplRamAddr + fdt_totalsize (DplBlob));
+# endif
+
+  return EFI_SUCCESS;
+}
 
 /**
  * Fix up DPC blob (FDT)
@@ -622,6 +895,13 @@ McFixupDpc (
     Num = fdt_getprop (DpcBlob, NodeOffset, "num", &PropSize);
     ASSERT (Num != NULL && PropSize == sizeof (UINT32));
     DPAA_DEBUG_MSG ("MC num ICIDs fixed up in DPC to %u\n", fdt32_to_cpu (*Num));
+  }
+
+  Status = FixupMacAddress (DpcBlob, FIXUP_DPC);
+
+  if (EFI_ERROR (Status)) {
+    DPAA_ERROR_MSG ("DPC: mac address fixup failed \n");
+    return Status;
   }
 
   if (TRUE == DisableMcLogging) {
@@ -1295,6 +1575,7 @@ McLoadDpl (
   UINT32 DplSize;
   EFI_PHYSICAL_ADDRESS DplRamAddr;
   EFI_PHYSICAL_ADDRESS DplFlashAddr;
+  EFI_STATUS Status;
 
   DplMcDramOffset = FixedPcdGet32 (PcdDpaa2McDplMcDramOffset);
   DplMaxLen = FixedPcdGet32 (PcdDpaa2McDplMaxLen);
@@ -1327,6 +1608,11 @@ McLoadDpl (
 
   DplRamAddr = Mc->McPrivateMemoryBaseAddr + DplMcDramOffset;
   McCopyImage ("MC DPL blob", DplFlashAddr, DplSize, DplRamAddr);
+
+  Status = McFixupDpl (DplRamAddr);
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
 
   if (gDpaaDebugFlags & DPAA_DEBUG_DUMP_VALUES) {
     DumpRamWords ("DPL", (VOID *)DplRamAddr);

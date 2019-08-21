@@ -1,7 +1,7 @@
 /** WriopDpmac.c
   DPAA2 WRIOP MAC services implementation
 
-  Copyright 2017 NXP
+  Copyright 2017, 2019 NXP
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -92,7 +92,6 @@ STATIC WRIOP_DPMAC gWriopDpmacs[] = {
   WRIOP_DPMAC_INITIALIZER (WRIOP_DPMAC24),
 };
 
-STATIC
 BOOLEAN
 IsDpmacEnabled (
   WRIOP_DPMAC_ID DpmacId

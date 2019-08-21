@@ -1,7 +1,7 @@
 /** Dpaa2EthernetMacLib.h
   DPAA2 Ethernet MAC library interface
 
-  Copyright 2017 NXP
+  Copyright 2017, 2019 NXP
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -112,5 +112,6 @@ PhyInterfaceTypeToString (
   );
 
 extern const CHAR8 *const gWriopDpmacStrings[];
+BOOLEAN IsDpmacEnabled ( WRIOP_DPMAC_ID DpmacId);
 
 #endif /* __DPAA2_ETHERTNET_MAC_LIB_H__ */
