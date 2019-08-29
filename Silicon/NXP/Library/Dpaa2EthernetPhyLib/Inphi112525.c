@@ -27,6 +27,8 @@
  *
  */
 
+#include <Uefi.h>
+#include <Library/UefiLib.h>
 #include <Library/DpaaDebugLib.h>
 #include <Library/BaseMemoryLib/MemLibInternals.h>
 #include <Library/IoLib.h>
@@ -38,7 +40,7 @@
 
 BOOLEAN gLaneRecovery;
 IN112525_S03_VCO_CODES S03VcoCodes;
-EFI_EVENT gExitBootServicesEvent = NULL;
+STATIC EFI_EVENT Dpaa2PhyPeriodicTimer;
 
 IN112525_CONFIG  InphiS03Config = {
   .EnableOtuProtocol = 0,
@@ -583,17 +585,20 @@ In112525S03LaneRecovery (
   Dpaa2PhyRegisterRead (Dpaa2Phy, MDIO_MMD_VEND1, PHYSTAT_REG2);
 
   DEBUG ((DEBUG_ERROR, "TX PLL Lock Success for lane %d \n", Lane));
-  gLaneRecovery = TRUE;
+
+  if (TxPllLockTest (Dpaa2Phy, NUMBER_OF_LANES)) {
+    DEBUG ((DEBUG_INFO, "All PLLs Locked \n"));
+    gLaneRecovery = TRUE;
+  }
 
   return EFI_SUCCESS;
 }
-STATIC
+
 VOID
-EFIAPI
-InphiNotifyExitBootServices (
-  EFI_EVENT Event,
-  VOID      *Context
-  )
+Dpaa2PhyTimerHandler (
+    IN EFI_EVENT  Event,
+    IN VOID       *Context
+    )
 {
   if (!gLaneRecovery) {
     In112525S03LaneRecovery ((DPAA2_PHY *)Context, NUMBER_OF_LANES);
@@ -742,21 +747,28 @@ In112525S03PhyConfig (
   MicroSecondDelay (100000);
 
   /* start fresh */
-  if (!gLaneRecovery) {
-    In112525S03LaneRecovery (Dpaa2Phy, NUMBER_OF_LANES);
+  In112525S03LaneRecovery (Dpaa2Phy, NUMBER_OF_LANES);
+
+  Status = gBS->CreateEvent (
+                  EVT_TIMER | EVT_NOTIFY_SIGNAL,
+                  TPL_NOTIFY,
+                  Dpaa2PhyTimerHandler,
+                  Dpaa2Phy,
+                  &Dpaa2PhyPeriodicTimer
+                  );
+  if (EFI_ERROR (Status)) {
+    DPAA_ERROR_MSG ("Failed to create Inphi PeriodicTimer event (error %u)\n", Status);
+    return Status;
   }
 
-  if (gExitBootServicesEvent == NULL) {
-    Status = gBS->CreateEvent (
-                EVT_SIGNAL_EXIT_BOOT_SERVICES,
-                TPL_CALLBACK,
-                InphiNotifyExitBootServices,
-                Dpaa2Phy,
-                &gExitBootServicesEvent
-                );
-    if (EFI_ERROR (Status)) {
-      DPAA_ERROR_MSG ("Failed to create Inphi event (error %u)\n", Status);
-    }
+  Status = gBS->SetTimer (
+                  Dpaa2PhyPeriodicTimer,
+                  TimerPeriodic,
+                  EFI_TIMER_PERIOD_SECONDS(5)
+                  );
+  if (EFI_ERROR (Status)) {
+    DPAA_ERROR_MSG ("Failed to set Inphi PeriodicTimer (error %u)\n", Status);
+    return Status;
   }
 
   return EFI_SUCCESS;
