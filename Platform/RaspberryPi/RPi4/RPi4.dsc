@@ -323,7 +323,7 @@
   gEfiSecurityPkgTokenSpaceGuid.PcdRemovableMediaImageVerificationPolicy|0x04
 !endif
 
-  gEmbeddedTokenSpaceGuid.PcdInterruptBaseAddress|0x40000000
+  gEmbeddedTokenSpaceGuid.PcdInterruptBaseAddress|0xff800000
   gArmTokenSpaceGuid.PcdArmArchTimerSecIntrNum|0x0
   gArmTokenSpaceGuid.PcdArmArchTimerIntrNum|0x1
   gArmTokenSpaceGuid.PcdArmArchTimerVirtIntrNum|0x2
@@ -375,14 +375,14 @@
   #
   # Device specific addresses
   #
-  gRaspberryPiTokenSpaceGuid.PcdDw2UsbBaseAddress|0x3f980000
-  gBcm283xTokenSpaceGuid.PcdSocRegistersAddress|0x3f000000
-  gBcm283xTokenSpaceGuid.PcdWdogBaseAddress|0x3f100000
-  gBcm283xTokenSpaceGuid.PcdMboxBaseAddress|0x3f00b880
-  gBcm283xTokenSpaceGuid.PcdMmcHs1BaseAddress|0x3f300000
+  gRaspberryPiTokenSpaceGuid.PcdDw2UsbBaseAddress|0xfe980000
+  gBcm283xTokenSpaceGuid.PcdSocRegistersAddress|0xfe000000
+  gBcm283xTokenSpaceGuid.PcdWdogBaseAddress|0xfe100000
+  gBcm283xTokenSpaceGuid.PcdMboxBaseAddress|0xfe00b880
+  gBcm283xTokenSpaceGuid.PcdMmcHs1BaseAddress|0xfe300000
 
   ## NS16550 compatible UART
-  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase|0x3f215040
+  gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase|0xfe215040
   gEfiMdeModulePkgTokenSpaceGuid.PcdSerialUseMmio|TRUE
   gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterStride|4
   gEfiMdeModulePkgTokenSpaceGuid.PcdSerialClockRate|500000000
