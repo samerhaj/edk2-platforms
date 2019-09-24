@@ -2,7 +2,7 @@
 #
 #  LX2160ARDB Board package.
 #
-#  Copyright 2018 NXP
+#  Copyright 2018-2019 NXP
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -85,7 +85,7 @@
   # ARM SBSA WDT
   gArmTokenSpaceGuid.PcdGenericWatchdogControlBase|0x23A0000
   gArmTokenSpaceGuid.PcdGenericWatchdogRefreshBase|0x2390000
-  gArmTokenSpaceGuid.PcdGenericWatchdogEl2IntrNum|28
+  gArmTokenSpaceGuid.PcdGenericWatchdogEl2IntrNum|91
 
   gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase|0x21C0000
   gArmPlatformTokenSpaceGuid.PL011UartClkInHz|175000000
