@@ -1,9 +1,7 @@
 /** @file
   Differentiated System Description Table Fields (DSDT)
 
-  Copyright (c) 2014, ARM Ltd. All rights reserved.<BR>
-  Copyright (c) 2015, Linaro Limited. All rights reserved.<BR>
-  Copyright 2017-2019 NXP
+  Copyright 2019 NXP
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -17,17 +15,24 @@
 
 **/
 
-#include "Platform.h"
-
-DefinitionBlock("DsdtTable.aml", "DSDT", 1, "NXP  ", "LX2160  ", EFI_ACPI_ARM_OEM_REVISION) {
-  include ("Com.asl")
-  include ("CPU.asl")
-  include ("Esdhc.asl")
-  include ("FSPI.asl")
-  include ("I2c.asl")
-  include ("Sata.asl")
-  include ("SPI.asl")
-  include ("Usb.asl")
-  include ("Mc.asl")
-  include ("Mdio.asl")
+Scope(_SB)
+{
+  Device(MDI0) {
+    Name(_HID, "NXP0006")
+    Name(_CCA, 1)
+    Name(_UID, 0)
+    Name(_CRS, ResourceTemplate() {
+      Memory32Fixed(ReadWrite, MDI0_BASE, MDI_LEN)
+      Interrupt(ResourceConsumer, Level, ActiveHigh, Shared)
+       {
+         MDI0_IT
+       }
+    }) // end of _CRS for MDI0
+    Name (_DSD, Package () {
+      ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+      Package () {
+         Package () {"little-endian", 1},
+      }
+    })
+  } // end of MDI0
 }

@@ -129,6 +129,11 @@
 #define SDC0_IT   60
 #define SDC1_IT   95
 
+// MDIO
+#define MDI0_BASE 0x8b96000
+#define MDI_LEN   0x1000
+#define MDI0_IT   122
+
 // Timer
 #define TIMER_BLOCK_COUNT            1
 #define TIMER_FRAME_COUNT            4
