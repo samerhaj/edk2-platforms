@@ -413,7 +413,7 @@
   # SD-related.
   #
 
-  gRaspberryPiTokenSpaceGuid.PcdSdIsArasan|L"SdIsArasan"|gConfigDxeFormSetGuid|0x0|0
+  gRaspberryPiTokenSpaceGuid.PcdSdIsArasan|L"SdIsArasan"|gConfigDxeFormSetGuid|0x0|1
   gRaspberryPiTokenSpaceGuid.PcdMmcForce1Bit|L"MmcForce1Bit"|gConfigDxeFormSetGuid|0x0|0
   gRaspberryPiTokenSpaceGuid.PcdMmcForceDefaultSpeed|L"MmcForceDefaultSpeed"|gConfigDxeFormSetGuid|0x0|0
   gRaspberryPiTokenSpaceGuid.PcdMmcSdDefaultSpeedMHz|L"MmcSdDefaultSpeedMHz"|gConfigDxeFormSetGuid|0x0|25
@@ -593,7 +593,7 @@
   #
   # SD/MMC support
   #
-  Platform/RaspberryPi/Drivers/SdHostDxe/SdHostDxe.inf
+  # Platform/RaspberryPi/Drivers/SdHostDxe/SdHostDxe.inf
   Platform/RaspberryPi/Drivers/ArasanMmcHostDxe/ArasanMmcHostDxe.inf
   Platform/RaspberryPi/Drivers/MmcDxe/MmcDxe.inf
 
