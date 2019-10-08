@@ -34,5 +34,27 @@ Scope(_SB)
          Package () {"little-endian", 1},
       }
     })
+    Device(PHY1) {
+      Name (_ADR, 0x1)
+      Name (_DSD, Package () {
+        ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+          Package () {
+            Package () {"reg", 1},
+            Package () {"phy-addr", 1},
+            Package() {"compatible", "ethernet-phy-id004d.d072"}
+        }
+      })
+    } // end of PHY1
+    Device(PHY2) {
+      Name (_ADR, 0x2)
+      Name (_DSD, Package () {
+        ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+          Package () {
+            Package () {"reg", 2},
+            Package () {"phy-addr", 2},
+            Package() {"compatible", "ethernet-phy-id004d.d072"}
+        }
+      })
+    } // end of PHY2
   } // end of MDI0
 }
