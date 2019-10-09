@@ -1,5 +1,5 @@
 ## @file
-# Module describe the entire platform configuration.
+# Declaration file for Kaby Lake based boards.
 #
 # The DEC files are used by the utilities that parse DSC and
 # INF files to generate AutoGen.c and AutoGen.h files
@@ -20,6 +20,7 @@ PACKAGE_GUID = 0A8BA6E8-C8AC-4AC1-87AC-52772FA6AE5E
 
 [Includes]
 Include
+GalagoPro3/Include
 KabylakeRvp3/Include
 Features/Tbt/Include
 
@@ -28,6 +29,8 @@ Features/Tbt/Include
 gBoardModuleTokenSpaceGuid            =  {0x72d1fff7, 0xa42a, 0x4219, {0xb9, 0x95, 0x5a, 0x67, 0x53, 0x6e, 0xa4, 0x2a}}
 
 gTianoLogoGuid                        =  {0x7BB28B99, 0x61BB, 0x11D5, {0x9A, 0x5D, 0x00, 0x90, 0x27, 0x3F, 0xC1, 0x4D}}
+
+gSpiFlashDebugHobGuid                 =  {0xcaaaf418, 0x38a5, 0x4d49, {0xbe, 0x74, 0xe6, 0x06, 0xe4, 0x02, 0x6d, 0x25}}
 
 gTbtInfoHobGuid                       =  {0x74a81eaa, 0x033c, 0x4783, {0xbe, 0x2b, 0x84, 0x85, 0x74, 0xa6, 0x97, 0xb7}}
 
@@ -64,6 +67,10 @@ gBoardModuleTokenSpaceGuid.PcdLpcSioDataDefaultPort|0x164F|UINT16|0x90000022
 gBoardModuleTokenSpaceGuid.PcdSwSmiDTbtEnumerate|0xF7|UINT8|0x000000110
 
 gBoardModuleTokenSpaceGuid.PcdSmcExtSmiBitPosition|0x01|UINT8|0x90000015
+
+gBoardModuleTokenSpaceGuid.PcdFlashNvDebugMessageBase|0x00000000|UINT32|0x90000030
+gBoardModuleTokenSpaceGuid.PcdFlashNvDebugMessageSize|0x00000000|UINT32|0x90000031
+gBoardModuleTokenSpaceGuid.PcdFlashNvDebugMessageOffset|0x00000000|UINT32|0x90000032
 
 [PcdsDynamic]
 
@@ -297,7 +304,6 @@ gBoardModuleTokenSpaceGuid.PcdIoExpanderPresent|FALSE|BOOLEAN|0x000000EC
 
   gBoardModuleTokenSpaceGuid.PcdAcpiGnvsAddress|0|UINT64|0x40000013
 
-  # gIntelPeiGraphicsVbtGuid =  {0x4ad46122, 0xffeb, 0x4a52, {0xbf, 0xb0, 0x51, 0x8c, 0xfc, 0xa0, 0x2d, 0xb0}}
   gBoardModuleTokenSpaceGuid.PcdGraphicsVbtGuid|{0x22, 0x61, 0xd4, 0x4a, 0xeb, 0xff, 0x52, 0x4a, 0xbf, 0xb0, 0x51, 0x8c, 0xfc, 0xa0, 0x2d, 0xb0}|VOID*|0x40000014
 
 [PcdsDynamicEx]
