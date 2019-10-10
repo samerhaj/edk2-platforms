@@ -28,4 +28,5 @@ DefinitionBlock("DsdtTable.aml", "DSDT", 1, "NXP  ", "LX2160  ", EFI_ACPI_ARM_OE
   include ("Sata.asl")
   include ("SPI.asl")
   include ("Usb.asl")
+  include ("Mc.asl")
 }
