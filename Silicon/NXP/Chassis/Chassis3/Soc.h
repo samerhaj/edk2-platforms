@@ -1,7 +1,7 @@
 /** Soc.h
 *  Header defining the Base addresses, sizes, flags etc for chassis 1
 *
-*  Copyright (c) 2017 NXP
+*  Copyright 2017-2019 NXP
 *
 *  This program and the accompanying materials
 *  are licensed and made available under the terms and conditions of the BSD License
@@ -19,15 +19,17 @@
 #define MAX_CPUS                    16
 #define FSL_CLK_GRPA_ADDR           0x01300000
 #define FSL_CLK_GRPB_ADDR           0x01310000
-#define NUM_CC_PLLS                 6
-
-#define FSL_CLUSTER_CLOCKS          { 1, 1, 4, 4 } /* LS208x */
+#define NUM_CC_PLLS                 FixedPcdGet8 (PcdNumCcPlls) // 3 LS1028A
+                                                                // 6 LS208x
+#define FSL_CLUSTER_CLOCKS          { 1, 1, 4, 4 } // LS208x
+                                                   // { 1, 1 } LS1028A
 #define TP_CLUSTER_EOC_MASK         0x80000000      /* Mask for End of clusters */
 #define CHECK_CLUSTER(Cluster)      ((Cluster & TP_CLUSTER_EOC_MASK) != TP_CLUSTER_EOC_MASK)
 
 // RCW SERDES MACRO
 #define RCWSR_INDEX                  28
-#define RCWSR_SRDS1_PRTCL_MASK       0x00ff0000
+#define RCWSR_SRDS1_PRTCL_MASK       FixedPcdGet32 (PcdCh3Srds1PrtclMask) // 0x00ff0000 LS208x
+                                                                          // 0xffff0000 LS1028A
 #define RCWSR_SRDS1_PRTCL_SHIFT      16
 #define RCWSR_SRDS2_PRTCL_MASK       0xff000000
 #define RCWSR_SRDS2_PRTCL_SHIFT      24

@@ -1,0 +1,45 @@
+#@file
+#
+#  Component description file for SocFixupLib module
+#
+#  Copyright 2019 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+
+
+[Defines]
+  INF_VERSION                     = 0x0001000A
+  BASE_NAME                       = SocFixupLib
+  FILE_GUID                       = 18c5dc04-b4e7-4db1-a69c-01b63a28b519
+  MODULE_TYPE                     = BASE
+  VERSION_STRING                  = 1.0
+  LIBRARY_CLASS                   = SocFixupLib
+
+[Sources.common]
+  SocFixupLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+  Silicon/NXP/Chassis/Chassis3/Chassis3.dec
+
+[LibraryClasses]
+  DebugLib
+  DxeServicesLib
+  FdtLib
+  SocLib
+
+[FixedPcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr
+
+[Guids]
+  gDtPlatformDefaultDtbFileGuid

@@ -1,7 +1,7 @@
 /** @Soc.c
   SoC specific Library containg functions to initialize various SoC components
 
-  Copyright 2017 NXP
+  Copyright 2017-2019 NXP
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -71,7 +71,6 @@ GetSysInfo (
     [13] = 2,       // CC4 PPL / 2
     [14] = 4,       // CC4 PPL / 4
   };
-
   INT32 CcGroup[12] = FSL_CLUSTER_CLOCKS;
   UINTN PllCount;
   UINTN Cluster;
@@ -229,7 +228,9 @@ SocInit (
   // Early IFC initialization is required to set timings required for fpga initilzation to
   // get system clock frequency, board info etc.
   //
-  IfcInit ();
+  if (PcdGetBool (PcdIfcEnabled)) {
+    IfcInit ();
+  }
 
   //
   //  Initialize the Serial Port.

@@ -1,6 +1,6 @@
 #  @file.
 #
-#  Copyright 2017 NXP
+#  Copyright 2017-2019 NXP
 #
 #  This program and the accompanying materials are licensed and made available under
 #  the terms and conditions of the BSD License which accompanies this distribution.
@@ -140,6 +140,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdIfcNandReservedSize|0x0|UINT32|0x00000194
   gNxpQoriqLsTokenSpaceGuid.PcdFlashDeviceBase64|0x0|UINT64|0x00000195
   gNxpQoriqLsTokenSpaceGuid.PcdFlashReservedRegionBase64|0x0|UINT64|0x00000196
+  gNxpQoriqLsTokenSpaceGuid.PcdIfcEnabled|TRUE|BOOLEAN|0x00000197
 
   #
   # SoC specific DPAA1 PCDs
@@ -221,6 +222,7 @@
   #
   gNxpQoriqLsTokenSpaceGuid.PcdSysClk|0x0|UINT64|0x000002A0
   gNxpQoriqLsTokenSpaceGuid.PcdDdrClk|0x0|UINT64|0x000002A1
+  gNxpQoriqLsTokenSpaceGuid.PcdNumCcPlls|0x0|UINT8|0x000002A2
 
   #
   # Pcds to support Big Endian IPs
@@ -268,6 +270,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdCoreNumbers|8|UINT8|0x0000002F0
 
   gNxpQoriqLsTokenSpaceGuid.PcdFdtAddress|0|UINT64|0x000000357
+  gNxpQoriqLsTokenSpaceGuid.PcdCh3Srds1PrtclMask|0|UINT32|0x000000358
 
 [PcdsFeatureFlag.common]
   gNxpQoriqLsTokenSpaceGuid.PcdQmanBigEndian|TRUE|BOOLEAN|0x00000359

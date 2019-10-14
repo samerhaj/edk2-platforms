@@ -1,7 +1,7 @@
 #  LS2088A.dsc
 #  LS2088A Soc package.
 #
-#  Copyright 2017 NXP
+#  Copyright 2017-2019 NXP
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -99,5 +99,7 @@
   gNxpQoriqLsTokenSpaceGuid.PcdDpaa2CortinaFwMaxLen|0x40000
   gNxpQoriqLsTokenSpaceGuid.PcdBypassAmqMask|0x60000
   gNxpQoriqLsTokenSpaceGuid.PcdMacDeviceDisableRegAddr|0x1e00074
+  gNxpQoriqLsTokenSpaceGuid.PcdCh3Srds1PrtclMask|0x00ff0000
+  gNxpQoriqLsTokenSpaceGuid.PcdNumCcPlls|6
 
 ##

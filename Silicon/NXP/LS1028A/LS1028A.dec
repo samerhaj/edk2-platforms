@@ -1,0 +1,22 @@
+# LS1028A.dec
+#
+# Copyright 2019 NXP
+#
+# This program and the accompanying materials are licensed and made available under
+# the terms and conditions of the BSD License which accompanies this distribution.
+# The full text of the license may be found at
+# http://opensource.org/licenses/bsd-license.php
+#
+# THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+# WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+
+[Defines]
+  DEC_SPECIFICATION              = 0x00010005
+
+[Guids.common]
+  gNxpLs1028ATokenSpaceGuid      = {0x8dd81fcb, 0xc8bd, 0x4b30, {0x94, 0x21, 0xf4, 0xa8, 0xa0, 0xfe, 0x78, 0xe6}}
+
+[Includes]
+  Include

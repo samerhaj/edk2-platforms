@@ -1,7 +1,7 @@
 /** @file
   SoC specific Library containg functions to initialize various SoC components
 
-  Copyright 2017 NXP
+  Copyright 2017-2019 NXP
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -49,6 +49,7 @@ STATIC CPU_TYPE CpuTypeList[] = {
   CPU_TYPE_ENTRY (LS1046A, LS1046A, 4),
   CPU_TYPE_ENTRY (LS2088A, LS2088A, 8),
   CPU_TYPE_ENTRY (LX2160A, LX2160A, 16),
+  CPU_TYPE_ENTRY (LS1028A, LS1028A, 2),
 };
 
 /*

@@ -1,0 +1,42 @@
+#@file
+#
+#  Component description file for SocClockLib module
+#
+#  Copyright 2019 NXP
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+#
+
+
+[Defines]
+  INF_VERSION                     = 0x0001000A
+  BASE_NAME                       = SocClockLib
+  FILE_GUID                       = b0f32412-a671-4053-b408-c3a2806361d2
+  MODULE_TYPE                     = BASE
+  VERSION_STRING                  = 1.0
+  LIBRARY_CLASS                   = SocClockLib
+
+[Sources.common]
+  SocClockLib.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+  Silicon/NXP/Chassis/Chassis3/Chassis3.dec
+
+[LibraryClasses]
+  BeIoLib
+  DebugLib
+  FpgaLib
+
+[FixedPcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdScfgBaseAddr
+  gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr
+

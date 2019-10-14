@@ -1,7 +1,7 @@
 /** @file
 *
 *  Copyright (c) 2017, Linaro, Ltd. All rights reserved.
-*  Copyright 2018 NXP
+*  Copyright 2018-2019 NXP
 *
 *  This program and the accompanying materials
 *  are licensed and made available under the terms and conditions of the BSD License
@@ -134,8 +134,11 @@ FdtSysClockFixup (
 
   NodeOffset = fdt_path_offset (Dtb, "/sysclk");
   if (NodeOffset < 0) {
-    DEBUG ((DEBUG_ERROR, "No sysclk nodes found!!!\n"));
-    return EFI_NOT_FOUND;
+    NodeOffset = fdt_path_offset (Dtb, "/clock-sysclk");
+    if (NodeOffset < 0) {
+      DEBUG ((DEBUG_ERROR, "No sysclk nodes found!!!\n"));
+      return EFI_NOT_FOUND;
+    }
   }
 
   FdtStatus = fdt_setprop_u32 (Dtb, NodeOffset, "clock-frequency", SysClk);
