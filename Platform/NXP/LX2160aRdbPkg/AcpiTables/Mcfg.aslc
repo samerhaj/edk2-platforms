@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 NXP
+ * Copyright 2017-2019 NXP
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the BSD License which accompanies
@@ -48,16 +48,15 @@ EFI_PCI_EXPRESS_MEMORY_MAPPED_CONFIGURATION_SPACE_TABLE Mcfg= {
         EFI_ACPI_ARM_CREATOR_ID,
         EFI_ACPI_ARM_CREATOR_REVISION
       },
-      0x0000000000000000,                                 //Reserved
+      EFI_ACPI_RESERVED_QWORD,                                 //Reserved
   },
   {
-    //1p NA PCIe2
     {
-      0xa0000000,                                         //Base Address
-      0x2,                                                //Segment Group Number
-      0x80,                                               //Start Bus Number
-      0x87,                                               //End Bus Number
-      0x00000000,                                         //Reserved
+      LX2160A_PCI_SEG0_CONFIG_BASE,
+      LX2160A_PCI_SEG0,
+      LX2160A_PCI_SEG_BUSNUM_MIN,
+      LX2160A_PCI_SEG_BUSNUM_MAX,
+      EFI_ACPI_RESERVED_DWORD,
     },
    },
 };

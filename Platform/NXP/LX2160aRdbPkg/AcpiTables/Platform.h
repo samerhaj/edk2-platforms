@@ -2,7 +2,7 @@
 *
 *  Copyright (c) 2011-2015, ARM Limited. All rights reserved.
 *  Copyright (c) 2015, Linaro Limited. All rights reserved.
-*  Copyright 2017-2018 NXP
+*  Copyright 2017-2019 NXP
 *
 *  This program and the accompanying materials
 *  are licensed and made available under the terms and conditions of the BSD License
@@ -158,4 +158,10 @@
 #define TIMER_WDT1_IT                108
 
 #define DEFAULT_PLAT_FREQ            700000000
+
+// Mcfg
+#define LX2160A_PCI_SEG0_CONFIG_BASE 0x9000000000
+#define LX2160A_PCI_SEG0             0x0
+#define LX2160A_PCI_SEG_BUSNUM_MIN   0x0
+#define LX2160A_PCI_SEG_BUSNUM_MAX   0xff
 #endif
