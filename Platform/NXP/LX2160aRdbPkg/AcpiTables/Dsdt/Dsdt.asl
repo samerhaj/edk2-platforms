@@ -25,10 +25,10 @@ DefinitionBlock("DsdtTable.aml", "DSDT", 1, "NXP  ", "LX2160  ", EFI_ACPI_ARM_OE
   include ("Esdhc.asl")
   include ("FSPI.asl")
   include ("I2c.asl")
-  include ("Sata.asl")
-  include ("SPI.asl")
-  include ("Usb.asl")
   include ("Mc.asl")
   include ("Mdio.asl")
   include ("Pci.asl")
+  include ("Sata.asl")
+  include ("SPI.asl")
+  include ("Usb.asl")
 }
