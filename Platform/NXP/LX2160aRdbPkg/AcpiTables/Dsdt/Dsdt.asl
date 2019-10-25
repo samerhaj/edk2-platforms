@@ -30,4 +30,5 @@ DefinitionBlock("DsdtTable.aml", "DSDT", 1, "NXP  ", "LX2160  ", EFI_ACPI_ARM_OE
   include ("Usb.asl")
   include ("Mc.asl")
   include ("Mdio.asl")
+  include ("Pci.asl")
 }
