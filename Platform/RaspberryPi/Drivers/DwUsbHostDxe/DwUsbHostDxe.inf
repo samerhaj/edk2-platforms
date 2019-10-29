@@ -2,7 +2,8 @@
 #
 #  Copyright (c) 2017-2018, Andrei Warkentin <andrey.warkentin@gmail.com>
 #  Copyright (c) 2015-2016, Linaro Limited. All rights reserved.
-#
+#  Copyright (c) 2019, ARM Limited. All rights reserved.
+
 #  SPDX-License-Identifier: BSD-2-Clause-Patent
 #
 #**/
@@ -51,5 +52,7 @@
   gEfiUsb2HcProtocolGuid
   gRaspberryPiFirmwareProtocolGuid
 
+[FixedPcd]
+  gBcm283xTokenSpaceGuid.PcdSocRegistersAddress
 [Depex]
   gRaspberryPiFirmwareProtocolGuid
