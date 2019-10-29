@@ -53,6 +53,8 @@
   gRaspberryPiFirmwareProtocolGuid
 
 [FixedPcd]
+  gRaspberryPiTokenSpaceGuid.PcdDw2UsbBaseAddress
   gBcm283xTokenSpaceGuid.PcdSocRegistersAddress
+
 [Depex]
   gRaspberryPiFirmwareProtocolGuid
