@@ -1,6 +1,7 @@
 /** @file
  *
  *  Copyright (c) 2019, Andrei Warkentin <andrey.warkentin@gmail.com>
+ *  Copyright (c) 2019, ARM Limited. All rights reserved.
  *
  *  SPDX-License-Identifier: BSD-2-Clause-Patent
  *
@@ -214,6 +215,7 @@ ApplyVariables (
   UINT32 CpuClock = PcdGet32 (PcdCpuClock);
   UINT32 CustomCpuClock = PcdGet32 (PcdCustomCpuClock);
   UINT32 Rate = 0;
+  UINT32 ModelFamily = 0;
 
   if (CpuClock != 0) {
     if (CpuClock == 2) {
@@ -247,8 +249,15 @@ ApplyVariables (
     DEBUG ((DEBUG_INFO, "Current CPU speed is %uHz\n", Rate));
   }
 
+  Status = mFwProtocol->GetModelFamily (&ModelFamily);
+  if (Status != EFI_SUCCESS) {
+    DEBUG ((DEBUG_ERROR, "Couldn't get the Raspberry Pi model family: %r\n", Status));
+  } else {
+    DEBUG ((DEBUG_INFO, "Current Raspberry Pi model family is 0x%x\n", ModelFamily));
+  }
 
-  if (0) {
+
+  if (ModelFamily == 3) {
     /*
      * Pi 3: either Arasan or SdHost goes to SD card.
      *
@@ -297,7 +306,8 @@ ApplyVariables (
     GpioPinFuncSet (51, Gpio48Group);
     GpioPinFuncSet (52, Gpio48Group);
     GpioPinFuncSet (53, Gpio48Group);
-  } else {
+
+  } else if (ModelFamily == 4){
     /*
      * Pi 4: either Arasan or eMMC2 goes to SD card.
      */
@@ -332,6 +342,8 @@ ApplyVariables (
       GpioPinFuncSet (38, GPIO_FSEL_ALT3);
       GpioPinFuncSet (39, GPIO_FSEL_ALT3);
     }
+  } else {
+    DEBUG ((DEBUG_ERROR, "Model Family %d not supported...\n", ModelFamily));
   }
 
   /*
