@@ -276,7 +276,7 @@ PrintSoc (
   VOID
   )
 {
-  CHAR8    Buf[16];
+  CHAR8    Buf[64];
   CCSR_GUR *GurBase;
   UINTN    Count;
   UINTN    Svr;
@@ -287,23 +287,34 @@ PrintSoc (
   Buf[0] = L'\0';
   Svr = GurRead ((UINTN)&GurBase->Svr);
   Ver = SVR_SOC_VER (Svr);
+  AsciiStrCpy (Buf, "SOC: ");
 
-  for (Count = 0; Count < ARRAY_SIZE (CpuTypeList); Count++)
+  for (Count = 0; Count < ARRAY_SIZE (CpuTypeList); Count++) {
     if ((CpuTypeList[Count].SocVer & SVR_WO_E) == Ver) {
-      AsciiStrCpy (Buf, (CONST CHAR8 *)CpuTypeList[Count].Name);
+      AsciiStrCat (Buf, (CONST CHAR8 *)CpuTypeList[Count].Name);
+
+      if (Ver == (SVR_LX2160A & SVR_WO_E)) {
+        if (!((Svr >> 12) & 0x1)) {
+          AsciiStrCat (Buf, (CONST CHAR8 *)"C");
+        }
+      }
 
       if (IS_E_PROCESSOR (Svr)) {
         AsciiStrCat (Buf, (CONST CHAR8 *)"E");
       }
+
+      AsciiSPrint (Buf + AsciiStrLen(Buf), sizeof (Buf) - AsciiStrLen(Buf),
+                   " Rev%d.%d", SVR_MAJOR (Svr), SVR_MINOR (Svr));
       break;
     }
-
-  if (Count == ARRAY_SIZE (CpuTypeList)) {
-    AsciiStrCpy (Buf, (CONST CHAR8 *)"unknown");
   }
 
-  DEBUG ((DEBUG_INFO, "SoC: %a (0x%x); Rev %d.%d\n",
-         Buf, Svr, SVR_MAJOR (Svr), SVR_MINOR (Svr)));
+  if (Count == ARRAY_SIZE (CpuTypeList)) {
+    AsciiStrCat (Buf, (CONST CHAR8 *)"unknown");
+  }
+
+  AsciiSPrint (Buf + AsciiStrLen(Buf), sizeof (Buf) - AsciiStrLen(Buf), " (0x%x)\n", Svr);
+  SerialPortWrite ((UINT8 *) Buf, AsciiStrLen(Buf));
 
   return;
 }
