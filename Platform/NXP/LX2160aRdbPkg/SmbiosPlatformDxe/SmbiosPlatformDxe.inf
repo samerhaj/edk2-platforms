@@ -1,0 +1,46 @@
+/** @file
+
+  Copyright 2019 NXP
+
+  This program and the accompanying materials
+  are licensed and made available under the terms and conditions of the BSD License
+  which accompanies this distribution.  The full text of the license may be found at
+  http://opensource.org/licenses/bsd-license.php
+
+  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+
+  Based on the files under ARM/JunoPkg/SmbiosPlatformDxe
+
+**/
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = SmbiosPlatformDxe
+  FILE_GUID                      = 813659d0-f2c0-4d5a-8e01-c135fd5fd726
+  MODULE_TYPE                    = DXE_DRIVER
+  VERSION_STRING                 = 1.0
+
+  ENTRY_POINT                    = SmbiosTablePublishEntry
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = AARCH64
+#
+
+[Sources]
+  SmbiosPlatformDxe.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+
+[LibraryClasses]
+  UefiBootServicesTableLib
+  UefiDriverEntryPoint
+
+[Protocols]
+  gEfiSmbiosProtocolGuid                      # PROTOCOL ALWAYS_CONSUMED
+
+[Depex]
+  gEfiSmbiosProtocolGuid

@@ -197,6 +197,12 @@ READ_LOCK_STATUS   = TRUE
   INF MdeModulePkg/Universal/Acpi/AcpiPlatformDxe/AcpiPlatformDxe.inf
 
   #
+  # SMBIOS
+  #
+  INF MdeModulePkg/Universal/SmbiosDxe/SmbiosDxe.inf
+  INF Platform/NXP/LX2160aRdbPkg/SmbiosPlatformDxe/SmbiosPlatformDxe.inf
+
+  #
   # USB Support
   #
   INF MdeModulePkg/Bus/Pci/UhciDxe/UhciDxe.inf
