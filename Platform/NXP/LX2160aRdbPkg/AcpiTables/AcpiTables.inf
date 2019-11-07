@@ -4,7 +4,7 @@
 #
 #  Copyright (c) 2014, ARM Ltd. All rights reserved.
 #  Copyright (c) 2015, Linaro Limited. All rights reserved.
-#  Copyright 2017-2018 NXP
+#  Copyright 2017-2019 NXP
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -29,11 +29,11 @@
   Dsdt/Dsdt.asl
   Fadt.aslc
   Gtdt.aslc
+  Iort.aslc
   Madt.aslc
   Mcfg.aslc
   Spcr.aslc
- /* Iort.asl
-  Dbg2.aslc
+/*  Dbg2.aslc
   SASSSDT.ASL
   SATASSDT.ASL*/
 

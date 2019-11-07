@@ -1,0 +1,221 @@
+/** @file
+*  I/O Remapping Table (Iort)
+*
+*  Copyright 2019 NXP
+*
+*  SPDX-License-Identifier: BSD-2-Clause
+*
+**/
+
+#include <IndustryStandard/IoRemappingTable.h>
+#include "Platform.h"
+
+#pragma pack(1)
+
+typedef struct
+{
+  EFI_ACPI_6_0_IO_REMAPPING_ITS_NODE          ItsNode;
+  UINT32                                      ItsIdentifiers[1];
+} NXP_EFI_ACPI_6_0_IO_REMAPPING_ITS_NODE;
+
+typedef struct
+{
+  EFI_ACPI_6_0_IO_REMAPPING_SMMU_NODE         SmmuNode;
+  EFI_ACPI_6_0_IO_REMAPPING_SMMU_INT          ContextInterrupt[64];
+  EFI_ACPI_6_0_IO_REMAPPING_SMMU_INT          PmuInterrupt[10];
+  EFI_ACPI_6_0_IO_REMAPPING_ID_TABLE          SmmuID[1];
+} NXP_EFI_ACPI_6_0_IO_REMAPPING_SMMU_NODE;
+
+typedef struct
+{
+  EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE   NamedNode;
+  UINT8                                       ObjectName[20];
+  EFI_ACPI_6_0_IO_REMAPPING_ID_TABLE          NamedID[1];
+} NXP_EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE;
+
+typedef struct
+{
+  EFI_ACPI_6_0_IO_REMAPPING_TABLE                  Header;
+  NXP_EFI_ACPI_6_0_IO_REMAPPING_ITS_NODE           ItsNode;
+  NXP_EFI_ACPI_6_0_IO_REMAPPING_SMMU_NODE          SmmuNode;
+  NXP_EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE    NamedCompNode;
+} NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE;
+
+#pragma pack ()
+
+NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE Iort = {
+  .Header = {
+    .Header = {
+      .Signature = EFI_ACPI_6_2_IO_REMAPPING_TABLE_SIGNATURE,
+      .Length = sizeof (NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE),
+      .Revision = EFI_ACPI_IO_REMAPPING_TABLE_REVISION,
+      .Checksum = 0,
+      .OemId = {EFI_ACPI_ARM_OEM_ID},
+      .OemTableId = EFI_ACPI_ARM_OEM_TABLE_ID,
+      .OemRevision = EFI_ACPI_ARM_OEM_REVISION,
+      .CreatorId = EFI_ACPI_ARM_CREATOR_ID,
+      .CreatorRevision = EFI_ACPI_ARM_CREATOR_REVISION,
+    },
+    .NumNodes = 3,
+    .NodeOffset = sizeof (EFI_ACPI_6_0_IO_REMAPPING_TABLE),
+    .Reserved = EFI_ACPI_RESERVED_WORD,
+  },
+  .ItsNode = {
+    .ItsNode = {
+      .Node = {
+        .Type = EFI_ACPI_IORT_TYPE_ITS_GROUP,
+        .Length = sizeof (NXP_EFI_ACPI_6_0_IO_REMAPPING_ITS_NODE),
+        .Revision = 0,
+        .Reserved = EFI_ACPI_RESERVED_WORD,
+        .NumIdMappings = 0,
+        .IdReference = 0,
+      },
+      .NumItsIdentifiers = 1,
+    },
+    .ItsIdentifiers = {
+      0, // refer MADT table
+    },
+  },
+  .SmmuNode = {
+    .SmmuNode = {
+      .Node = {
+        .Type = EFI_ACPI_IORT_TYPE_SMMUv1v2,
+        .Length = sizeof (NXP_EFI_ACPI_6_0_IO_REMAPPING_SMMU_NODE),
+        .Revision = 0,
+        .Reserved = EFI_ACPI_RESERVED_WORD,
+        .NumIdMappings = 1,
+        .IdReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_SMMU_NODE, SmmuID),
+      },
+      .Base = 0x5000000,
+      .Span = 0x800000,
+      .Model = EFI_ACPI_IORT_SMMUv1v2_MODEL_MMU500,
+      .Flags = EFI_ACPI_IORT_SMMUv1v2_FLAG_DVM | EFI_ACPI_IORT_SMMUv1v2_FLAG_COH_WALK,
+      .GlobalInterruptArrayRef = OFFSET_OF (EFI_ACPI_6_0_IO_REMAPPING_SMMU_NODE, SMMU_NSgIrpt),
+      .NumContextInterrupts = 64,
+      .ContextInterruptArrayRef = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_SMMU_NODE, ContextInterrupt),
+      .NumPmuInterrupts = 10,
+      .PmuInterruptArrayRef = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_SMMU_NODE, PmuInterrupt),
+      .SMMU_NSgIrpt = 47,
+      .SMMU_NSgIrptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL,
+      .SMMU_NSgCfgIrpt = 48,
+      .SMMU_NSgCfgIrptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL,
+    },
+    .ContextInterrupt = {
+      {.Interrupt = 178, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 179, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 180, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 181, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 182, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 183, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 184, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 185, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 186, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 187, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 188, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 189, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 190, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 191, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 192, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 193, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 194, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 195, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 196, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 197, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 198, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 199, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 200, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 201, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 202, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 203, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 204, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 205, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 206, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 207, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 208, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 209, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 210, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 211, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 212, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 213, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 214, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 215, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 216, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 217, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 218, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 219, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 220, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 221, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 222, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 223, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 224, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 225, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 226, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 227, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 228, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 229, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 230, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 231, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 232, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 233, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 234, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 235, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 236, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 237, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 238, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 239, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 240, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 241, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+    },
+    .PmuInterrupt = {
+      {.Interrupt = 243, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 244, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 245, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 246, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 247, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 248, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 249, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 250, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 251, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+      {.Interrupt = 252, .InterruptFlags = EFI_ACPI_IORT_SMMUv1v2_INT_FLAG_LEVEL},
+    },
+    .SmmuID = {
+      {
+        .InputBase = NXP_DPAA2_STREAM_ID_START,
+        .NumIds = NXP_DPAA2_STREAM_ID_COUNT - 1,
+        .OutputBase = NXP_DPAA2_STREAM_ID_START,
+        .OutputReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE, ItsNode),
+        .Flags = 0,
+      },
+    },
+  },
+  .NamedCompNode = {
+    .NamedNode = {
+      .Node = {
+        .Type = EFI_ACPI_IORT_TYPE_NAMED_COMP,
+        .Length = sizeof (NXP_EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE),
+        .Revision = 0,
+        .Reserved = EFI_ACPI_RESERVED_WORD,
+        .NumIdMappings = 1,
+        .IdReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE, NamedID),
+      },
+      .Flags = 0,
+      .CacheCoherent = EFI_ACPI_IORT_MEM_ACCESS_PROP_CCA,
+      .AllocationHints = 0,
+      .Reserved = EFI_ACPI_RESERVED_WORD,
+      .MemoryAccessFlags = EFI_ACPI_IORT_MEM_ACCESS_FLAGS_CPM | EFI_ACPI_IORT_MEM_ACCESS_FLAGS_DACS,
+      .AddressSizeLimit = 48,
+    },
+    .ObjectName = "\\_SB_.MCE0", // refer MC.asl
+    .NamedID = {
+      {
+        .InputBase = NXP_DPAA2_STREAM_ID_START,
+        .NumIds = NXP_DPAA2_STREAM_ID_COUNT - 1,
+        .OutputBase = NXP_DPAA2_STREAM_ID_START,
+        .OutputReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE, SmmuNode),
+        .Flags = 0,
+      },
+    },
+  },
+};
+
+VOID* CONST ReferenceAcpiTable = &Iort;
