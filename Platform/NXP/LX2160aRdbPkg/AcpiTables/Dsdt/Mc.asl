@@ -19,41 +19,7 @@ Scope(_SB)
     Name(_HID, "NXP0008")
     Name(_CCA, 1)
     Name(_UID, 0)
-    Name (_DSD, Package () {
-      ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
-        Package () {
-          Package () {"dprc-no-reg", 2},
-          Package () {"mc-portal-offset", 0},
-          Package () {"qbman-portal-offset", 0},
-      }
-    })
     Name(_CRS, ResourceTemplate() {
-      QwordMemory (
-        ResourceConsumer,
-        PosDecode,      // _DEC
-        MinFixed,       // _MIF
-        MaxFixed,       // _MAF
-        NonCacheable,   // _MEM
-        ReadWrite,      // _RW
-        0,              // _GRA
-        0x80c000000,    // _MIN MinAddress
-        0x80FFFFFFF,    // _MAX MaxAddress
-        0,              // _TRA
-        0x4000000,      // _LEN
-          ,)
-      QwordMemory (
-        ResourceConsumer,
-        PosDecode,      // _DEC
-        MinFixed,       // _MIF
-        MaxFixed,       // _MAF
-        NonCacheable,   // _MEM
-        ReadWrite,      // _RW
-        0,              // _GRA
-        0x818000000,    // _MIN MinAddress
-        0x81FFFFFFF,    // _MAX MaxAddress
-        0,              // _TRA
-        0x8000000,      // _LEN
-          ,)
       QwordMemory (
         ResourceConsumer,
         PosDecode,      // _DEC
