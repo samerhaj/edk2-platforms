@@ -35,7 +35,30 @@ Scope(_SB)
           ,)
       Memory32Fixed(ReadWrite, 0x08340000, 0x40000)
     }) // end of _CRS for fsl-mc device
+
     //DPMACs
+    Device(PR03) { // 10G
+      Name (_ADR, 0x3)
+      Name (_DSD, Package () {
+        ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+            Package () {
+                Package () {"reg", 3},
+                Package () {"phy-connection-type", "xgmii"},
+                Package () {"phy-handle", Package (){\_SB.MDI0.PHY4}}
+        }
+      })
+    }
+    Device(PR04) { // 10G
+      Name (_ADR, 0x4)
+      Name (_DSD, Package () {
+        ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+            Package () {
+                Package () {"reg", 4},
+                Package () {"phy-connection-type", "xgmii"},
+                Package () {"phy-handle", Package (){\_SB.MDI0.PHY5}}
+        }
+      })
+    }
     Device(PR17) { // 1G
       Name (_ADR, 0x11)
       Name (_DSD, Package () {
@@ -47,7 +70,6 @@ Scope(_SB)
         }
       })
     }
-
     Device(PR18) { // 1G
       Name (_ADR, 0x12)
       Name (_DSD, Package () {
