@@ -131,8 +131,10 @@
 
 // MDIO
 #define MDI0_BASE 0x8b96000
-#define MDI_LEN   0x1000
 #define MDI0_IT   122
+#define MDI1_BASE 0x8b97000
+#define MDI1_IT   123
+#define MDI_LEN   0x1000
 
 // Timer
 #define TIMER_BLOCK_COUNT            1

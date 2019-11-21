@@ -59,6 +59,26 @@ Scope(_SB)
         }
       })
     }
+    Device(PR05) { // 25G
+      Name (_ADR, 0x5)
+      Name (_DSD, Package () {
+        ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+            Package () {
+                Package () {"reg", 5},
+                Package () {"phy-handle", Package (){\_SB.MDI1.PHY0}}
+        }
+      })
+    }
+    Device(PR06) { // 25G
+      Name (_ADR, 0x6)
+      Name (_DSD, Package () {
+        ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+            Package () {
+                Package () {"reg", 6},
+                Package () {"phy-handle", Package (){\_SB.MDI1.PHY0}}
+        }
+      })
+    }
     Device(PR17) { // 1G
       Name (_ADR, 0x11)
       Name (_DSD, Package () {
