@@ -110,7 +110,10 @@ typedef struct {
   UINT8     Res408[0x520-0x408];
   UINT32    Usb1Amqr;
   UINT32    Usb2Amqr;
-  UINT8     Res528[0x740-0x528];
+  UINT8     Res528[0x530-0x528];
+  UINT32    Sdmm1Amqr;
+  UINT32    Sdmm2Amqr;
+  UINT8     Res538[0x740-0x538];
   UINT32    TpItyp[64];
   struct {
     UINT32     Upper;

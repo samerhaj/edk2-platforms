@@ -237,5 +237,25 @@ FixupIcid (
     }
   }
 
+  Icid = NXP_SDMMC0_STREAM_ID;
+  GurWrite ( (UINTN)&GurBase->Sdmm1Amqr, Icid);
+  NodeOffset = FdtGetNodeOffset (Fdt, "fsl,esdhc", NULL, SDC0_BASE);
+  if (NodeOffset != -FDT_ERR_NOTFOUND) {
+    Status = FdtFixupIcids (Fdt, NodeOffset, SmmuPhandle, &Icid, 1);
+    if (EFI_ERROR (Status)) {
+      return Status;
+    }
+  }
+
+  Icid = NXP_SDMMC1_STREAM_ID;
+  GurWrite ( (UINTN)&GurBase->Sdmm2Amqr, Icid);
+  NodeOffset = FdtGetNodeOffset (Fdt, "fsl,esdhc", NULL, SDC1_BASE);
+  if (NodeOffset != -FDT_ERR_NOTFOUND) {
+    Status = FdtFixupIcids (Fdt, NodeOffset, SmmuPhandle, &Icid, 1);
+    if (EFI_ERROR (Status)) {
+      return Status;
+    }
+  }
+
   return EFI_SUCCESS;
 }

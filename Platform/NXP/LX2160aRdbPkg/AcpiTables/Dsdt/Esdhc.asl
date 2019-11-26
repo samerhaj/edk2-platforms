@@ -3,7 +3,7 @@
 
   Copyright (c) 2014, ARM Ltd. All rights reserved.<BR>
   Copyright (c) 2015, Linaro Limited. All rights reserved.<BR>
-  Copyright 2017-2018 NXP
+  Copyright 2017-2019 NXP
 
   This program and the accompanying materials
   are licensed and made available under the terms and conditions of the BSD License
@@ -22,7 +22,7 @@ Scope(_SB)
   Device(SDC0) {
     Name(_HID, "NXP0003")
     Name(_CID, "PNP0D40")
-    Name(_CCA, 0)
+    Name(_CCA, 1)
     Name(_UID, 0)
     Name(_CRS, ResourceTemplate() {
       Memory32Fixed(ReadWrite, SDC0_BASE, SDC_LEN)
@@ -50,7 +50,7 @@ Scope(_SB)
   Device(SDC1) {
     Name(_HID, "NXP0003")
     Name(_CID, "PNP0D40")
-    Name(_CCA, 0)
+    Name(_CCA, 1)
     Name(_UID, 1)
     Name(_CRS, ResourceTemplate() {
       Memory32Fixed(ReadWrite, SDC1_BASE, SDC_LEN)
