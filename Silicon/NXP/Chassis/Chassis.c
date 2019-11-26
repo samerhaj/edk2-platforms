@@ -41,6 +41,20 @@ GurRead (
   }
 }
 
+VOID
+EFIAPI
+GurWrite (
+  IN  UINTN    Address,
+  IN  UINT32   Value
+  )
+{
+  if (FixedPcdGetBool (PcdGurBigEndian)) {
+    BeMmioWrite32 (Address, Value);
+  } else {
+    MmioWrite32 (Address, Value);
+  }
+}
+
 /*
  *  Structure to list available SOCs.
  */

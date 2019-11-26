@@ -156,4 +156,11 @@ GurRead (
   IN  UINTN     Address
   );
 
+VOID
+EFIAPI
+GurWrite (
+  IN  UINTN    Address,
+  IN  UINT32   Value
+  );
+
 #endif /* __SOC_H__ */
