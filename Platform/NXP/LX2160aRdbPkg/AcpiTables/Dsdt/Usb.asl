@@ -126,4 +126,3 @@ Scope(_SB)
     } // USB1_RHUB
   } // USB1
 }
-
