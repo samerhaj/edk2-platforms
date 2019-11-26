@@ -213,5 +213,6 @@
   # Platform
   #
   Platform/NXP/LX2160aRdbPkg/AcpiTables/AcpiTables.inf
+  Platform/NXP/LX2160aRdbPkg/AcpiTables/Icid.inf
 
  ##

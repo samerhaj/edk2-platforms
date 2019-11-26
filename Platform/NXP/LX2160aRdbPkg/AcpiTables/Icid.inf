@@ -1,0 +1,40 @@
+#/**  @file
+#
+#  Copyright 2019 NXP
+#
+#  SPDX-License-Identifier: BSD-2-Clause
+#
+#**/
+
+[Defines]
+  INF_VERSION                    = 0x0001001A
+  BASE_NAME                      = LX2160Icid
+  FILE_GUID                      = 2e4914f5-20b3-493d-8296-6be46d8548d8
+  MODULE_TYPE                    = UEFI_DRIVER
+  VERSION_STRING                 = 1.0
+  ENTRY_POINT                    = FixupIcid
+
+[Packages]
+  MdePkg/MdePkg.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  Silicon/NXP/Chassis/Chassis3V2/Chassis3V2.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[LibraryClasses]
+  DebugLib
+  FdtLib
+  ItbParseLib
+  PcdLib
+  SocLib
+  UefiDriverEntryPoint
+  UefiLib
+
+[Sources.common]
+  Icid.c
+
+[FixedPcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr
+
+[Guids]
+  gFdtTableGuid
+

@@ -188,5 +188,7 @@
 // Stream IDs
 #define NXP_DPAA2_STREAM_ID_START       23
 #define NXP_DPAA2_STREAM_ID_COUNT       40
+#define NXP_USB0_STREAM_ID              1
+#define NXP_USB1_STREAM_ID              2
 
 #endif

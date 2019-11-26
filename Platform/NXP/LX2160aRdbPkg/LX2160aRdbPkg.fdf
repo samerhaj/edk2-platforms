@@ -2,7 +2,7 @@
 #
 #  FLASH layout file for LX2160a board.
 #
-#  Copyright 2018 NXP
+#  Copyright 2018-2019 NXP
 #
 #  This program and the accompanying materials
 #  are licensed and made available under the terms and conditions of the BSD License
@@ -192,6 +192,7 @@ READ_LOCK_STATUS   = TRUE
   # ACPI
   #
   INF RuleOverride=ACPITABLE Platform/NXP/LX2160aRdbPkg/AcpiTables/AcpiTables.inf
+  INF Platform/NXP/LX2160aRdbPkg/AcpiTables/Icid.inf
   INF MdeModulePkg/Universal/Acpi/AcpiTableDxe/AcpiTableDxe.inf
   INF MdeModulePkg/Universal/Acpi/AcpiPlatformDxe/AcpiPlatformDxe.inf
 
