@@ -192,5 +192,9 @@
 #define NXP_USB1_STREAM_ID              2
 #define NXP_SDMMC0_STREAM_ID            3
 #define NXP_SDMMC1_STREAM_ID            4
+#define NXP_SATA0_STREAM_ID             5
+#define NXP_SATA1_STREAM_ID             6
+#define NXP_SATA2_STREAM_ID             7
+#define NXP_SATA3_STREAM_ID             8
 
 #endif

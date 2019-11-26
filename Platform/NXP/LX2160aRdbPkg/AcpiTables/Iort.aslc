@@ -38,7 +38,7 @@ typedef struct
   EFI_ACPI_6_0_IO_REMAPPING_TABLE                  Header;
   NXP_EFI_ACPI_6_0_IO_REMAPPING_ITS_NODE           ItsNode;
   NXP_EFI_ACPI_6_0_IO_REMAPPING_SMMU_NODE          SmmuNode;
-  NXP_EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE    NamedCompNode[5];
+  NXP_EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE    NamedCompNode[9];
 } NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE;
 
 #pragma pack ()
@@ -56,7 +56,7 @@ NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE Iort = {
       .CreatorId = EFI_ACPI_ARM_CREATOR_ID,
       .CreatorRevision = EFI_ACPI_ARM_CREATOR_REVISION,
     },
-    .NumNodes = 7,
+    .NumNodes = 11,
     .NodeOffset = sizeof (EFI_ACPI_6_0_IO_REMAPPING_TABLE),
     .Reserved = EFI_ACPI_RESERVED_WORD,
   },
@@ -323,6 +323,118 @@ NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE Iort = {
         .InputBase = NXP_SDMMC1_STREAM_ID,
         .NumIds = 0,
         .OutputBase = NXP_SDMMC1_STREAM_ID,
+        .OutputReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE, SmmuNode),
+        .Flags = EFI_ACPI_IORT_ID_MAPPING_FLAGS_SINGLE,
+      },
+    },
+  },
+  .NamedCompNode[5] = {
+    .NamedNode = {
+      .Node = {
+        .Type = EFI_ACPI_IORT_TYPE_NAMED_COMP,
+        .Length = sizeof (NXP_EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE),
+        .Revision = 0,
+        .Reserved = EFI_ACPI_RESERVED_WORD,
+        .NumIdMappings = 1,
+        .IdReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE, NamedID),
+      },
+      .Flags = 0,
+      .CacheCoherent = EFI_ACPI_IORT_MEM_ACCESS_PROP_CCA,
+      .AllocationHints = 0,
+      .Reserved = EFI_ACPI_RESERVED_WORD,
+      .MemoryAccessFlags = EFI_ACPI_IORT_MEM_ACCESS_FLAGS_CPM | EFI_ACPI_IORT_MEM_ACCESS_FLAGS_DACS,
+      .AddressSizeLimit = 48,
+    },
+    .ObjectName = "\\_SB_.SAT0", // refer Sata.asl
+    .NamedID = {
+      {
+        .InputBase = NXP_SATA0_STREAM_ID,
+        .NumIds = 0,
+        .OutputBase = NXP_SATA0_STREAM_ID,
+        .OutputReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE, SmmuNode),
+        .Flags = EFI_ACPI_IORT_ID_MAPPING_FLAGS_SINGLE,
+      },
+    },
+  },
+  .NamedCompNode[6] = {
+    .NamedNode = {
+      .Node = {
+        .Type = EFI_ACPI_IORT_TYPE_NAMED_COMP,
+        .Length = sizeof (NXP_EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE),
+        .Revision = 0,
+        .Reserved = EFI_ACPI_RESERVED_WORD,
+        .NumIdMappings = 1,
+        .IdReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE, NamedID),
+      },
+      .Flags = 0,
+      .CacheCoherent = EFI_ACPI_IORT_MEM_ACCESS_PROP_CCA,
+      .AllocationHints = 0,
+      .Reserved = EFI_ACPI_RESERVED_WORD,
+      .MemoryAccessFlags = EFI_ACPI_IORT_MEM_ACCESS_FLAGS_CPM | EFI_ACPI_IORT_MEM_ACCESS_FLAGS_DACS,
+      .AddressSizeLimit = 48,
+    },
+    .ObjectName = "\\_SB_.SAT1", // refer Sata.asl
+    .NamedID = {
+      {
+        .InputBase = NXP_SATA1_STREAM_ID,
+        .NumIds = 0,
+        .OutputBase = NXP_SATA1_STREAM_ID,
+        .OutputReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE, SmmuNode),
+        .Flags = EFI_ACPI_IORT_ID_MAPPING_FLAGS_SINGLE,
+      },
+    },
+  },
+  .NamedCompNode[7] = {
+    .NamedNode = {
+      .Node = {
+        .Type = EFI_ACPI_IORT_TYPE_NAMED_COMP,
+        .Length = sizeof (NXP_EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE),
+        .Revision = 0,
+        .Reserved = EFI_ACPI_RESERVED_WORD,
+        .NumIdMappings = 1,
+        .IdReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE, NamedID),
+      },
+      .Flags = 0,
+      .CacheCoherent = EFI_ACPI_IORT_MEM_ACCESS_PROP_CCA,
+      .AllocationHints = 0,
+      .Reserved = EFI_ACPI_RESERVED_WORD,
+      .MemoryAccessFlags = EFI_ACPI_IORT_MEM_ACCESS_FLAGS_CPM | EFI_ACPI_IORT_MEM_ACCESS_FLAGS_DACS,
+      .AddressSizeLimit = 48,
+    },
+    .ObjectName = "\\_SB_.SAT2", // refer Sata.asl
+    .NamedID = {
+      {
+        .InputBase = NXP_SATA2_STREAM_ID,
+        .NumIds = 0,
+        .OutputBase = NXP_SATA2_STREAM_ID,
+        .OutputReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE, SmmuNode),
+        .Flags = EFI_ACPI_IORT_ID_MAPPING_FLAGS_SINGLE,
+      },
+    },
+  },
+  .NamedCompNode[8] = {
+    .NamedNode = {
+      .Node = {
+        .Type = EFI_ACPI_IORT_TYPE_NAMED_COMP,
+        .Length = sizeof (NXP_EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE),
+        .Revision = 0,
+        .Reserved = EFI_ACPI_RESERVED_WORD,
+        .NumIdMappings = 1,
+        .IdReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE, NamedID),
+      },
+      .Flags = 0,
+      .CacheCoherent = EFI_ACPI_IORT_MEM_ACCESS_PROP_CCA,
+      .AllocationHints = 0,
+      .Reserved = EFI_ACPI_RESERVED_WORD,
+      .MemoryAccessFlags = EFI_ACPI_IORT_MEM_ACCESS_FLAGS_CPM | EFI_ACPI_IORT_MEM_ACCESS_FLAGS_DACS,
+      .AddressSizeLimit = 48,
+    },
+    .ObjectName = "\\_SB_.SAT3", // refer Sata.asl
+    .NamedID = {
+      {
+        .InputBase = NXP_SATA3_STREAM_ID,
+        .NumIds = 0,
+        .OutputBase = NXP_SATA3_STREAM_ID,
         .OutputReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE, SmmuNode),
         .Flags = EFI_ACPI_IORT_ID_MAPPING_FLAGS_SINGLE,
       },

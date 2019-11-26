@@ -257,5 +257,45 @@ FixupIcid (
     }
   }
 
+  Icid = NXP_SATA0_STREAM_ID;
+  GurWrite ( (UINTN)&GurBase->Sata1Amqr, Icid);
+  NodeOffset = FdtGetNodeOffset (Fdt, "fsl,lx2160a-ahci", "ahci", SATA0_BASE);
+  if (NodeOffset != -FDT_ERR_NOTFOUND) {
+    Status = FdtFixupIcids (Fdt, NodeOffset, SmmuPhandle, &Icid, 1);
+    if (EFI_ERROR (Status)) {
+      return Status;
+    }
+  }
+
+  Icid = NXP_SATA1_STREAM_ID;
+  GurWrite ( (UINTN)&GurBase->Sata2Amqr, Icid);
+  NodeOffset = FdtGetNodeOffset (Fdt, "fsl,lx2160a-ahci", "ahci", SATA1_BASE);
+  if (NodeOffset != -FDT_ERR_NOTFOUND) {
+    Status = FdtFixupIcids (Fdt, NodeOffset, SmmuPhandle, &Icid, 1);
+    if (EFI_ERROR (Status)) {
+      return Status;
+    }
+  }
+
+  Icid = NXP_SATA2_STREAM_ID;
+  GurWrite ( (UINTN)&GurBase->Sata3Amqr, Icid);
+  NodeOffset = FdtGetNodeOffset (Fdt, "fsl,lx2160a-ahci", "ahci", SATA2_BASE);
+  if (NodeOffset != -FDT_ERR_NOTFOUND) {
+    Status = FdtFixupIcids (Fdt, NodeOffset, SmmuPhandle, &Icid, 1);
+    if (EFI_ERROR (Status)) {
+      return Status;
+    }
+  }
+
+  Icid = NXP_SATA3_STREAM_ID;
+  GurWrite ( (UINTN)&GurBase->Sata4Amqr, Icid);
+  NodeOffset = FdtGetNodeOffset (Fdt, "fsl,lx2160a-ahci", "ahci", SATA3_BASE);
+  if (NodeOffset != -FDT_ERR_NOTFOUND) {
+    Status = FdtFixupIcids (Fdt, NodeOffset, SmmuPhandle, &Icid, 1);
+    if (EFI_ERROR (Status)) {
+      return Status;
+    }
+  }
+
   return EFI_SUCCESS;
 }
