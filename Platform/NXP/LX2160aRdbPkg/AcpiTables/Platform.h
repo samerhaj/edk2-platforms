@@ -137,7 +137,7 @@
 // Timer
 #define TIMER_BLOCK_COUNT            1
 #define TIMER_FRAME_COUNT            4
-#define TIMER_WATCHDOG_COUNT         2
+#define TIMER_WATCHDOG_COUNT         1
 #define TIMER_BASE_ADDRESS           0x23E0000 // a.k.a CNTControlBase
 #define TIMER_READ_BASE_ADDRESS      0x23F0000 // a.k.a CNTReadBase
 #define TIMER_GT_BLOCK_0_ADDRESS     0x2890000 // a.k.a CNTCTLBase (Secure)
@@ -149,8 +149,6 @@
 #define TIMER_GT_BASE_2_EL0_ADDRESS  0x28F0000  // a.k.a CNTBase2EL0
 #define TIMER_WDT0_REFRESH_BASE      0x2390000
 #define TIMER_WDT0_CONTROL_BASE      0x23A0000
-#define TIMER_WDT1_REFRESH_BASE      0x23B0000
-#define TIMER_WDT1_CONTROL_BASE      0x23C0000
 #define TIMER_SEC_IT                 29
 #define TIMER_NON_SEC_IT             30
 #define TIMER_VIRT_IT                27
@@ -160,7 +158,6 @@
 #define TIMER_FRAME2_IT              92
 #define TIMER_FRAME3_IT              93
 #define TIMER_WDT0_IT                91
-#define TIMER_WDT1_IT                108
 
 #define DEFAULT_PLAT_FREQ            700000000
 

@@ -2,7 +2,7 @@
 *
 *  Copyright (c) 2012 - 2014, ARM Limited. All rights reserved.
 *  Copyright (c) 2015, Linaro Limited. All rights reserved.
-*  Copyright 2017-2018 NXP
+*  Copyright 2017-2019 NXP
 *
 *  This program and the accompanying materials
 *  are licensed and made available under the terms and conditions of the BSD License
@@ -172,17 +172,7 @@ EFI_ACPI_6_1_GENERIC_TIMER_DESCRIPTION_TABLES Gtdt = {
       TIMER_WDT0_CONTROL_BASE,                                   // UINT64 WatchdogControlFramePhysicalAddress
       TIMER_WDT0_IT,                                             // UINT32 WatchdogTimerGSIV
       SBSA_WATCHDOG_FLAGS                                        // UINT32 WatchdogTimerFlags
-    }, // Gtdt.Watchdogs[0]
-
-    {
-      EFI_ACPI_6_1_GTDT_SBSA_GENERIC_WATCHDOG,                    // UINT8 Type
-      sizeof (EFI_ACPI_6_1_GTDT_SBSA_GENERIC_WATCHDOG_STRUCTURE), // UINT16 Length
-      EFI_ACPI_RESERVED_BYTE,                                     // UINT8 Reserved
-      TIMER_WDT1_REFRESH_BASE,                                    // UINT64 RefreshFramePhysicalAddress
-      TIMER_WDT1_CONTROL_BASE,                                    // UINT64 WatchdogControlFramePhysicalAddress
-      TIMER_WDT1_IT,                                              // UINT32 WatchdogTimerGSIV
-      SBSA_SEC_WATCHDOG_FLAGS                                     // UINT32 WatchdogTimerFlags
-    } //Gtdt.Watchdogs[1]
+    } // Gtdt.Watchdogs[0]
   }
 };
 
