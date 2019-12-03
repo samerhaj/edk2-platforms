@@ -2,15 +2,9 @@
 *
 *  Copyright (c) 2011-2015, ARM Limited. All rights reserved.
 *  Copyright (c) 2015, Linaro Limited. All rights reserved.
-*  Copyright 2017-2019 NXP
+*  Copyright 2018-2019 NXP
 *
-*  This program and the accompanying materials
-*  are licensed and made available under the terms and conditions of the BSD License
-*  which accompanies this distribution.  The full text of the license may be found at
-*  http://opensource.org/licenses/bsd-license.php
-*
-*  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
-*  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+*  SPDX-License-Identifier: BSD-2-Clause
 *
 *  Based on the files under ArmPlatformPkg/ArmJunoPkg/AcpiTables/
 *
@@ -168,6 +162,8 @@
 #define LX2160A_PCI_SEG0             0x0
 #define LX2160A_PCI_SEG_BUSNUM_MIN   0x0
 #define LX2160A_PCI_SEG_BUSNUM_MAX   0xff
+#define LX2160A_PCI_SEG1_CONFIG_BASE 0xA000000000
+#define LX2160A_PCI_SEG1             0x1
 
 // Pci
 #define LX2160A_PCI_SEG0_CONFIG_BASE_MAX 0x900fffffff
