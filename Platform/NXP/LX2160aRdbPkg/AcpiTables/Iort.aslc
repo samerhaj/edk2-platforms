@@ -20,6 +20,12 @@ typedef struct
 
 typedef struct
 {
+  EFI_ACPI_6_0_IO_REMAPPING_RC_NODE         PciRcNode;
+  EFI_ACPI_6_0_IO_REMAPPING_ID_TABLE        PciRcIdMapping[2];
+} NXP_EFI_ACPI_6_0_IO_REMAPPING_RC_NODE;
+
+typedef struct
+{
   EFI_ACPI_6_0_IO_REMAPPING_SMMU_NODE         SmmuNode;
   EFI_ACPI_6_0_IO_REMAPPING_SMMU_INT          ContextInterrupt[64];
   EFI_ACPI_6_0_IO_REMAPPING_SMMU_INT          PmuInterrupt[10];
@@ -38,6 +44,7 @@ typedef struct
   EFI_ACPI_6_0_IO_REMAPPING_TABLE                  Header;
   NXP_EFI_ACPI_6_0_IO_REMAPPING_ITS_NODE           ItsNode;
   NXP_EFI_ACPI_6_0_IO_REMAPPING_SMMU_NODE          SmmuNode;
+  NXP_EFI_ACPI_6_0_IO_REMAPPING_RC_NODE            PciRcNode;
   NXP_EFI_ACPI_6_0_IO_REMAPPING_NAMED_COMP_NODE    NamedCompNode[9];
 } NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE;
 
@@ -56,7 +63,7 @@ NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE Iort = {
       .CreatorId = EFI_ACPI_ARM_CREATOR_ID,
       .CreatorRevision = EFI_ACPI_ARM_CREATOR_REVISION,
     },
-    .NumNodes = 11,
+    .NumNodes = 12,
     .NodeOffset = sizeof (EFI_ACPI_6_0_IO_REMAPPING_TABLE),
     .Reserved = EFI_ACPI_RESERVED_WORD,
   },
@@ -183,6 +190,40 @@ NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE Iort = {
         .InputBase = NXP_DPAA2_STREAM_ID_START,
         .NumIds = NXP_DPAA2_STREAM_ID_COUNT - 1,
         .OutputBase = NXP_DPAA2_STREAM_ID_START,
+        .OutputReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE, ItsNode),
+        .Flags = 0,
+      },
+    },
+  },
+  .PciRcNode = {
+    .PciRcNode = {
+      .Node = {
+        .Type = EFI_ACPI_IORT_TYPE_ROOT_COMPLEX,
+        .Length = sizeof (NXP_EFI_ACPI_6_0_IO_REMAPPING_RC_NODE),
+        .Revision = 0,
+        .Reserved = EFI_ACPI_RESERVED_WORD,
+        .NumIdMappings = 2,
+        .IdReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_RC_NODE, PciRcIdMapping),
+      },
+      .CacheCoherent = EFI_ACPI_IORT_MEM_ACCESS_PROP_CCA,
+      .AllocationHints = 0x0,
+      .Reserved = 0x0,
+      .MemoryAccessFlags = EFI_ACPI_IORT_MEM_ACCESS_FLAGS_CPM | EFI_ACPI_IORT_MEM_ACCESS_FLAGS_DACS,
+      .AtsAttribute = EFI_ACPI_IORT_ROOT_COMPLEX_ATS_UNSUPPORTED,
+      .PciSegmentNumber = LX2160A_PCI_SEG0,  // refer to Pci.asl
+    },
+    .PciRcIdMapping = {
+      {
+        .InputBase = 0x0,
+        .NumIds = 0x0,
+        .OutputBase = 0x1800,
+        .OutputReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE, ItsNode),
+        .Flags = 0,
+      },
+      {
+        .InputBase = 0x100,
+        .NumIds = 0x7,
+        .OutputBase = 0x1801,
         .OutputReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE, ItsNode),
         .Flags = 0,
       },
