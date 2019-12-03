@@ -58,6 +58,12 @@ Scope(_SB)
     } // end of PHY2
     Device(PHY4) {
       Name (_ADR, 0x4)
+      Name(_CRS, ResourceTemplate() {
+      Interrupt(ResourceConsumer, Level, ActiveHigh, Shared)
+      {
+        AQR_PHY4_IT
+      }
+      }) // end of _CRS for PHY4
       Name (_DSD, Package () {
         ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
           Package () {
@@ -69,6 +75,12 @@ Scope(_SB)
     } // end of PHY4
     Device(PHY5) {
       Name (_ADR, 0x5)
+      Name(_CRS, ResourceTemplate() {
+      Interrupt(ResourceConsumer, Level, ActiveHigh, Shared)
+      {
+        AQR_PHY5_IT
+      }
+      }) // end of _CRS for PHY5
       Name (_DSD, Package () {
         ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
           Package () {

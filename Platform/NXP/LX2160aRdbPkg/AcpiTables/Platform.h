@@ -129,6 +129,9 @@
 #define MDI1_BASE 0x8b97000
 #define MDI1_IT   123
 #define MDI_LEN   0x1000
+#define AQR_PHY4_IT 34
+#define AQR_PHY5_IT 35
+
 
 // Timer
 #define TIMER_BLOCK_COUNT            1
