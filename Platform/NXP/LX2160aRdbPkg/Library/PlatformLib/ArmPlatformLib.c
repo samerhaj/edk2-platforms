@@ -6,7 +6,7 @@
 *
 *  Copyright (c) 2011-2012, ARM Limited. All rights reserved.
 *  Copyright (c) 2016, Freescale Semiconductor, Inc. All rights reserved.
-*  Copyright 2018 NXP
+*  Copyright 2018-2019 NXP
 *
 *  This program and the accompanying materials
 *  are licensed and made available under the terms and conditions of the BSD License
@@ -21,8 +21,9 @@
 #include <Library/ArmPlatformLib.h>
 #include <Ppi/ArmMpCoreInfo.h>
 
-extern VOID SocInit (VOID);
+#define AQUANTIA107_IRQ_MASK 0xC
 
+extern VOID SocInit (UINT32 ExternITMask);
 /**
   Return the current Boot Mode
 
@@ -46,7 +47,7 @@ ArmPlatformInitialize (
   IN  UINTN   MpId
   )
 {
-  SocInit ();
+  SocInit (AQUANTIA107_IRQ_MASK);
   return EFI_SUCCESS;
 }
 
