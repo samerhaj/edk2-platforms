@@ -1,16 +1,9 @@
 /** @file
   PCI memory configuration for NXP
 
-  Copyright 2018 NXP
+  Copyright 2018-2019 NXP
 
-  This program and the accompanying materials are licensed and made available
-  under the terms and conditions of the BSD License which accompanies this
-  distribution.  The full text of the license may be found at
-  http://opensource.org/licenses/bsd-license.php.
-
-  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS, WITHOUT
-  WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-
+  SPDX-License-Identifier: BSD-2-Clause
 **/
 
 #ifndef __PCI_H__
@@ -77,9 +70,9 @@
 #define PCI_SEG_BUSNUM_MIN        0x0
 #define PCI_SEG_BUSNUM_MAX        0xff
 #define PCI_SEG_PORTIO_MAX        0xffff
-#define PCI_SEG_MMIO32_MIN        0x40000000
-#define PCI_SEG_MMIO32_MAX        0x4fffffff
-#define PCI_SEG_MMIO32_DIFF       0x10000000
+#define PCI_SEG_MMIO32_MIN        0x40000000UL
+#define PCI_SEG_MMIO32_MAX        0x4fffffffUL
+#define PCI_SEG_MMIO32_DIFF       0x10000000UL
 #define PCI_SEG_MMIO64_MAX_DIFF   0x3fffffff
 #define SEG_CFG_SIZE              0x00001000
 #define SEG_CFG_BUS               0x00000000
