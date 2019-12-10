@@ -115,7 +115,7 @@ EFI_ACPI_6_1_GENERIC_TIMER_DESCRIPTION_TABLES Gtdt = {
       GTDT_FRAME_FLAGS,                     // UINT32 GTxPhysicalTimerFlags
       0,                                    // UINT32 GTxVirtualTimerGSIV
       0,                                    // UINT32 GTxVirtualTimerFlags
-      GTDT_FRAME_COMMON_FLAGS               // UINT32 GTxCommonFlags
+      0                                     // UINT32 GTxCommonFlags
     }, //Gtdt.Frames[0]
 
     {
