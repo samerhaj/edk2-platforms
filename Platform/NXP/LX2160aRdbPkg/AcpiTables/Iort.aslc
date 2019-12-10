@@ -250,14 +250,14 @@ NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE Iort = {
       {
         .InputBase = 0x0,
         .NumIds = 0x0,
-        .OutputBase = 0xa0000,
+        .OutputBase = 0x2800,
         .OutputReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE, ItsNode),
         .Flags = 0,
       },
       {
         .InputBase = 0x100,
         .NumIds = 0x7,
-        .OutputBase = 0xa0001,
+        .OutputBase = 0x2801,
         .OutputReference = OFFSET_OF (NXP_EFI_ACPI_6_0_IO_REMAPPING_TABLE, ItsNode),
         .Flags = 0,
       },
