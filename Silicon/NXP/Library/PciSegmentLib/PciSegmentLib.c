@@ -1,17 +1,9 @@
 /** @file
   PCI Segment Library for NXP SoCs with multiple RCs
 
-  Copyright 2018 NXP
+  Copyright 2018-2019 NXP
 
-  This program and the accompanying materials are
-  licensed and made available under the terms and conditions of
-  the BSD License which accompanies this distribution.  The full
-  text of the license may be found at
-  http://opensource.org/licenses/bsd-license.php.
-
-  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
-  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-
+  SPDX-License-Identifier: BSD-2-Clause
 **/
 #include <PiDxe.h>
 #include <Base.h>
@@ -175,8 +167,24 @@ PciSegmentLibGetConfigBase (
     case PCI_SEG4_NUM:
       // Reading bus number(bits 20-27)
       if ((Address >> 20) & 1) {
+        if (PcdGetBool (PcdPcieConfigurePex)) {
+          Target = 0x1000000;
+          PcieCfgSetTarget (PCI_SEG4_DBI_BASE, Target);
+        }
         return (PCI_SEG4_MMIO_MEMBASE + Offset);
       } else {
+          if (PcdGetBool (PcdPcieConfigurePex)) {
+            if (Offset < INDIRECT_ADDR_BNDRY) {
+              CcsrSetPg (PCI_SEG4_DBI_BASE, 0);
+              if (Offset == 4)  {
+                WriteFixedData = 1;
+              }
+              return (PCI_SEG4_DBI_BASE + Offset);
+            }
+
+            CcsrSetPg (PCI_SEG4_DBI_BASE, OFFSET_TO_PAGE_IDX (Offset));
+            Offset = OFFSET_TO_PAGE_ADDR (Offset);
+            }
         // On Bus 0 RCs are connected
         return (PCI_SEG4_DBI_BASE + Offset);
       }

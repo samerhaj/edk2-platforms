@@ -3,16 +3,9 @@
 
   Copyright (c) 2009 - 2012, Intel Corporation. All rights reserved.<BR>
   Copyright (c) 2016, Linaro Ltd. All rights reserved.<BR>
-  Copyright 2018 NXP
+  Copyright 2018-2019 NXP
 
-  This program and the accompanying materials
-  are licensed and made available under the terms and conditions of the BSD License
-  which accompanies this distribution.  The full text of the license may be found at
-  http://opensource.org/licenses/bsd-license.php
-
-  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
-  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-
+  SPDX-License-Identifier: BSD-2-Clause
 **/
 
 #include <Library/BaseLib.h>
@@ -269,9 +262,15 @@ CpuMemoryServiceRead (
      */
     if ((PcdGet32(PcdSocSvr) & SVR_LS1043A_MASK) == SVR_LS1043A) {
       Address += PCI_SEG2_MMIO_MEMBASE;
-    } else {
-      Address += PCI_SEG3_MMIO_MEMBASE;
-    }
+    } else if ((PcdGet32(PcdSocSvr) & SVR_LX2160A_MASK) == SVR_LX2160A) {
+      /* TODO: Fixme: This is a temporary fix to avoid LX2 PCIe controller using
+      * DDR region region 0x80000000 for it's MMIO access. In PciHostBridgeLib
+      * We are mapping 0x70000000 with PEX5 for its MMIO access, here we reverse
+      * map the 0x70000000 address range to PEX5.
+      */
+      Address += PCI_SEG4_MMIO_MEMBASE;
+    } else
+       Address += PCI_SEG3_MMIO_MEMBASE;
 
   } else if ((Address >= PCI_SEG4_MMIO32_MIN) &&
              (Address <= PCI_SEG4_MMIO32_MAX)) {
@@ -387,9 +386,15 @@ CpuMemoryServiceWrite (
      */
     if ((PcdGet32(PcdSocSvr) & SVR_LS1043A_MASK) == SVR_LS1043A) {
       Address += PCI_SEG2_MMIO_MEMBASE;
-    } else {
-      Address += PCI_SEG3_MMIO_MEMBASE;
-    }
+    } else if ((PcdGet32(PcdSocSvr) & SVR_LX2160A_MASK) == SVR_LX2160A) {
+      /* TODO: Fixme: This is a temporary fix to avoid LX2 PCIe controller using
+      * DDR region region 0x80000000 for it's MMIO access. In PciHostBridgeLib
+      * We are mapping 0x70000000 with PEX5 for its MMIO access, here we reverse
+      * map the 0x70000000 address range to PEX5.
+      */
+      Address += PCI_SEG4_MMIO_MEMBASE;
+    } else
+       Address += PCI_SEG3_MMIO_MEMBASE;
 
   } else if ((Address >= PCI_SEG4_MMIO32_MIN) &&
              (Address <= PCI_SEG4_MMIO32_MAX)) {
