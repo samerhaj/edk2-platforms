@@ -1,16 +1,9 @@
 /** @file
   PCI Host Bridge Library instance for NXP SoCs
 
-  Copyright 2018 NXP
+  Copyright 2018-2019 NXP
 
-  This program and the accompanying materials are licensed and made available
-  under the terms and conditions of the BSD License which accompanies this
-  distribution.  The full text of the license may be found at
-  http://opensource.org/licenses/bsd-license.php.
-
-  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS, WITHOUT
-  WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
-
+  SPDX-License-Identifier: BSD-2-Clause
 **/
 
 #include <PiDxe.h>
@@ -1268,6 +1261,15 @@ PciHostBridgeGetRootBridges (
         if ((PciEnabled[Loop] == 0x2) && ((PcdGet32(PcdSocSvr) & SVR_LS1043A_MASK) == SVR_LS1043A)) {
           mPciRootBridges[Loop].Mem.Base += PCI_SEG_MMIO32_DIFF;
           mPciRootBridges[Loop].Mem.Limit += PCI_SEG_MMIO32_DIFF;
+        }
+
+        /* TODO: Fixme: This is a temporary fix to avoid PEX5 in LX2160 to use DDR
+         * region (starting from 0x80000000) and adjust the range to from 0x7000000
+         * for it's MMIO access.
+         */
+        if ((PciEnabled[Loop] == 0x4) && ((PcdGet32(PcdSocSvr) & SVR_LX2160A_MASK) == SVR_LX2160A)) {
+          mPciRootBridges[Loop].Mem.Base -= PCI_SEG_MMIO32_DIFF;
+          mPciRootBridges[Loop].Mem.Limit -= PCI_SEG_MMIO32_DIFF;
         }
 
         mPciRootBridges[Loop].MemAbove4G.Base       = PciPhyMemAddr[PciEnabled[Loop]];

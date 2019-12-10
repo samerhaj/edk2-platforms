@@ -11,6 +11,8 @@
 
 #define SVR_LS1043A_MASK        0xffff0000
 #define SVR_LS1043A             0x87920000
+#define SVR_LX2160A_MASK        0xffff0000
+#define SVR_LX2160A             0x87360000
 
 // Segment 0
 #define PCI_SEG0_NUM              0
