@@ -134,7 +134,9 @@ PciSegmentLibGetConfigBase (
       // Reading bus number(bits 20-27)
       if ((Address >> 20) & 1) {
         if (PcdGetBool (PcdPcieConfigurePex)) {
-          Target = 0x1000000;
+          Target = ((((Address >> 20) & 0xFF) << 24) |
+                   (((Address >> 15) & 0x1F) << 19) |
+                   (((Address >> 12) & 0x7) << 16));;
           PcieCfgSetTarget (PCI_SEG2_DBI_BASE, Target);
         }
         return (PCI_SEG2_MMIO_MEMBASE + Offset);
@@ -168,7 +170,9 @@ PciSegmentLibGetConfigBase (
       // Reading bus number(bits 20-27)
       if ((Address >> 20) & 1) {
         if (PcdGetBool (PcdPcieConfigurePex)) {
-          Target = 0x1000000;
+          Target = ((((Address >> 20) & 0xFF) << 24) |
+                   (((Address >> 15) & 0x1F) << 19) |
+                   (((Address >> 12) & 0x7) << 16));;
           PcieCfgSetTarget (PCI_SEG4_DBI_BASE, Target);
         }
         return (PCI_SEG4_MMIO_MEMBASE + Offset);
