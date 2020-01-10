@@ -5,14 +5,14 @@
  configuration details for the SPI NOR flash part. The SPI NOR flash
  driver uses this configuration data to expose a generic interface
  which provides the following APls:
-   •Read manufacture and device ID
-   •Read data
-   •Read data using low frequency
-   •Read status
-   •Write data
-   •Erase 4 KiB blocks
-   •Erase 32 or 64 KiB blocks
-   •Write status
+   * Read manufacture and device ID
+   * Read data
+   * Read data using low frequency
+   * Read status
+   * Write data
+   * Erase 4 KiB blocks
+   * Erase 32 or 64 KiB blocks
+   * Write status
 
  Copyright 2018-2019 NXP
 
