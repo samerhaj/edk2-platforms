@@ -130,7 +130,7 @@ In112525UploadFirmware (
     ColumnCount = I;
     LineTemp[ColumnCount] = '\0';
 
-    if (LineCount > PcdGet64 (PcdIn112525FwSize)); {
+    if (LineCount > PcdGet64 (PcdIn112525FwSize)) {
       DPAA_ERROR_MSG ("Inphi Firmware larger than expected\n");
       return EFI_INVALID_PARAMETER;
 
