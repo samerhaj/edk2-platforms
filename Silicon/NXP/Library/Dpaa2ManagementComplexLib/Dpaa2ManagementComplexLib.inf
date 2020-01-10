@@ -39,6 +39,7 @@
   EmbeddedPkg/EmbeddedPkg.dec
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
+  NetworkPkg/NetworkPkg.dec
   Silicon/NXP/NxpQoriqLs.dec
 
 [Guids]
