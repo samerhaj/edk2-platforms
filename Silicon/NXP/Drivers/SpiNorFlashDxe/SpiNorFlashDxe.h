@@ -61,6 +61,7 @@ SpiNorFlashStop (
   IN EFI_HANDLE                    *ChildHandleBuffer OPTIONAL
   );
 
+EFI_STATUS
 EFIAPI
 FvbGetAttributes(
   IN CONST  EFI_FIRMWARE_VOLUME_BLOCK2_PROTOCOL    *This,
