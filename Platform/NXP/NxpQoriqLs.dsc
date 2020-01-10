@@ -45,12 +45,6 @@
   UefiBootManagerLib|MdeModulePkg/Library/UefiBootManagerLib/UefiBootManagerLib.inf
   CustomizedDisplayLib|MdeModulePkg/Library/CustomizedDisplayLib/CustomizedDisplayLib.inf
 
-  # Networking Requirements
-  NetLib|MdeModulePkg/Library/DxeNetLib/DxeNetLib.inf
-  DpcLib|MdeModulePkg/Library/DxeDpcLib/DxeDpcLib.inf
-  UdpIoLib|MdeModulePkg/Library/DxeUdpIoLib/DxeUdpIoLib.inf
-  IpIoLib|MdeModulePkg/Library/DxeIpIoLib/DxeIpIoLib.inf
-
   # ARM GIC400 General Interrupt Driver
   ArmGicLib|ArmPkg/Drivers/ArmGic/ArmGicLib.inf
   ArmGicArchLib|ArmPkg/Library/ArmGicArchLib/ArmGicArchLib.inf
@@ -92,7 +86,6 @@
   FileHandleLib|MdePkg/Library/UefiFileHandleLib/UefiFileHandleLib.inf
   ShellCEntryLib|ShellPkg/Library/UefiShellCEntryLib/UefiShellCEntryLib.inf
   SortLib|MdeModulePkg/Library/UefiSortLib/UefiSortLib.inf
-  NetLib|MdeModulePkg/Library/DxeNetLib/DxeNetLib.inf
   HandleParsingLib|ShellPkg/Library/UefiHandleParsingLib/UefiHandleParsingLib.inf
   BcfgCommandLib|ShellPkg/Library/UefiShellBcfgCommandLib/UefiShellBcfgCommandLib.inf
   TpmMeasurementLib|MdeModulePkg/Library/TpmMeasurementLibNull/TpmMeasurementLibNull.inf
@@ -360,27 +353,7 @@
   #
   # Networking stack
   #
-  MdeModulePkg/Universal/Network/SnpDxe/SnpDxe.inf
-  MdeModulePkg/Universal/Network/DpcDxe/DpcDxe.inf
-  MdeModulePkg/Universal/Network/MnpDxe/MnpDxe.inf
-  MdeModulePkg/Universal/Network/VlanConfigDxe/VlanConfigDxe.inf
-  MdeModulePkg/Universal/Network/ArpDxe/ArpDxe.inf
-  MdeModulePkg/Universal/Network/Dhcp4Dxe/Dhcp4Dxe.inf
-  MdeModulePkg/Universal/Network/Ip4Dxe/Ip4Dxe.inf
-  MdeModulePkg/Universal/Network/Mtftp4Dxe/Mtftp4Dxe.inf
-  MdeModulePkg/Universal/Network/Udp4Dxe/Udp4Dxe.inf
-  MdeModulePkg/Universal/Network/UefiPxeBcDxe/UefiPxeBcDxe.inf
-  MdeModulePkg/Universal/Network/IScsiDxe/IScsiDxe.inf
-!if $(NETWORK_IP6_ENABLE) == TRUE
-  NetworkPkg/Ip6Dxe/Ip6Dxe.inf
-  NetworkPkg/TcpDxe/TcpDxe.inf
-  NetworkPkg/Udp6Dxe/Udp6Dxe.inf
-  NetworkPkg/Dhcp6Dxe/Dhcp6Dxe.inf
-  NetworkPkg/Mtftp6Dxe/Mtftp6Dxe.inf
-  NetworkPkg/UefiPxeBcDxe/UefiPxeBcDxe.inf
-!else
-  MdeModulePkg/Universal/Network/Tcp4Dxe/Tcp4Dxe.inf
-!endif
+!include NetworkPkg/Network.dsc.inc
 
   #
   # USB Support

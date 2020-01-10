@@ -29,6 +29,14 @@
   FLASH_DEFINITION               = Platform/NXP/LX2160aRdbPkg/LX2160aRdbPkg.fdf
   DEFINE MC_HIGH_MEM             = TRUE
 
+  #
+  # Network definition
+  #
+  DEFINE NETWORK_IP6_ENABLE             = FALSE
+  DEFINE NETWORK_TLS_ENABLE             = FALSE
+  DEFINE NETWORK_HTTP_BOOT_ENABLE       = FALSE
+  DEFINE NETWORK_ISCSI_ENABLE           = FALSE
+
 !include Platform/NXP/NxpQoriqLs.dsc
 !include Silicon/NXP/Chassis/Chassis3V2/Chassis3V2.dsc
 !include Silicon/NXP/LX2160A/LX2160A.dsc
