@@ -32,6 +32,7 @@
   Iort.aslc
   Madt.aslc
   Mcfg.aslc
+  Platform.h
   Spcr.aslc
 /*  Dbg2.aslc
   SASSSDT.ASL

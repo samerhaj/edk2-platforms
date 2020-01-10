@@ -24,6 +24,7 @@
 
 [Sources]
   PciHostBridgeLib.c
+  PciHostBridgeLib.h
 
 [Packages]
   MdePkg/MdePkg.dec

@@ -24,7 +24,9 @@
 
 [Sources.common]
   SpiNorFlashDxe.c
+  SpiNorFlashDxe.h
   SpiNorFlashOps.c
+  SpiNorFlashOps.h
   SpiNorFlashFvb.c
 
 [Packages]

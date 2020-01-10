@@ -38,9 +38,13 @@
 
 [Sources.common]
   Chassis.c
+  Chassis.h
   Chassis3V2/Soc.c
+  Chassis3V2/Soc.h
+  DramInfo.h
   ErrataCh3Vx.c
   SerDes.c
+  Chassis3V2/SerDes.h
   SocHelper.S
 
 [FixedPcd]

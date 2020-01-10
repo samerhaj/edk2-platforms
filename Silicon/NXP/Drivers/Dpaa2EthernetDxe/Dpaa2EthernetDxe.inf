@@ -25,6 +25,7 @@
 
 [Sources.common]
   Dpaa2EthernetDxe.c
+  Dpaa2EthernetDxe.h
 
 [Packages]
   MdePkg/MdePkg.dec

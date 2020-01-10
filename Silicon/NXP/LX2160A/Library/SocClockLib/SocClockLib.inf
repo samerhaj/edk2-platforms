@@ -25,6 +25,7 @@
 
 [Sources.common]
   SocClockLib.c
+  SocClockInternalLib.h
 
 [Packages]
   MdePkg/MdePkg.dec

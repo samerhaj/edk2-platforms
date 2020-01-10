@@ -24,6 +24,7 @@
 
 [Sources.common]
   FspiDxe.c
+  FspiDxe.h
   FspiDxeOps.c
   FspiDxeParseDt.c
   FspiDxeParseRequest.c

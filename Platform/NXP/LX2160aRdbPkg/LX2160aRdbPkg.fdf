@@ -147,7 +147,7 @@ READ_LOCK_STATUS   = TRUE
   #
 !include NetworkPkg/Network.fdf.inc
 
-  INF Silicon/NXP/Drivers/LanIntelE1000Dxe/LanIntelE1000Dxe.inf
+  # INF Silicon/NXP/Drivers/LanIntelE1000Dxe/LanIntelE1000Dxe.inf
 
   INF MdeModulePkg/Bus/Pci/NonDiscoverablePciDeviceDxe/NonDiscoverablePciDeviceDxe.inf
 

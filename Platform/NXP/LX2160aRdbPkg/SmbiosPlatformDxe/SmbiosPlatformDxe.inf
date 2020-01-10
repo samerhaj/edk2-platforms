@@ -31,6 +31,7 @@
 
 [Sources]
   SmbiosPlatformDxe.c
+  SmbiosPlatformDxe.h
 
 [Packages]
   MdePkg/MdePkg.dec

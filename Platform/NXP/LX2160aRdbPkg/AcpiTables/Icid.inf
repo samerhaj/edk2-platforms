@@ -31,6 +31,7 @@
 
 [Sources.common]
   Icid.c
+  Platform.h
 
 [FixedPcd]
   gNxpQoriqLsTokenSpaceGuid.PcdGutsBaseAddr
