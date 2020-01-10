@@ -270,8 +270,6 @@
   gEfiMdePkgTokenSpaceGuid.PcdDefaultTerminalType|4
 
   # Size of the region reserved for fixed address allocations (Reserved 32MB)
-  gArmTokenSpaceGuid.PcdArmLinuxFdtMaxOffset|0x08000000
-  gArmTokenSpaceGuid.PcdArmLinuxFdtAlignment|0x0
   gArmTokenSpaceGuid.PcdCpuVectorBaseAddress|0x94A00000
   gArmTokenSpaceGuid.PcdCpuResetAddress|0x94A00000
 
