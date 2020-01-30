@@ -220,8 +220,8 @@
   #
   # Platform
   #
-  Platform/NXP/LX2160aRdbPkg/AcpiTables/AcpiTables.inf
-  Platform/NXP/LX2160aRdbPkg/AcpiTables/Icid.inf
+  Silicon/NXP/LX2160A/AcpiTables/LX2160aRdb.inf
+  Silicon/NXP/LX2160A/AcpiTables/Icid.inf
 
  #
  #SMBIOS
