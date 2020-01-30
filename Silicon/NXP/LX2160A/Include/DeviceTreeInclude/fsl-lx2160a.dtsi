@@ -1,7 +1,7 @@
 /*
  * Device Tree Include file for Layerscape-LX2160A family SoC.
  *
- * Copyright 2018-2019 NXP
+ * Copyright 2018 NXP
  *
  * Sriram Dash <sriram.dash@nxp.com>
  *
@@ -60,177 +60,330 @@
     cpu@0 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x0>;
       clocks = <&clockgen 1 0>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster0_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cpu@1 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x1>;
       clocks = <&clockgen 1 0>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster0_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cpu@100 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x100>;
       clocks = <&clockgen 1 1>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster1_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cpu@101 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x101>;
       clocks = <&clockgen 1 1>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster1_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cpu@200 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x200>;
       clocks = <&clockgen 1 2>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster2_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cpu@201 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x201>;
       clocks = <&clockgen 1 2>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster2_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cpu@300 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x300>;
       clocks = <&clockgen 1 3>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster3_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cpu@301 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x301>;
       clocks = <&clockgen 1 3>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster3_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cpu@400 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x400>;
       clocks = <&clockgen 1 4>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster4_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cpu@401 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x401>;
       clocks = <&clockgen 1 4>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster4_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cpu@500 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x500>;
       clocks = <&clockgen 1 5>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster5_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cpu@501 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x501>;
       clocks = <&clockgen 1 5>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster5_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cpu@600 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x600>;
       clocks = <&clockgen 1 6>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster6_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cpu@601 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x601>;
       clocks = <&clockgen 1 6>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster6_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cpu@700 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x700>;
       clocks = <&clockgen 1 7>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster7_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cpu@701 {
       device_type = "cpu";
       compatible = "arm,cortex-a72";
+      enable-method = "psci";
       reg = <0x701>;
       clocks = <&clockgen 1 7>;
+      d-cache-size = <0x8000>;
+      d-cache-line-size = <64>;
+      d-cache-sets = <128>;
+      i-cache-size = <0xC000>;
+      i-cache-line-size = <64>;
+      i-cache-sets = <192>;
       next-level-cache = <&cluster7_l2>;
-      enable-method = "psci";
+      cpu-idle-states = <&cpu_pw20>;
     };
 
     cluster0_l2: l2-cache0 {
       compatible = "cache";
+      cache-size = <0x100000>;
+      cache-line-size = <64>;
+      cache-sets = <1024>;
+      cache-level = <2>;
     };
 
     cluster1_l2: l2-cache1 {
       compatible = "cache";
+      cache-size = <0x100000>;
+      cache-line-size = <64>;
+      cache-sets = <1024>;
+      cache-level = <2>;
     };
 
     cluster2_l2: l2-cache2 {
       compatible = "cache";
+      cache-size = <0x100000>;
+      cache-line-size = <64>;
+      cache-sets = <1024>;
+      cache-level = <2>;
     };
 
     cluster3_l2: l2-cache3 {
       compatible = "cache";
+      cache-size = <0x100000>;
+      cache-line-size = <64>;
+      cache-sets = <1024>;
+      cache-level = <2>;
     };
 
     cluster4_l2: l2-cache4 {
       compatible = "cache";
+      cache-size = <0x100000>;
+      cache-line-size = <64>;
+      cache-sets = <1024>;
+      cache-level = <2>;
     };
 
     cluster5_l2: l2-cache5 {
       compatible = "cache";
+      cache-size = <0x100000>;
+      cache-line-size = <64>;
+      cache-sets = <1024>;
+      cache-level = <2>;
     };
 
     cluster6_l2: l2-cache6 {
       compatible = "cache";
+      cache-size = <0x100000>;
+      cache-line-size = <64>;
+      cache-sets = <1024>;
+      cache-level = <2>;
     };
 
     cluster7_l2: l2-cache7 {
       compatible = "cache";
+      cache-size = <0x100000>;
+      cache-line-size = <64>;
+      cache-sets = <1024>;
+      cache-level = <2>;
+    };
+
+    cpu_pw20: cpu-pw20 {
+      compatible = "arm,idle-state";
+      idle-state-name = "PW20";
+      arm,psci-suspend-param = <0x0>;
+      entry-latency-us = <2000>;
+      exit-latency-us = <2000>;
+      min-residency-us = <6000>;
     };
   };
 
@@ -276,13 +429,19 @@
   };
 
   pmu {
-    compatible = "arm,armv8-pmuv3";
+    compatible = "arm,cortex-a72-pmu";
     interrupts = <1 7 0x8>; /* PMU PPI, Level low type */
   };
 
   psci {
     compatible = "arm,psci-0.2";
     method = "smc";
+  };
+
+  ccn@4000000 {
+    compatible = "arm,ccn-504";
+    reg = <0x0 0x04000000 0x0 0x01000000>;
+    interrupts = <0 12 0x4>;
   };
 
   memory@80000000 {
@@ -317,6 +476,7 @@
     #address-cells = <2>;
     #size-cells = <2>;
     ranges;
+    dma-ranges = <0x0 0x0 0x0 0x0 0x10000 0x00000000>;
 
     clockgen: clocking@1300000 {
       compatible = "fsl,lx2160a-clockgen";
@@ -366,6 +526,7 @@
       reg = <0x0 0x2140000 0x0 0x10000>;
       interrupts = <0 28 0x4>; /* Level high type */
       clocks = <&clockgen 4 1>;
+      dma-coherent;
       voltage-ranges = <1800 1800 3300 3300>;
       sdhci,auto-cmd12;
       little-endian;
@@ -378,6 +539,7 @@
       reg = <0x0 0x2150000 0x0 0x10000>;
       interrupts = <0 63 0x4>; /* Level high type */
       clocks = <&clockgen 4 1>;
+      dma-coherent;
       voltage-ranges = <1800 1800 3300 3300>;
       sdhci,auto-cmd12;
       broken-cd;
@@ -443,10 +605,13 @@
     };
 
     emdio2: mdio@0x8B97000 { /* WRIOP0: 0x8B8_0000, E-MDIO2: 0x1_7000 */
-	inphi_phy: ethernet-phy@0 {
-                compatible = "ethernet-phy-id0210.7440";
-                reg = <0x0>;
-	};
+      compatible = "fsl,fman-memac-mdio";
+      reg = <0x0 0x8B97000 0x0 0x1000>;
+      device_type = "mdio";      /* TODO: is this necessary? */
+      little-endian;  /* force the driver in LE mode */
+
+      #address-cells = <1>;
+      #size-cells = <0>;
     };
 
     pcs_mdio3: mdio@0x8c0f000 {
@@ -462,6 +627,46 @@
     pcs_mdio4: mdio@0x8c13000 {
       compatible = "fsl,fman-memac-mdio";
       reg = <0x0 0x8c13000 0x0 0x1000>;
+      device_type = "mdio";
+      little-endian;
+
+      #address-cells = <1>;
+      #size-cells = <0>;
+    };
+
+     pcs_mdio5: mdio@0x8c17000 {
+      compatible = "fsl,fman-memac-mdio";
+      reg = <0x0 0x8c17000 0x0 0x1000>;
+      device_type = "mdio";
+      little-endian;
+
+      #address-cells = <1>;
+      #size-cells = <0>;
+    };
+
+    pcs_mdio6: mdio@0x8c1b000 {
+      compatible = "fsl,fman-memac-mdio";
+      reg = <0x0 0x8c1b000 0x0 0x1000>;
+      device_type = "mdio";
+      little-endian;
+
+      #address-cells = <1>;
+      #size-cells = <0>;
+    };
+
+    pcs_mdio7: mdio@0x8c1f000 {
+      compatible = "fsl,fman-memac-mdio";
+      reg = <0x0 0x8c1f000 0x0 0x1000>;
+      device_type = "mdio";
+      little-endian;
+
+      #address-cells = <1>;
+      #size-cells = <0>;
+    };
+
+    pcs_mdio8: mdio@0x8c23000 {
+      compatible = "fsl,fman-memac-mdio";
+      reg = <0x0 0x8c23000 0x0 0x1000>;
       device_type = "mdio";
       little-endian;
 
@@ -650,57 +855,6 @@
       status = "okay";
     };
 
-    smmu: iommu@5000000 {
-      compatible = "arm,mmu-500";
-      reg = <0 0x5000000 0 0x800000>;
-      #iommu-cells = <1>;
-      #global-interrupts = <14>;
-      interrupts = <0 13 4>, /* global secure fault */
-       <0 14 4>, /* combined secure interrupt */
-       <0 15 4>, /* global non-secure fault */
-       <0 16 4>, /* combined non-secure interrupt */
-  /* performance counter interrupts 0-9 */
-       <0 211 4>, <0 212 4>,
-       <0 213 4>, <0 214 4>,
-       <0 215 4>, <0 216 4>,
-       <0 217 4>, <0 218 4>,
-       <0 219 4>, <0 220 4>,
-  /* per context interrupt, 64 interrupts */
-       <0 146 4>, <0 147 4>,
-       <0 148 4>, <0 149 4>,
-       <0 150 4>, <0 151 4>,
-       <0 152 4>, <0 153 4>,
-       <0 154 4>, <0 155 4>,
-       <0 156 4>, <0 157 4>,
-       <0 158 4>, <0 159 4>,
-       <0 160 4>, <0 161 4>,
-       <0 162 4>, <0 163 4>,
-       <0 164 4>, <0 165 4>,
-       <0 166 4>, <0 167 4>,
-       <0 168 4>, <0 169 4>,
-       <0 170 4>, <0 171 4>,
-       <0 172 4>, <0 173 4>,
-       <0 174 4>, <0 175 4>,
-       <0 176 4>, <0 177 4>,
-       <0 178 4>, <0 179 4>,
-       <0 180 4>, <0 181 4>,
-       <0 182 4>, <0 183 4>,
-       <0 184 4>, <0 185 4>,
-       <0 186 4>, <0 187 4>,
-       <0 188 4>, <0 189 4>,
-       <0 190 4>, <0 191 4>,
-       <0 192 4>, <0 193 4>,
-       <0 194 4>, <0 195 4>,
-       <0 196 4>, <0 197 4>,
-       <0 198 4>, <0 199 4>,
-       <0 200 4>, <0 201 4>,
-       <0 202 4>, <0 203 4>,
-       <0 204 4>, <0 205 4>,
-       <0 206 4>, <0 207 4>,
-       <0 208 4>, <0 209 4>;
-      dma-coherent;
-    };
-
     sata0: sata@3200000 {
       status = "disabled";
       compatible = "fsl,ls2080a-ahci";
@@ -743,7 +897,6 @@
       reg = <0x0 0x3100000 0x0 0x10000>;
       interrupts = <0 80 0x4>; /* Level high type */
       dr_mode = "host";
-      snps,quirk-frame-length-adjustment = <0x20>;
       snps,dis_rxdet_inp3_quirk;
     };
 
@@ -753,7 +906,6 @@
       reg = <0x0 0x3110000 0x0 0x10000>;
       interrupts = <0 81 0x4>; /* Level high type */
       dr_mode = "host";
-      snps,quirk-frame-length-adjustment = <0x20>;
       snps,dis_rxdet_inp3_quirk;
     };
 
@@ -894,11 +1046,62 @@
       };
     };
 
-    pcie@3400000 {
+    smmu: iommu@5000000 {
+      compatible = "arm,mmu-500";
+      reg = <0 0x5000000 0 0x800000>;
+      #iommu-cells = <1>;
+      #global-interrupts = <14>;
+      interrupts = <0 13 4>, /* global secure fault */
+       <0 14 4>, /* combined secure interrupt */
+       <0 15 4>, /* global non-secure fault */
+       <0 16 4>, /* combined non-secure interrupt */
+  /* performance counter interrupts 0-9 */
+       <0 211 4>, <0 212 4>,
+       <0 213 4>, <0 214 4>,
+       <0 215 4>, <0 216 4>,
+       <0 217 4>, <0 218 4>,
+       <0 219 4>, <0 220 4>,
+  /* per context interrupt, 64 interrupts */
+       <0 146 4>, <0 147 4>,
+       <0 148 4>, <0 149 4>,
+       <0 150 4>, <0 151 4>,
+       <0 152 4>, <0 153 4>,
+       <0 154 4>, <0 155 4>,
+       <0 156 4>, <0 157 4>,
+       <0 158 4>, <0 159 4>,
+       <0 160 4>, <0 161 4>,
+       <0 162 4>, <0 163 4>,
+       <0 164 4>, <0 165 4>,
+       <0 166 4>, <0 167 4>,
+       <0 168 4>, <0 169 4>,
+       <0 170 4>, <0 171 4>,
+       <0 172 4>, <0 173 4>,
+       <0 174 4>, <0 175 4>,
+       <0 176 4>, <0 177 4>,
+       <0 178 4>, <0 179 4>,
+       <0 180 4>, <0 181 4>,
+       <0 182 4>, <0 183 4>,
+       <0 184 4>, <0 185 4>,
+       <0 186 4>, <0 187 4>,
+       <0 188 4>, <0 189 4>,
+       <0 190 4>, <0 191 4>,
+       <0 192 4>, <0 193 4>,
+       <0 194 4>, <0 195 4>,
+       <0 196 4>, <0 197 4>,
+       <0 198 4>, <0 199 4>,
+       <0 200 4>, <0 201 4>,
+       <0 202 4>, <0 203 4>,
+       <0 204 4>, <0 205 4>,
+       <0 206 4>, <0 207 4>,
+       <0 208 4>, <0 209 4>;
+      dma-coherent;
+    };
+
+    pcie0: pcie@3400000 {
       compatible = "fsl,lx2160a-pcie";
       reg = <0x00 0x03400000 0x0 0x00100000   /* controller registers */
        0x80 0x00000000 0x0 0x00001000>; /* configuration space */
-      reg-names = "regs", "config";
+      reg-names = "csr_axi_slave", "config_axi_slave";
       interrupts = <0 108 0x4>, /* AER interrupt */
        <0 108 0x4>, /* PME interrupt */
        <0 108 0x4>; /* controller interrupt */
@@ -909,8 +1112,7 @@
       apio-wins = <3>;
       ppio-wins-rc = <3>;
       bus-range = <0x0 0xff>;
-      ranges = <0x81000000 0x0 0x00000000 0x80 0x00020000 0x0 0x00010000   /* downstream I/O */
-       0x82000000 0x0 0x40000000 0x80 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
+      ranges = <0x82000000 0x0 0x40000000 0x80 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
       msi-parent = <&its>;
       #interrupt-cells = <1>;
       interrupt-map-mask = <0 0 0 7>;
@@ -921,11 +1123,11 @@
       status = "disabled";
     };
 
-    pcie@3500000 {
+    pcie1: pcie@3500000 {
       compatible = "fsl,lx2160a-pcie";
       reg = <0x00 0x03500000 0x0 0x00100000   /* controller registers */
        0x88 0x00000000 0x0 0x00001000>; /* configuration space */
-      reg-names = "regs", "config";
+      reg-names = "csr_axi_slave", "config_axi_slave";
       interrupts = <0 113 0x4>, /* AER interrupt */
        <0 113 0x4>, /* PME interrupt */
        <0 113 0x4>; /* controller interrupt */
@@ -948,11 +1150,11 @@
       status = "disabled";
     };
 
-    pcie@3600000 {
+    pcie2: pcie@3600000 {
       compatible = "fsl,lx2160a-pcie";
       reg = <0x00 0x03600000 0x0 0x00100000   /* controller registers */
        0x90 0x00000000 0x0 0x00001000>; /* configuration space */
-      reg-names = "regs", "config";
+      reg-names = "csr_axi_slave", "config_axi_slave";
       interrupts = <0 118 0x4>, /* AER interrupt */
        <0 118 0x4>, /* PME interrupt */
        <0 118 0x4>; /* controller interrupt */
@@ -975,11 +1177,11 @@
       status = "disabled";
     };
 
-    pcie@3700000 {
+    pcie3: pcie@3700000 {
       compatible = "fsl,lx2160a-pcie";
       reg = <0x00 0x03700000 0x0 0x00100000   /* controller registers */
        0x98 0x00000000 0x0 0x00001000>; /* configuration space */
-      reg-names = "regs", "config";
+      reg-names = "csr_axi_slave", "config_axi_slave";
       interrupts = <0 123 0x4>, /* AER interrupt */
        <0 123 0x4>, /* PME interrupt */
        <0 123 0x4>; /* controller interrupt */
@@ -1002,11 +1204,11 @@
       status = "disabled";
     };
 
-    pcie@3800000 {
+    pcie4: pcie@3800000 {
       compatible = "fsl,lx2160a-pcie";
       reg = <0x00 0x03800000 0x0 0x00100000   /* controller registers */
        0xa0 0x00000000 0x0 0x00001000>; /* configuration space */
-      reg-names = "regs", "config";
+      reg-names = "csr_axi_slave", "config_axi_slave";
       interrupts = <0 128 0x4>, /* AER interrupt */
        <0 128 0x4>, /* PME interrupt */
        <0 128 0x4>; /* controller interrupt */
@@ -1014,11 +1216,11 @@
       #address-cells = <3>;
       #size-cells = <2>;
       device_type = "pci";
-      apio-wins = <3>;
-      ppio-wins-rc = <3>;
+      dma-coherent;
+      apio-wins = <256>;
+      ppio-wins = <24>;
       bus-range = <0x0 0xff>;
-      ranges = <0x81000000 0x0 0x00000000 0xa0 0x00020000 0x0 0x00010000   /* downstream I/O */
-       0x82000000 0x0 0x40000000 0xa0 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
+      ranges = <0x82000000 0x0 0x40000000 0xa0 0x40000000 0x0 0x40000000>; /* non-prefetchable memory */
       msi-parent = <&its>;
       #interrupt-cells = <1>;
       interrupt-map-mask = <0 0 0 7>;
@@ -1029,7 +1231,7 @@
       status = "disabled";
     };
 
-    pcie@3900000 {
+    pcie5: pcie@3900000 {
       compatible = "fsl,lx2160a-pcie";
       reg = <0x00 0x03900000 0x0 0x00100000   /* controller registers */
        0xa8 0x00000000 0x0 0x00001000>; /* configuration space */
