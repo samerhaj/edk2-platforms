@@ -219,12 +219,21 @@ LibGetTime (
   }
 
   Time->Nanosecond = 0;
-  Time->Second  = BcdToDecimal8 (Buffer[PCF2129_SEC_REG_ADDR] & 0x7F);
-  Time->Minute  = BcdToDecimal8 (Buffer[PCF2129_MIN_REG_ADDR] & 0x7F);
-  Time->Hour = BcdToDecimal8 (Buffer[PCF2129_HR_REG_ADDR] & 0x3F);
-  Time->Day = BcdToDecimal8 (Buffer[PCF2129_DAY_REG_ADDR] & 0x3F);
-  Time->Month  = BcdToDecimal8 (Buffer[PCF2129_MON_REG_ADDR] & 0x1F);
-  Time->Year = BcdToDecimal8 (Buffer[PCF2129_YR_REG_ADDR]) + ( BcdToDecimal8 (Buffer[PCF2129_YR_REG_ADDR]) >= 98 ? 1900 : 2000);
+  if (Buffer[PCF2129_SEC_REG_ADDR] & BIT7) {
+    Time->Second  = 0;
+    Time->Minute  = 0;
+    Time->Hour = 1;
+    Time->Day = 1;
+    Time->Month  = 1;
+    Time->Year = 2000;
+  } else {
+    Time->Second  = BcdToDecimal8 (Buffer[PCF2129_SEC_REG_ADDR] & 0x7F);
+    Time->Minute  = BcdToDecimal8 (Buffer[PCF2129_MIN_REG_ADDR] & 0x7F);
+    Time->Hour = BcdToDecimal8 (Buffer[PCF2129_HR_REG_ADDR] & 0x3F);
+    Time->Day = BcdToDecimal8 (Buffer[PCF2129_DAY_REG_ADDR] & 0x3F);
+    Time->Month  = BcdToDecimal8 (Buffer[PCF2129_MON_REG_ADDR] & 0x1F);
+    Time->Year = BcdToDecimal8 (Buffer[PCF2129_YR_REG_ADDR]) + ( BcdToDecimal8 (Buffer[PCF2129_YR_REG_ADDR]) >= 98 ? 1900 : 2000);
+  }
 
   if (FixedPcdGetBool (PcdIsRtcDeviceMuxed)) {
     // Switch to the default channel
