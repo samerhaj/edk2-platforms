@@ -33,6 +33,7 @@
   Madt.aslc
   Mcfg.aslc
   Platform.h
+  Pptt.aslc
   Spcr.aslc
 /*  Dbg2.aslc
   SASSSDT.ASL
