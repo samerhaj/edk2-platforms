@@ -112,7 +112,6 @@ READ_LOCK_STATUS   = TRUE
   INF ArmPkg/Drivers/GenericWatchdogDxe/GenericWatchdogDxe.inf
   INF MdeModulePkg/Universal/SecurityStubDxe/SecurityStubDxe.inf
   INF MdeModulePkg/Universal/CapsuleRuntimeDxe/CapsuleRuntimeDxe.inf
-  INF MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
   INF EmbeddedPkg/EmbeddedMonotonicCounter/EmbeddedMonotonicCounter.inf
   INF MdeModulePkg/Universal/Variable/RuntimeDxe/VariableRuntimeDxe.inf
   INF MdeModulePkg/Universal/FaultTolerantWriteDxe/FaultTolerantWriteDxe.inf
@@ -141,6 +140,7 @@ READ_LOCK_STATUS   = TRUE
   INF Silicon/NXP/Drivers/PciCpuIo2Dxe/PciCpuIo2Dxe.inf
   INF MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridgeDxe.inf
   INF MdeModulePkg/Bus/Pci/PciBusDxe/PciBusDxe.inf
+  INF MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpressDxe.inf
 
   #
   # Network modules
@@ -180,9 +180,14 @@ READ_LOCK_STATUS   = TRUE
   INF MdeModulePkg/Bus/Pci/EhciDxe/EhciDxe.inf
   INF MdeModulePkg/Bus/Pci/XhciDxe/XhciDxe.inf
   INF MdeModulePkg/Bus/Usb/UsbBusDxe/UsbBusDxe.inf
+  INF MdeModulePkg/Bus/Usb/UsbKbDxe/UsbKbDxe.inf
+  INF MdeModulePkg/Bus/Usb/UsbMouseDxe/UsbMouseDxe.inf
   INF MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
 
   INF Silicon/NXP/Drivers/UsbHcdInitDxe/UsbHcd.inf
+
+  # Human interface
+  INF MdeModulePkg/Universal/HiiDatabaseDxe/HiiDatabaseDxe.inf
 
   #
   # FAT filesystem + GPT/MBR partitioning
@@ -217,6 +222,11 @@ READ_LOCK_STATUS   = TRUE
   INF MdeModulePkg/Universal/SetupBrowserDxe/SetupBrowserDxe.inf
   INF MdeModulePkg/Universal/BdsDxe/BdsDxe.inf
   INF MdeModulePkg/Application/UiApp/UiApp.inf
+
+!if $(X64EMU_ENABLE) == TRUE
+  # PE/COFF emulator for X64 option ROMs taken from edk2-non-osi
+  INF Emulator/X86EmulatorDxe/X86EmulatorDxe.inf
+!endif
 
 [FV.FVMAIN_COMPACT]
 FvAlignment        = 8

@@ -28,6 +28,7 @@
   OUTPUT_DIRECTORY               = Build/LX2160aCex7
   FLASH_DEFINITION               = Platform/SolidRun/LX2160aCex7/LX2160aCex7.fdf
   DEFINE MC_HIGH_MEM             = TRUE
+  DEFINE X64EMU_ENABLE           = TRUE
 
   #
   # Network definition
@@ -62,6 +63,9 @@
   Dpaa2McInterfaceLib|Silicon/NXP/Library/Dpaa2McInterfaceLib/Dpaa2McInterfaceLib.inf
   SecureMonRngLib|Silicon/NXP/Library/SecureMonRngLib/SecureMonRngLib.inf
   MemoryInitPeiLib|Silicon/NXP/Library/MemoryInitPei/MemoryInitPeiLib.inf
+
+  # USB Requirements
+  UefiUsbLib|MdePkg/Library/UefiUsbLib/UefiUsbLib.inf
 
 [PcdsFeatureFlag.common]
   gEfiMdeModulePkgTokenSpaceGuid.PcdInstallAcpiSdtProtocol|TRUE
@@ -186,14 +190,21 @@
   ArmPkg/Drivers/GenericWatchdogDxe/GenericWatchdogDxe.inf
   Silicon/NXP/Drivers/I2cDxe/I2cDxe.inf
   EmbeddedPkg/RealTimeClockRuntimeDxe/RealTimeClockRuntimeDxe.inf
-  Silicon/NXP/Drivers/UsbHcdInitDxe/UsbHcd.inf
-  Silicon/NXP/Drivers/PciCpuIo2Dxe/PciCpuIo2Dxe.inf
   Silicon/NXP/Library/Pcf2129RtcLib/Pcf2129RtcLib.inf
+
+  MdeModulePkg/Bus/Usb/UsbKbDxe/UsbKbDxe.inf
+  MdeModulePkg/Bus/Usb/UsbMouseDxe/UsbMouseDxe.inf
+
+  Silicon/NXP/Drivers/UsbHcdInitDxe/UsbHcd.inf
+
+  # PCI
+  Silicon/NXP/Drivers/PciCpuIo2Dxe/PciCpuIo2Dxe.inf
   MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridgeDxe.inf {
     <PcdsFixedAtBuild>
   gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x8010004F
   }
   MdeModulePkg/Bus/Pci/PciBusDxe/PciBusDxe.inf
+  MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpressDxe.inf
 
   Silicon/NXP/Drivers/SataInitDxe/SataInitDxe.inf
   Silicon/NXP/Drivers/MmcHostDxe/MmcHostDxe.inf
