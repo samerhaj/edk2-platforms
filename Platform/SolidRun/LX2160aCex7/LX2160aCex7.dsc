@@ -213,8 +213,17 @@
   #
   # DT support
   #
+  Silicon/NXP/Drivers/DtInitDxe/DtInitDxe.inf {
+    <LibraryClasses>
+      FdtLib|EmbeddedPkg/Library/FdtLib/FdtLib.inf
+      DtPlatformDtbLoaderLib|Silicon/NXP/Library/DtbLoaderLib/DtbLoaderLib.inf
+  }
+  EmbeddedPkg/Drivers/DtPlatformDxe/DtPlatformDxe.inf {
+    <LibraryClasses>
+      FdtLib|EmbeddedPkg/Library/FdtLib/FdtLib.inf
+      DtPlatformDtbLoaderLib|Silicon/NXP/Library/DtbLoaderLib/DtbLoaderLib.inf
+  }
   Platform/SolidRun/LX2160aCex7/DeviceTree/DeviceTree.inf
-  Silicon/NXP/Drivers/DtPlatformDxe/DtPlatformDxe.inf
 
   Silicon/NXP/Drivers/FlexSpiDxe/FspiDxe.inf
   Silicon/NXP/Drivers/SpiBusDxe/SpiBusDxe.inf
