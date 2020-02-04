@@ -1,0 +1,54 @@
+## @file
+#
+#  Copyright (c) 2017, Linaro, Ltd. All rights reserved.<BR>
+#  Copyright 2018 NXP
+#
+#  This program and the accompanying materials are licensed and made
+#  available under the terms and conditions of the BSD License which
+#  accompanies this distribution.  The full text of the license may be
+#  found at http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR
+#  IMPLIED.
+#
+##
+
+[Defines]
+  INF_VERSION               = 0x00010019
+  BASE_NAME                 = DtbLoaderLib
+  FILE_GUID                 = 402E5442-4713-11EA-BE06-D050990AC729
+  MODULE_TYPE               = DXE_DRIVER
+  VERSION_STRING            = 1.0
+  LIBRARY_CLASS             = DtPlatformDtbLoaderLib|DXE_DRIVER
+
+[Sources]
+  DtbLoaderLib.c
+  DtbLoaderLib.h
+
+[Packages]
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  Silicon/NXP/NxpQoriqLs.dec
+
+[LibraryClasses]
+  BaseLib
+  BeIoLib
+  DebugLib
+  DxeServicesLib
+  FdtLib
+  IoLib
+  ItbParseLib
+  MemoryAllocationLib
+  SocClockLib
+  SocFixupLib
+  UefiBootServicesTableLib
+
+[Guids]
+  gDtPlatformDefaultDtbFileGuid
+  gFdtTableGuid
+  gEdkiiPlatformHasDeviceTreeGuid
+
+[Pcd]
+  gNxpQoriqLsTokenSpaceGuid.PcdFdtAddress
