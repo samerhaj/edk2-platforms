@@ -239,5 +239,6 @@
   # Platform
   #
   Silicon/NXP/LX2160A/AcpiTables/LX2160aCex7.inf
+  Silicon/NXP/LX2160A/AcpiTables/Icid.inf
 
  ##
