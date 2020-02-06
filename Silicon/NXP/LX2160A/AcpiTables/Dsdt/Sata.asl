@@ -23,6 +23,12 @@ Scope(_SB)
     Name(_HID, "NXP0004")
     Name(_CCA, 1)
     Name(_UID, 0)
+    Name (_CLS, Package (0x03)  // _CLS: Class Code
+    {
+      0x01,
+      0x06,
+      0x01
+    })
     Name(_CRS, ResourceTemplate() {
       Memory32Fixed(ReadWrite, SATA0_BASE, SATA_LEN)
       Interrupt(ResourceConsumer, Level, ActiveHigh, Exclusive)
@@ -49,6 +55,12 @@ Scope(_SB)
     Name(_HID, "NXP0004")
     Name(_CCA, 1)
     Name(_UID, 1)
+    Name (_CLS, Package (0x03)  // _CLS: Class Code
+    {
+      0x01,
+      0x06,
+      0x01
+    })
     Name(_CRS, ResourceTemplate() {
       Memory32Fixed(ReadWrite, SATA1_BASE, SATA_LEN)
       Interrupt(ResourceConsumer, Level, ActiveHigh, Exclusive)
@@ -62,6 +74,12 @@ Scope(_SB)
     Name(_HID, "NXP0004")
     Name(_CCA, 1)
     Name(_UID, 2)
+    Name (_CLS, Package (0x03)  // _CLS: Class Code
+    {
+      0x01,
+      0x06,
+      0x01
+    })
     Name(_CRS, ResourceTemplate() {
       Memory32Fixed(ReadWrite, SATA2_BASE, SATA_LEN)
       Interrupt(ResourceConsumer, Level, ActiveHigh, Exclusive)
@@ -75,6 +93,12 @@ Scope(_SB)
     Name(_HID, "NXP0004")
     Name(_CCA, 1)
     Name(_UID, 3)
+    Name (_CLS, Package (0x03)  // _CLS: Class Code
+    {
+      0x01,
+      0x06,
+      0x01
+    })
     Name(_CRS, ResourceTemplate() {
       Memory32Fixed(ReadWrite, SATA3_BASE, SATA_LEN)
       Interrupt(ResourceConsumer, Level, ActiveHigh, Exclusive)
