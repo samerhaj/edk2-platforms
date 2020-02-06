@@ -20,6 +20,8 @@
 #include <Library/UefiBootServicesTableLib.h>
 #include <Library/MemoryAllocationLib.h>
 #include <Library/IoLib.h>
+#include <Library/CmosAccessLib.h>
+#include <CmosMap.h>
 
 /**
   Validates the SMBIOS entry point structure

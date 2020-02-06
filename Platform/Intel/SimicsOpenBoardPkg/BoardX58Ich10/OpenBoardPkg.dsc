@@ -20,16 +20,17 @@
   DEFINE PCH_PKG               = SimicsIch10Pkg
   DEFINE DXE_ARCH              = X64
   DEFINE PEI_ARCH              = IA32
+  DEFINE PROJECT               = $(BOARD_PKG)/$(BOARD_NAME)
 
   PLATFORM_NAME                  = SimicsX58
   PLATFORM_GUID                  = EE8EBB5A-CC95-412f-9987-2AF70F88B69A
   PLATFORM_VERSION               = 0.1
   DSC_SPECIFICATION              = 0x00010005
-  OUTPUT_DIRECTORY               = Build/SimicsX58Ia32X64
+  OUTPUT_DIRECTORY               = Build/$(PROJECT)
   SUPPORTED_ARCHITECTURES        = IA32|X64
   BUILD_TARGETS                  = DEBUG|RELEASE|NOOPT
   SKUID_IDENTIFIER               = DEFAULT
-  FLASH_DEFINITION               = $(BOARD_PKG)/$(BOARD_NAME)/OpenBoardPkg.fdf
+  FLASH_DEFINITION               = $(PROJECT)/OpenBoardPkg.fdf
 
   DEFINE SMM_REQUIRE             = TRUE
 
@@ -41,8 +42,9 @@
   DEFINE NETWORK_ISCSI_ENABLE           = FALSE
   DEFINE NETWORK_ALLOW_HTTP_CONNECTIONS = TRUE
 
-  !include $(BOARD_PKG)/$(BOARD_NAME)/OpenBoardPkgPcd.dsc
-  !include NetworkPkg/NetworkDefines.dsc.inc
+  !include AdvancedFeaturePkg/TemporaryBuildWorkaround/TemporaryBuildWorkaround.dsc
+  !include $(PROJECT)/OpenBoardPkgPcd.dsc
+  !include AdvancedFeaturePkg/Include/AdvancedFeatures.dsc
 
 ################################################################################
 #
@@ -69,18 +71,21 @@
 #######################################
 # Component Includes
 #######################################
+# @todo: Change below line to [Components.$(PEI_ARCH)] after https://bugzilla.tianocore.org/show_bug.cgi?id=2308
+#        is completed
 [Components.IA32]
 !include $(PLATFORM_PACKAGE)/Include/Dsc/CorePeiInclude.dsc
 !include $(SKT_PKG)/SktPkgPei.dsc
 
+# @todo: Change below line to [Components.$(DXE_ARCH)] after https://bugzilla.tianocore.org/show_bug.cgi?id=2308
+#        is completed
 [Components.X64]
 !include $(PLATFORM_PACKAGE)/Include/Dsc/CoreDxeInclude.dsc
-!include AdvancedFeaturePkg/Include/Dsc/CoreAdvancedDxeInclude.dsc
 
 #######################################
 # Build Option Includes
 #######################################
-!include $(BOARD_PKG)/$(BOARD_NAME)/OpenBoardPkgBuildOption.dsc
+!include $(PROJECT)/OpenBoardPkgBuildOption.dsc
 
 ################################################################################
 #
@@ -115,6 +120,8 @@
   SerializeVariablesLib|$(BOARD_PKG)/Library/SerializeVariablesLib/SerializeVariablesLib.inf
   SiliconPolicyInitLib|$(BOARD_PKG)/Policy/Library/SiliconPolicyInitLib/SiliconPolicyInitLib.inf
   SiliconPolicyUpdateLib|$(BOARD_PKG)/Policy/Library/SiliconPolicyUpdateLib/SiliconPolicyUpdateLib.inf
+  PlatformCmosAccessLib|BoardModulePkg/Library/PlatformCmosAccessLibNull/PlatformCmosAccessLibNull.inf
+  CmosAccessLib|BoardModulePkg/Library/CmosAccessLib/CmosAccessLib.inf
 
 [LibraryClasses.common.SEC]
   #######################################
@@ -136,6 +143,7 @@
   TestPointCheckLib|$(PLATFORM_PACKAGE)/Test/Library/TestPointCheckLib/PeiTestPointCheckLib.inf
 !endif
   TestPointLib|$(PLATFORM_PACKAGE)/Test/Library/TestPointLib/PeiTestPointLib.inf
+  SetCacheMtrrLib|$(PLATFORM_PACKAGE)/Library/SetCacheMtrrLib/SetCacheMtrrLib.inf
 
 [LibraryClasses.common.DXE_DRIVER]
   #######################################
@@ -149,6 +157,11 @@
   #######################################
   SpiFlashCommonLib|$(PCH_PKG)/Library/SmmSpiFlashCommonLib/SmmSpiFlashCommonLib.inf
 
+#######################################
+# PEI Components
+#######################################
+# @todo: Change below line to [Components.$(PEI_ARCH)] after https://bugzilla.tianocore.org/show_bug.cgi?id=2308
+#        is completed
 [Components.IA32]
   #######################################
   # Edk2 Packages
@@ -175,11 +188,11 @@
   #####################################
   $(PLATFORM_PACKAGE)/PlatformInit/PlatformInitPei/PlatformInitPreMem.inf {
     <LibraryClasses>
-      BoardInitLib|$(BOARD_PKG)/$(BOARD_NAME)/Library/BoardInitLib/PeiBoardInitPreMemLib.inf
+      BoardInitLib|$(PROJECT)/Library/BoardInitLib/PeiBoardInitPreMemLib.inf
   }
   $(PLATFORM_PACKAGE)/PlatformInit/PlatformInitPei/PlatformInitPostMem.inf {
     <LibraryClasses>
-      BoardInitLib|$(BOARD_PKG)/$(BOARD_NAME)/Library/BoardInitLib/PeiBoardInitPostMemLib.inf
+      BoardInitLib|$(PROJECT)/Library/BoardInitLib/PeiBoardInitPostMemLib.inf
   }
   $(PLATFORM_PACKAGE)/PlatformInit/ReportFv/ReportFvPei.inf
   $(PLATFORM_PACKAGE)/PlatformInit/SiliconPolicyPei/SiliconPolicyPeiPreMem.inf
@@ -198,6 +211,11 @@
       PcdLib|MdePkg/Library/PeiPcdLib/PeiPcdLib.inf
   }
 
+#######################################
+# DXE Components
+#######################################
+# @todo: Change below line to [Components.$(DXE_ARCH)] after https://bugzilla.tianocore.org/show_bug.cgi?id=2308
+#        is completed
 [Components.X64]
   #######################################
   # Edk2 Packages
@@ -268,18 +286,11 @@
 !endif
 
   #######################################
-  # Advanced Feature Package
-  #######################################
-!if gAdvancedFeaturePkgTokenSpaceGuid.PcdSmbiosEnable == TRUE
-  AdvancedFeaturePkg/Smbios/SmbiosBasicDxe/SmbiosBasicDxe.inf
-!endif
-
-  #######################################
   # Board Package
   #######################################
   $(BOARD_PKG)/AcpiTables/AcpiTables.inf
   $(BOARD_PKG)/AcpiTables/MinPlatformAcpiTables/AcpiPlatform.inf
-  $(BOARD_PKG)/LegacySioDxe/LegacySioDxe.inf
   $(BOARD_PKG)/SimicsDxe/SimicsDxe.inf
   $(BOARD_PKG)/SimicsVideoDxe/SimicsVideoDxe.inf
   $(BOARD_PKG)/SmbiosPlatformDxe/SmbiosPlatformDxe.inf
+  BoardModulePkg/LegacySioDxe/LegacySioDxe.inf

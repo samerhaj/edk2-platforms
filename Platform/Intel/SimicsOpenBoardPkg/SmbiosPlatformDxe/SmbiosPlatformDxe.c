@@ -9,51 +9,33 @@
 
 #include "SmbiosPlatformDxe.h"
 
-
 /**
-Reads 8-bits of CMOS data.
+  Get the system memory size below 4GB
 
-Reads the 8-bits of CMOS data at the location specified by Index.
-The 8-bit read value is returned.
-
-@param  Index  The CMOS location to read.
-
-@return The value read.
-
+  @return The size of system memory below 4GB
 **/
-UINT8
-EFIAPI
-CmosRead8(
-  IN      UINTN                     Index
-  )
-{
-  IoWrite8(0x70, (UINT8)Index);
-  return IoRead8(0x71);
-}
-
 UINT32
 GetSystemMemorySizeBelow4gb(
   VOID
   )
 {
-  UINT8 Cmos0x34;
-  UINT8 Cmos0x35;
-
+  UINT32 Size;
   //
   // CMOS 0x34/0x35 specifies the system memory above 16 MB.
-  // * CMOS(0x35) is the high byte
-  // * CMOS(0x34) is the low byte
   // * The size is specified in 64kb chunks
   // * Since this is memory above 16MB, the 16MB must be added
   //   into the calculation to get the total memory size.
   //
-
-  Cmos0x34 = (UINT8)CmosRead8(0x34);
-  Cmos0x35 = (UINT8)CmosRead8(0x35);
-
-  return (UINT32)(((UINTN)((Cmos0x35 << 8) + Cmos0x34) << 16) + SIZE_16MB);
+  Size = (UINT32) ((CmosRead16 (CMOS_SYSTEM_MEM_ABOVE_16MB_LOW_BYTE) << 16)
+           + SIZE_16MB);
+  return Size;
 }
 
+/**
+  Get the system memory size  above 4GB
+
+  @return The size of system memory above 4GB
+**/
 STATIC
 UINT64
 GetSystemMemorySizeAbove4gb(
@@ -61,22 +43,14 @@ GetSystemMemorySizeAbove4gb(
 )
 {
   UINT32 Size;
-  UINTN  CmosIndex;
-
   //
   // CMOS 0x5b-0x5d specifies the system memory above 4GB MB.
-  // * CMOS(0x5d) is the most significant size byte
-  // * CMOS(0x5c) is the middle size byte
-  // * CMOS(0x5b) is the least significant size byte
   // * The size is specified in 64kb chunks
   //
+  Size = (CmosRead16 (CMOS_SYSTEM_MEM_ABOVE_4GB_MIDDLE_BYTE) << 8)
+           + CmosRead8 (CMOS_SYSTEM_MEM_ABOVE_4GB_LOW_BYTE);
 
-  Size = 0;
-  for (CmosIndex = 0x5d; CmosIndex >= 0x5b; CmosIndex--) {
-    Size = (UINT32)(Size << 8) + (UINT32)CmosRead8(CmosIndex);
-  }
-
-  return LShiftU64(Size, 16);
+  return LShiftU64 (Size, 16);
 }
 
 /**

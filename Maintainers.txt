@@ -1,17 +1,24 @@
-EDK II Maintainers
-==================
+EDK II Platforms Maintainers
+============================
 
 This file provides information about the primary maintainers for
 EDK II Platforms.
 
 In general, you should not privately email the maintainer. You should
-email the edk2-devel list, but you can also Cc the maintainer.
+email the edk2-devel list, and Cc the package maintainers and
+reviewers.
+
+If the package maintainer wants to hand over the role to other people,
+the package maintainer should send the patch to update Maintainers.txt
+with new maintainer, and the new maintainer should follow up with
+an Acked-by or a Reviewed-by.
 
 Descriptions of section entries:
 
   L: Mailing list that is relevant to this area (default is edk2-devel)
      Patches and questions should be sent to the email list.
-  M: Cc address for patches and questions (ie, the package maintainer)
+  M: Package Maintainer: Cc address for patches and questions. Responsible
+     for reviewing and pushing package changes to source control.
   R: Package Reviewer: Cc address for patches and questions. Reviewers help
      maintainers review code, but don't have push access. A designated Package
      Reviewer is reasonably familiar with the Package (or some modules
@@ -29,150 +36,221 @@ Descriptions of section entries:
      Obsolete:   Old code. Something tagged obsolete generally means
                  it has been replaced by a better system and you
                  should be using that.
+  F: Files and directories with wildcard patterns.
+     A trailing slash includes all files and subdirectory files.
+     F:   MdeModulePkg/   all files in and below MdeModulePkg
+     F:   MdeModulePkg/*  all files in MdeModulePkg, but not below
+     F:   */Pci/*         all files in a directory called Pci, at any depth in
+                          the hierarchy, but not below
+     One pattern per line.  Multiple F: lines per section acceptable.
+  X: Files and directories that are NOT maintained, same rules as F:
+     Files exclusions are tested after file matches.
+     Can be useful for excluding a specific subdirectory, for instance:
+     F:   NetworkPkg/
+     X:   NetworkPkg/Ip6Dxe/
+     matches all files in and below NetworkPkg excluding NetworkPkg/Ip6Dxe/
+  Filenames not caught by any F: rule get matched as being located in the top-
+  level directory. (Internally, the script looks for a match called '<default>',
+  so please don't add a file called that in the top-level directory.)
 
-EDK II
-------
+
+EDK II Platforms
+----------------
 W: https://github.com/tianocore/tianocore.github.io/wiki/EDK-II
 L: https://edk2.groups.io/g/devel/
 T: git - https://github.com/tianocore/edk2-platforms.git
+
+All patches CC:d here
+L: devel@edk2.groups.io
+F: *
+F: */
+
+EDK II Platforms maintainers
+----------------------------
+F: *
+M: Leif Lindholm <leif@nuviainc.com>
+M: Michael D Kinney <michael.d.kinney@intel.com>
 
 Responsible Disclosure, Reporting Security Issues
 -------------------------------------------------
 W: https://github.com/tianocore/tianocore.github.io/wiki/Security
 
-EDK II Packages:
-----------------
+EDK II Platforms Packages:
+--------------------------
 
-Drivers/OptionRomPkg
+96Boards
+F: Platform/96Boards/
+M: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+M: Leif Lindholm <leif@nuviainc.com>
+
+AMD Seattle
+F: Platform/AMD/OverdriveBoard/
+F: Platform/LeMaker/CelloBoard/
+F: Platform/SoftIron/
+F: Silicon/AMD/Styx/
+M: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+M: Leif Lindholm <leif@nuviainc.com>
+
+ARM
+F: Platform/ARM/
+R: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+M: Leif Lindholm <leif@nuviainc.com>
+
+BeagleBoard:
+F: Platform/BeagleBoard/
+F: Silicon/TexasInstruments/
+R: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+M: Leif Lindholm <leif@nuviainc.com>
+
+Comcast
+F: Platform/Comcast/
+M: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+M: Leif Lindholm <leif@nuviainc.com>
+
+OptionRomPkg
+F: Drivers/OptionRomPkg/
 W: https://github.com/tianocore/tianocore.github.io/wiki/OptionRomPkg
 M: Ray Ni <ray.ni@intel.com>
 
-Drivers/DisplayLink
-M: Leif Lindholm <leif.lindholm@linaro.org>
-M: Ard Bieshuevel <ard.bieshuevel@linaro.org>
+DisplayLink
+F: Drivers/DisplayLink/
+M: Leif Lindholm <leif@nuviainc.com>
+M: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 R: Andy Hayes <andy.hayes@displaylink.com>
 
-Platform
-M: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-M: Leif Lindholm <leif.lindholm@linaro.org>
-M: Michael D Kinney <michael.d.kinney@intel.com>
+HiSilicon
+F: Platform/Hisilicon/
+F: Silicon/Hisilicon/
+M: Leif Lindholm <leif@nuviainc.com>
+R: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+
+Features/Intel
+F: Features/Intel/
+M: Sai Chaganty <rangasai.v.chaganty@intel.com>
+R: Liming Gao <liming.gao@intel.com>
+
+Features/Intel/Debugging
+F: Features/Intel/Debugging/
+M: Eric Dong <eric.dong@intel.com>
+R: Liming Gao <liming.gao@intel.com>
+
+Features/Intel/UserInterface
+F: Features/Intel/UserInterface/
+M: Dandan Bi <dandan.bi@intel.com>
+R: Liming Gao <liming.gao@intel.com>
 
 Platform/Intel/QuarkPlatformPkg
+F: Platform/Intel/QuarkPlatformPkg/
 M: Michael D Kinney <michael.d.kinney@intel.com>
 M: Kelly Steele <kelly.steele@intel.com>
 
 Platform/Intel/Vlv2TbltDevicePkg
+F: Platform/Intel/Vlv2TbltDevicePkg/
 M: Zailiang Sun <zailiang.sun@intel.com>
 M: Yi Qian <yi.qian@intel.com>
 
-Platform/Intel/AdvancedFeaturePkg
-M: Michael Kubacki <michael.a.kubacki@intel.com>
-M: Sai Chaganty <rangasai.v.chaganty@intel.com>
-R: Liming Gao <liming.gao@intel.com>
-
 Platform/Intel/BoardModulePkg
+F: Platform/Intel/BoardModulePkg/
 M: Eric Dong <eric.dong@intel.com>
-R: Liming Gao <liming.gao@intel.com>
-
-Platform/Intel/DebugFeaturePkg
-M: Eric Dong <eric.dong@intel.com>
-R: Liming Gao <liming.gao@intel.com>
-
-Platform/Intel/UserInterfaceFeaturePkg
-M: Dandan Bi <dandan.bi@intel.com>
 R: Liming Gao <liming.gao@intel.com>
 
 Platform/Intel/KabylakeOpenBoardPkg
+F: Platform/Intel/KabylakeOpenBoardPkg/
 M: Chasel Chiu <chasel.chiu@intel.com>
-M: Michael Kubacki <michael.a.kubacki@intel.com>
 M: Nate DeSimone <nathaniel.l.desimone@intel.com>
 
 Platform/Intel/KabylakeOpenBoardPkg/GalagoPro3
+F: Platform/Intel/KabylakeOpenBoardPkg/GalagoPro3/
 R: Jeremy Soller <jeremy@system76.com>
 
 Platform/Intel/MinPlatformPkg
-M: Michael Kubacki <michael.a.kubacki@intel.com>
+F: Platform/Intel/MinPlatformPkg/
 M: Chasel Chiu <chasel.chiu@intel.com>
 M: Nate DeSimone <nathaniel.l.desimone@intel.com>
 R: Liming Gao <liming.gao@intel.com>
 
-Platform/Intel/PurleyOpenBoardPkg
-M: Shifei A Lu <shifei.a.lu@intel.com>
-M: Xiaohu Zhou <bowen.zhou@intel.com>
-M: Isaac W Oram <isaac.w.oram@intel.com>
-
 Platform/Intel/WhiskeylakeOpenBoardPkg
+F: Platform/Intel/WhiskeylakeOpenBoardPkg/
 M: Chasel Chiu <chasel.chiu@intel.com>
-M: Michael Kubacki <michael.a.kubacki@intel.com>
 M: Nate DeSimone <nathaniel.l.desimone@intel.com>
 
 Platform/Intel/SimicsOpenBoardPkg
-M: Wei David Y <david.y.wei@intel.com>
+F: Platform/Intel/SimicsOpenBoardPkg/
 M: Agyeman Prince <prince.agyeman@intel.com>
 
 Platform/Intel/Tools
+F: Platform/Intel/Tools/
 M: Bob Feng <bob.c.feng@intel.com>
 M: Liming Gao <liming.gao@intel.com>
 
-Platform/Marvell
-R: Marcin Wojtas <mw@semihalf.com>
-
-Platform/SolidRun/Armada80x0McBin
-R: Marcin Wojtas <mw@semihalf.com>
-
-Silicon
-M: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-M: Leif Lindholm <leif.lindholm@linaro.org>
-M: Michael D Kinney <michael.d.kinney@intel.com>
-
 Silicon/Intel/IntelSiliconPkg
+F: Silicon/Intel/IntelSiliconPkg/
 M: Ray Ni <ray.ni@intel.com>
 M: Rangasai V Chaganty <rangasai.v.chaganty@intel.com>
 
 Silicon/Intel/QuarkSocPkg
+F: Silicon/Intel/QuarkSocPkg/
 M: Michael D Kinney <michael.d.kinney@intel.com>
 M: Kelly Steele <kelly.steele@intel.com>
 
 Silicon/Intel/Vlv2DeviceRefCodePkg
+F: Silicon/Intel/Vlv2DeviceRefCodePkg/
 M: Zailiang Sun <zailiang.sun@intel.com>
 M: Yi Qian <yi.qian@intel.com>
 
 Silicon/Intel/CoffeelakeSiliconPkg
+F: Silicon/Intel/CoffeelakeSiliconPkg/
 M: Chasel Chiu <chasel.chiu@intel.com>
-M: Michael Kubacki <michael.a.kubacki@intel.com>
 M: Sai Chaganty <rangasai.v.chaganty@intel.com>
 
 Silicon/Intel/KabylakeSiliconPkg
+F: Silicon/Intel/KabylakeSiliconPkg/
 M: Chasel Chiu <chasel.chiu@intel.com>
-M: Michael Kubacki <michael.a.kubacki@intel.com>
 M: Sai Chaganty <rangasai.v.chaganty@intel.com>
 
-Silicon/Intel/LewisburgPkg
-M: Piwko, Maciej <maciej.piwko@intel.com>
-M: Bu, Daocheng <daocheng.bu@intel.com>
-M: Oram, Isaac W <isaac.w.oram@intel.com>
-
-Silicon/Intel/PurleyRcPkg
-M: Gillispie, Thad <thad.gillispie@intel.com>
-M: Bu, Daocheng <daocheng.bu@intel.com>
-M: Oram, Isaac W <isaac.w.oram@intel.com>
-
-Silicon/Intel/PurleySktPkg
-M: Gillispie, Thad <thad.gillispie@intel.com>
-M: Bu, Daocheng <daocheng.bu@intel.com>
-M: Oram, Isaac W <isaac.w.oram@intel.com>
-
 Silicon/Intel/SimicsX58SktPkg
-M: Wei David Y <david.y.wei@intel.com>
+F: Silicon/Intel/SimicsX58SktPkg/
 M: Agyeman Prince <prince.agyeman@intel.com>
 
 Silicon/Intel/SimicsIch10Pkg
-M: Wei David Y <david.y.wei@intel.com>
+F: Silicon/Intel/SimicsIch10Pkg/
 M: Agyeman Prince <prince.agyeman@intel.com>
 
 Silicon/Intel/Tools
+F: Silicon/Intel/Tools/
 M: Bob Feng <bob.c.feng@intel.com>
 M: Liming Gao <liming.gao@intel.com>
 
-Silicon/Marvell
+Marvell platforms and silicon
+F: Platform/Marvell/
+F: Platform/SolidRun/Armada80x0McBin/
+F: Silicon/Marvell/
 R: Marcin Wojtas <mw@semihalf.com>
+M: Leif Lindholm <leif@nuviainc.com>
+
+Miscellaneous drivers
+F: Silicon/Atmel/
+F: Silicon/Openmoko/
+F: Silicon/Synopsys/DesignWare/
+R: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+M: Leif Lindholm <leif@nuviainc.com>
+
+NXP platforms and silicon
+F: Platform/NXP/
+F: Silicon/NXP/
+M: Leif Lindholm <leif@nuviainc.com>
+R: Meenakshi Aggarwal <meenakshi.aggarwal@nxp.com>
+
+Raspberry Pi platforms and silicon
+F: Platform/RaspberryPi/
+F: Silicon/Broadcom/
+M: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+M: Leif Lindholm <leif@nuviainc.com>
+R: Pete Batard <pete@akeo.ie>
+
+Socionext platforms and silicon
+F: Platform/Socionext/
+F: Silicon/NXP/Library/Pcf8563RealTimeClockLib/
+F: Silicon/Socionext/
+M: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+M: Leif Lindholm <leif@nuviainc.com>

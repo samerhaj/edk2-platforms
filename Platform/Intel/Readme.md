@@ -54,7 +54,6 @@ A UEFI firmware implementation using MinPlatformPkg is constructed using the fol
 
 ## Board Support
 * The `KabylakeOpenBoardPkg` contains board implementations for Kaby Lake systems.
-* The `PurleyOpenBoardPkg` contains board implementations for Purley systems.
 * The `SimicsOpenBoardPkg` contains board implementations for the Simics hardware simulator.
 * The `WhiskeylakeOpenBoardPkg` contains board implementations for Whiskey Lake systems.
 
@@ -70,12 +69,6 @@ A UEFI firmware implementation using MinPlatformPkg is constructed using the fol
 | WHL-U DDR4 RVP                        | Whiskey Lake                               | WhiskeylakeOpenBoardPkg      | WhiskeylakeURvp    |
 
 *Note: RVP = Reference and Validation Platform*
-
-#### Microsoft
-
-| Machine Name                          | Supported Chipsets                         | BoardPkg                     | Board Name         |
-----------------------------------------|--------------------------------------------|------------------------------|--------------------|
-| Mt. Olympus                           | Purley                                     | PurleyOpenBoardPkg           | BoardMtOlympus     |
 
 #### Simics
 
@@ -96,8 +89,7 @@ A UEFI firmware implementation using MinPlatformPkg is constructed using the fol
 The board package follows the standard EDK II package structure with the following additional elements and guidelines:
 * Only code usable across more than one board at the root level.
 * Board-specific code in a directory. The directory name should match that of the board supported.
-* Features not essential to achieve stage 5 or earlier boots are maintained in a Features folder at the appropriate
-  level in the package hierarchy.
+* Features not essential to achieve stage 5 or earlier boots are maintained in edk2-platforms/Features/Intel.
 
 Shared resources in the package root directory can include interfaces described in header files, library instances,
 firmware modules, binaries, etc. The UEFI firmware implementation is built using the process described below from the
@@ -235,13 +227,6 @@ return back to the minimum platform caller.
           |       |        |               |---build_board.py: Optional board-specific pre-build, build
           |       |        |                                   and clean post-build functions.
           |       |        |
-          |       |        |------PurleyOpenBoardPkg
-          |       |        |       |------BoardMtOlympus
-          |       |        |               |---build_config.cfg: BoardMtOlympus specific
-          |       |        |               |                     build settings, environment variables.
-          |       |        |               |---build_board.py: Optional board-specific pre-build,
-          |       |        |                                   build, post-build and clean functions.
-          |       |        |
           |       |        |------SimicsOpenBoardPkg
           |       |        |       |------BoardX58Ich10
           |       |        |               |---build_config.cfg: BoardX58Ich10 specific
@@ -255,23 +240,6 @@ return back to the minimum platform caller.
           |------FSP
   </pre>
 
-**Building with the batch scripts**
-
-Only PurleyOpenBoardPkg still supports batch script build. Future board packages must only use the Python build
-infrastructure.
-
-For PurleyOpenBoardPkg
-1. Open command window, go to the workspace directory, e.g. c:\Edk2Workspace.
-2. Type "cd edk2-platforms\Platform\Intel\PurleyOpenBoardPkg\BoardMtOlympus".
-3. Type "GitEdk2MinMtOlympus.bat" to setup GIT environment.
-4. Type "bld" to build Purley Mt Olympus board UEFI firmware image, "bld release" for release build, "bld clean" to
-   remove intermediate files."bld cache-produce" Generate a cache of binary files in the specified directory,
-   "bld cache-consume" Consume a cache of binary files from the specified directory, BINARY_CACHE_PATH is empty,
-   used "BinCache" as default path.
-
-The validated version of iASL compiler that can build MinPurley is 20180629. Older version may generate ACPI build
-errors.
-
 ### **Known limitations**
 
 **KabylakeOpenBoardPkg**
@@ -282,11 +250,6 @@ errors.
 1. This firmware project has only been tested for Microsoft Windows 10 x64 boot with AHCI mode and Integrated Graphic
    Device.
 
-**PurleyOpenBoardPkg**
-1. This firmware project has only been tested booting to Microsoft Windows Server 2016 with NVME on M.2 slot.
-2. This firmware project does not build with the GCC compiler.
-3. This firmware project does not build with the Python build script infrastructure.
-
 **SimicsOpenBoardPkg**
 1. This firmware project has only been tested booting to Microsoft Windows 10 x64 and Ubuntu 17.10 with AHCI mode.
 
@@ -296,16 +259,17 @@ errors.
 
 ### **Package Builds**
 
-In some cases, such as AdvancedFeaturePkg, a package may provide a set of functionality that is included in other
+In some cases, such as BoardModulePkg, a package may provide a set of functionality that is included in other
 packages. To test the build of the whole package, the "build" command should be used following the instructions below.
 
 1. Execute edksetup.bat (Windows) or edksetup.sh (Linux).
 2. Verify the "WORKSPACE" environment variable is set to the edk2 directory in your workspace.
-3. Set the "PACKAGES_PATH" environment variable to include the edk2-platforms/Platform/Intel and edk2-platforms/Silicon/Intel
-   directories.
-   * Windows example: set PACKAGES_PATH=c:\Edk2Workspace\edk2-platforms\Platform\Intel;c:\Edk2Workspace\edk2-platforms\Silicon\Intel
+3. Set the "PACKAGES_PATH" environment variable to include the edk2-platforms/Platform/Intel, edk2-platforms/Silicon/Intel,
+   and edk2-platforms/Features/Intel directories.
+   * Windows example: set PACKAGES_PATH=c:\Edk2Workspace\edk2-platforms\Platform\Intel;
+     c:\Edk2Workspace\edk2-platforms\Silicon\Intel;c:\Edk2Workspace\edk2-platforms\Features\Intel
 4. Build the package by specifying the package DSC as the platform build target from the Platform/Intel or Silicon/Intel directory:
-   "build -p AdvancedFeaturePkg/AdvancedFeaturePkg.dsc"
+   "build -p BoardModulePkg/BoardModulePkg.dsc -a IA32 -a X64"
 
 
 ### **Firmware Image Flashing**

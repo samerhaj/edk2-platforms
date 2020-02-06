@@ -24,6 +24,7 @@
   # Stage 3 - boot to shell only
   # Stage 4 - boot to OS
   # Stage 5 - boot to OS with security boot enabled
+  # Stage 6 - boot with advanced features enabled
   #
   gMinPlatformPkgTokenSpaceGuid.PcdBootStage|4
 
@@ -53,15 +54,14 @@
   gSiPkgTokenSpaceGuid.PcdTsegSize|0x1000000
 
   #
-  # FSP API mode does not share stack with the boot loader,
-  # so FSP needs more temporary memory for FSP heap + stack size.
+  # When sharing stack with boot loader, FSP only needs a small temp ram for heap
   #
-  gIntelFsp2PkgTokenSpaceGuid.PcdFspTemporaryRamSize|0x26000
+  gIntelFsp2PkgTokenSpaceGuid.PcdFspTemporaryRamSize|0x10000
+
   #
-  # FSP API mode does not need to enlarge the boot loader stack size
-  # since the stacks are separate.
+  # Boot loader stack size has to be large enough for FSP execution
   #
-  gSiPkgTokenSpaceGuid.PcdPeiTemporaryRamStackSize|0x20000
+  gSiPkgTokenSpaceGuid.PcdPeiTemporaryRamStackSize|0x30000
 
   gEfiMdePkgTokenSpaceGuid.PcdPciExpressBaseAddress|0xE0000000
   gMinPlatformPkgTokenSpaceGuid.PcdPciExpressRegionLength|0x10000000
@@ -295,6 +295,12 @@
 !if gMinPlatformPkgTokenSpaceGuid.PcdBootStage >= 6
   gMinPlatformPkgTokenSpaceGuid.PcdTestPointIbvPlatformFeature|{0x03, 0x0F, 0x07, 0x1F, 0x1F, 0x0F, 0x0F, 0x07, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 !endif
+
+  ######################################
+  # Board Configuration
+  ######################################
+  gBoardModulePkgTokenSpaceGuid.PcdPs2KbMsEnable|1
+  gBoardModulePkgTokenSpaceGuid.PcdSuperIoPciIsaBridgeDevice|{0x00, 0x00, 0x1F, 0x00}
 
 [PcdsFixedAtBuild.IA32]
   ######################################

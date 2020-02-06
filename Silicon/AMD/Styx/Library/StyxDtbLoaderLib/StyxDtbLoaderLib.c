@@ -212,8 +212,6 @@ DisableSmmu (
 
   Node = fdt_path_offset (Fdt, SmmuNodeName);
   if (Node <= 0) {
-    DEBUG ((DEBUG_WARN, "%a: Failed to find path %s: %a\n",
-      __FUNCTION__, SmmuNodeName, fdt_strerror (Node)));
     return;
   }
 
@@ -251,9 +249,7 @@ SetSocIdStatus (
   if (!PcdGetBool (PcdEnableSmmus)) {
     DisableSmmu (Fdt, "iommu-map", "/smb/smmu@e0a00000", "/smb/pcie@f0000000");
     DisableSmmu (Fdt, "iommus", "/smb/smmu@e0200000", "/smb/sata@e0300000");
-  }
-
-  if (!PcdGetBool (PcdEnableSmmus) || !IsRevB1 || FixedPcdGet8 (PcdSata1PortCount) == 0) {
+    DisableSmmu (Fdt, "iommus", "/smb/smmu@e0c00000", "/smb/ccp@e0100000");
     DisableSmmu (Fdt, "iommus", "/smb/smmu@e0c00000", "/smb/sata@e0d00000");
   }
 
@@ -285,6 +281,8 @@ SetXgbeStatus (
   }
 }
 
+STATIC CONST CHAR8 mCpuCompatible[] = "arm,cortex-a57\0arm,armv8";
+STATIC CONST CHAR8 mPmuCompatible[] = "arm,cortex-a57-pmu\0arm,armv8-pmuv3";
 
 STATIC
 EFI_STATUS
@@ -309,6 +307,10 @@ PrepareFdt (
   UINT32                      ClusterCount;
   UINT32                      CoresInCluster;
   UINT32                      ClusterId;
+  INT32                       L2Node;
+  INT32                       L3Node;
+  INT32                       L2Phandle[NUM_CORES / 2];
+  INT32                       L3Phandle;
   UINTN                       MpId;
   CHAR8                       Name[10];
   AMD_MP_CORE_INFO_PROTOCOL   *AmdMpCoreInfoProtocol;
@@ -332,35 +334,44 @@ PrepareFdt (
   ASSERT (ArmCoreInfoTable != NULL);
   ASSERT (ArmCoreCount <= NUM_CORES);
 
-  // Get Id from primary CPU
-  MpId = (UINTN)ArmReadMpidr ();
-
-  // Create /pmu node
-  PmuNode = fdt_add_subnode(Fdt, 0, "pmu");
-  if (PmuNode >= 0) {
-    fdt_setprop_string (Fdt, PmuNode, "compatible", "arm,armv8-pmuv3");
-
-    // append PMU interrupts
-    for (Index = 0; Index < ArmCoreCount; Index++) {
-      MpId = (UINTN)GET_MPID (ArmCoreInfoTable[Index].ClusterId,
-                              ArmCoreInfoTable[Index].CoreId);
-
-      Status = AmdMpCoreInfoProtocol->GetPmuSpiFromMpId (MpId, &PmuInt.IntId);
-      if (EFI_ERROR (Status)) {
-        DEBUG ((DEBUG_ERROR,
-          "FDT: Error getting PMU interrupt for MpId '0x%x'\n", MpId));
-        return Status;
-      }
-
-      PmuInt.Flag = cpu_to_fdt32 (PMU_INT_FLAG_SPI);
-      PmuInt.IntId = cpu_to_fdt32 (PmuInt.IntId);
-      PmuInt.Type = cpu_to_fdt32 (PMU_INT_TYPE_HIGH_LEVEL);
-      fdt_appendprop (Fdt, PmuNode, "interrupts", &PmuInt, sizeof(PmuInt));
-    }
-  } else {
-    DEBUG ((DEBUG_ERROR, "FDT: Error creating 'pmu' node\n"));
+  // Create the L3 cache node
+  L3Node = fdt_add_subnode (Fdt, 0, "l3cache");
+  if (L3Node < 0) {
+    DEBUG ((DEBUG_ERROR, "FDT: Error creating 'l3cache' node\n"));
     return EFI_INVALID_PARAMETER;
   }
+
+  L3Phandle = fdt_alloc_phandle (Fdt);
+  fdt_setprop_cell (Fdt, L3Node, "cache-level", 3);
+  fdt_setprop_cell (Fdt, L3Node, "cache-size", SIZE_8MB);
+  fdt_setprop_cell (Fdt, L3Node, "cache-line-size", 64);
+  fdt_setprop_cell (Fdt, L3Node, "cache-sets", 8192);
+  fdt_setprop_empty (Fdt, L3Node, "cache-unified");
+  fdt_setprop_cell (Fdt, L3Node, "phandle", L3Phandle);
+
+  ClusterCount = NumberOfClustersInTable (ArmCoreInfoTable, ArmCoreCount);
+  ASSERT (ClusterCount <= ARRAY_SIZE (L2Phandle));
+
+  for (Index = 0; Index < ClusterCount; Index++) {
+    AsciiSPrint (Name, sizeof (Name), "l2cache%d", Index);
+
+    L2Node = fdt_add_subnode (Fdt, 0, Name);
+    if (L2Node < 0) {
+      DEBUG ((DEBUG_ERROR, "FDT: Error creating '%a' node\n", Name));
+      return EFI_INVALID_PARAMETER;
+    }
+
+    L2Phandle[Index] = fdt_alloc_phandle (Fdt);
+    fdt_setprop_cell (Fdt, L2Node, "cache-size", SIZE_1MB);
+    fdt_setprop_cell (Fdt, L2Node, "cache-line-size", 64);
+    fdt_setprop_cell (Fdt, L2Node, "cache-sets", 1024);
+    fdt_setprop_empty (Fdt, L2Node, "cache-unified");
+    fdt_setprop_cell (Fdt, L2Node, "next-level-cache", L3Phandle);
+    fdt_setprop_cell (Fdt, L2Node, "phandle", L2Phandle[Index]);
+  }
+
+  // Get Id from primary CPU
+  MpId = (UINTN)ArmReadMpidr ();
 
   // Create /cpus noide
   Node = fdt_add_subnode (Fdt, 0, "cpus");
@@ -388,7 +399,6 @@ PrepareFdt (
     }
     Phandle[Index] = fdt_alloc_phandle (Fdt);
     fdt_setprop_cell (Fdt, CpuNode, "phandle", Phandle[Index]);
-    fdt_setprop_cell (Fdt, CpuNode, "linux,phandle", Phandle[Index]);
 
     fdt_setprop_string (Fdt, CpuNode, "enable-method", "psci");
 
@@ -396,8 +406,18 @@ PrepareFdt (
                             ArmCoreInfoTable[Index].CoreId);
     MpId = cpu_to_fdt64 (MpId);
     fdt_setprop (Fdt, CpuNode, "reg", &MpId, sizeof (MpId));
-    fdt_setprop_string (Fdt, CpuNode, "compatible", "arm,armv8");
+    fdt_setprop (Fdt, CpuNode, "compatible", mCpuCompatible,
+      sizeof (mCpuCompatible));
     fdt_setprop_string (Fdt, CpuNode, "device_type", "cpu");
+
+    fdt_setprop_cell (Fdt, CpuNode, "i-cache-size", 3 * SIZE_16KB);
+    fdt_setprop_cell (Fdt, CpuNode, "i-cache-line-size", 64);
+    fdt_setprop_cell (Fdt, CpuNode, "i-cache-sets", 256);
+    fdt_setprop_cell (Fdt, CpuNode, "d-cache-size", 2 * SIZE_16KB);
+    fdt_setprop_cell (Fdt, CpuNode, "d-cache-line-size", 64);
+    fdt_setprop_cell (Fdt, CpuNode, "d-cache-sets", 256);
+    fdt_setprop_cell (Fdt, CpuNode, "l2-cache",
+      L2Phandle[ArmCoreInfoTable[Index].ClusterId]);
   }
 
   // Create /cpu-map node
@@ -450,6 +470,35 @@ PrepareFdt (
     }
   } else {
     DEBUG ((DEBUG_ERROR,"FDT: Error creating 'cpu-map' node\n"));
+    return EFI_INVALID_PARAMETER;
+  }
+
+  // Create /pmu node
+  PmuNode = fdt_add_subnode(Fdt, 0, "pmu");
+  if (PmuNode >= 0) {
+    fdt_setprop (Fdt, PmuNode, "compatible", mPmuCompatible,
+      sizeof (mPmuCompatible));
+
+    // append PMU interrupts
+    for (Index = 0; Index < ArmCoreCount; Index++) {
+      MpId = (UINTN)GET_MPID (ArmCoreInfoTable[Index].ClusterId,
+                              ArmCoreInfoTable[Index].CoreId);
+
+      Status = AmdMpCoreInfoProtocol->GetPmuSpiFromMpId (MpId, &PmuInt.IntId);
+      if (EFI_ERROR (Status)) {
+        DEBUG ((DEBUG_ERROR,
+          "FDT: Error getting PMU interrupt for MpId '0x%x'\n", MpId));
+        return Status;
+      }
+
+      PmuInt.Flag = cpu_to_fdt32 (PMU_INT_FLAG_SPI);
+      PmuInt.IntId = cpu_to_fdt32 (PmuInt.IntId);
+      PmuInt.Type = cpu_to_fdt32 (PMU_INT_TYPE_HIGH_LEVEL);
+      fdt_appendprop (Fdt, PmuNode, "interrupts", &PmuInt, sizeof(PmuInt));
+      fdt_appendprop_cell (Fdt, PmuNode, "interrupt-affinity", Phandle[Index]);
+    }
+  } else {
+    DEBUG ((DEBUG_ERROR, "FDT: Error creating 'pmu' node\n"));
     return EFI_INVALID_PARAMETER;
   }
 

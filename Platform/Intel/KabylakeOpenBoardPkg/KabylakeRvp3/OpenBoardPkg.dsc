@@ -13,11 +13,33 @@
   DEFINE      PLATFORM_BOARD_PACKAGE          = KabylakeOpenBoardPkg
   DEFINE      BOARD                           = KabylakeRvp3
   DEFINE      PROJECT                         = $(PLATFORM_BOARD_PACKAGE)/$(BOARD)
+  DEFINE      PEI_ARCH                        = IA32
+  DEFINE      DXE_ARCH                        = X64
+  DEFINE      TOP_MEMORY_ADDRESS              = 0x0
+
+  #
+  # Default value for OpenBoardPkg.fdf use
+  #
+  DEFINE BIOS_SIZE_OPTION = SIZE_70
+
+  PLATFORM_NAME                               = $(PLATFORM_PACKAGE)
+  PLATFORM_GUID                               = 8470676C-18E8-467F-B126-28DB1941AA5A
+  PLATFORM_VERSION                            = 0.1
+  DSC_SPECIFICATION                           = 0x00010005
+  OUTPUT_DIRECTORY                            = Build/$(PROJECT)
+  SUPPORTED_ARCHITECTURES                     = IA32|X64
+  BUILD_TARGETS                               = DEBUG|RELEASE
+  SKUID_IDENTIFIER                            = ALL
+  FLASH_DEFINITION                            = $(PROJECT)/OpenBoardPkg.fdf
+
+  FIX_LOAD_TOP_MEMORY_ADDRESS                 = 0x0
 
   #
   # Include PCD configuration for this board.
   #
+  !include AdvancedFeaturePkg/TemporaryBuildWorkaround/TemporaryBuildWorkaround.dsc
   !include OpenBoardPkgPcd.dsc
+  !include AdvancedFeaturePkg/Include/AdvancedFeatures.dsc
 
 [Defines]
 !if gIntelFsp2WrapperTokenSpaceGuid.PcdFspModeSelection == 1
@@ -51,30 +73,6 @@
 
 ################################################################################
 #
-# Defines Section - statements that will be processed to create a Makefile.
-#
-################################################################################
-[Defines]
-  PLATFORM_NAME                       = $(PLATFORM_PACKAGE)
-  PLATFORM_GUID                       = 8470676C-18E8-467F-B126-28DB1941AA5A
-  PLATFORM_VERSION                    = 0.1
-  DSC_SPECIFICATION                   = 0x00010005
-  OUTPUT_DIRECTORY                    = Build/$(PROJECT)
-  SUPPORTED_ARCHITECTURES             = IA32|X64
-  BUILD_TARGETS                       = DEBUG|RELEASE
-  SKUID_IDENTIFIER                    = ALL
-  FLASH_DEFINITION                    = $(PROJECT)/OpenBoardPkg.fdf
-
-  FIX_LOAD_TOP_MEMORY_ADDRESS         = 0x0
-  DEFINE   TOP_MEMORY_ADDRESS         = 0x0
-
-  #
-  # Default value for OpenBoardPkg.fdf use
-  #
-  DEFINE BIOS_SIZE_OPTION = SIZE_70
-
-################################################################################
-#
 # SKU Identification section - list of all SKU IDs supported by this board.
 #
 ################################################################################
@@ -102,10 +100,15 @@
 #######################################
 # Component Includes
 #######################################
+
+# @todo: Change below line to [Components.$(PEI_ARCH)] after https://bugzilla.tianocore.org/show_bug.cgi?id=2308
+#        is completed
 [Components.IA32]
 !include $(PLATFORM_PACKAGE)/Include/Dsc/CorePeiInclude.dsc
 !include $(PLATFORM_SI_PACKAGE)/SiPkgPei.dsc
 
+# @todo: Change below line to [Components.$(DXE_ARCH)] after https://bugzilla.tianocore.org/show_bug.cgi?id=2308
+#        is completed
 [Components.X64]
 !include $(PLATFORM_PACKAGE)/Include/Dsc/CoreDxeInclude.dsc
 !include $(PLATFORM_SI_PACKAGE)/SiPkgDxe.dsc
@@ -132,8 +135,8 @@
   #######################################
   # Silicon Initialization Package
   #######################################
-  ConfigBlockLib|$(PLATFORM_SI_PACKAGE)/Library/BaseConfigBlockLib/BaseConfigBlockLib.inf
-  SiliconInitLib|$(PLATFORM_SI_PACKAGE)/Library/SiliconInitLib/SiliconInitLib.inf
+  ConfigBlockLib|IntelSiliconPkg/Library/BaseConfigBlockLib/BaseConfigBlockLib.inf
+  SiliconInitLib|$(PLATFORM_SI_PACKAGE)/Library/PeiSiliconInitLib/PeiSiliconInitLib.inf
 
 !if gIntelFsp2WrapperTokenSpaceGuid.PcdFspModeSelection == 1
   #
@@ -166,7 +169,7 @@
   EcLib|$(PLATFORM_BOARD_PACKAGE)/Library/BaseEcLib/BaseEcLib.inf
   GpioExpanderLib|$(PLATFORM_BOARD_PACKAGE)/Library/BaseGpioExpanderLib/BaseGpioExpanderLib.inf
   I2cAccessLib|$(PLATFORM_BOARD_PACKAGE)/Library/PeiI2cAccessLib/PeiI2cAccessLib.inf
-  PlatformSecLib|$(PLATFORM_BOARD_PACKAGE)/FspWrapper/Library/SecFspWrapperPlatformSecLib/SecFspWrapperPlatformSecLib.inf
+  PlatformSecLib|$(PLATFORM_PACKAGE)/FspWrapper/Library/SecFspWrapperPlatformSecLib/SecFspWrapperPlatformSecLib.inf
 
   # Thunderbolt
 !if gKabylakeOpenBoardPkgTokenSpaceGuid.PcdTbtEnable == TRUE
@@ -208,6 +211,7 @@
 !if $(TARGET) == DEBUG
   TestPointCheckLib|$(PLATFORM_PACKAGE)/Test/Library/TestPointCheckLib/PeiTestPointCheckLib.inf
 !endif
+  SetCacheMtrrLib|$(PLATFORM_PACKAGE)/Library/SetCacheMtrrLib/SetCacheMtrrLibNull.inf
 
   #######################################
   # Board Package
@@ -265,6 +269,11 @@
   TestPointCheckLib|$(PLATFORM_PACKAGE)/Test/Library/TestPointCheckLib/SmmTestPointCheckLib.inf
 !endif
 
+#######################################
+# PEI Components
+#######################################
+# @todo: Change below line to [Components.$(PEI_ARCH)] after https://bugzilla.tianocore.org/show_bug.cgi?id=2308
+#        is completed
 [Components.IA32]
   #######################################
   # Edk2 Packages
@@ -372,6 +381,11 @@
 !endif
   $(PLATFORM_BOARD_PACKAGE)/BiosInfo/BiosInfo.inf
 
+#######################################
+# DXE Components
+#######################################
+# @todo: Change below line to [Components.$(DXE_ARCH)] after https://bugzilla.tianocore.org/show_bug.cgi?id=2308
+#        is completed
 [Components.X64]
   #######################################
   # Edk2 Packages
@@ -381,6 +395,11 @@
   MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridgeDxe.inf
   MdeModulePkg/Bus/Pci/SataControllerDxe/SataControllerDxe.inf
   MdeModulePkg/Universal/Console/GraphicsOutputDxe/GraphicsOutputDxe.inf
+  MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KeyboardDxe.inf
+  MdeModulePkg/Universal/BdsDxe/BdsDxe.inf{
+    <LibraryClasses>
+      NULL|BoardModulePkg/Library/BdsPs2KbcLib/BdsPs2KbcLib.inf
+  }
   UefiCpuPkg/CpuDxe/CpuDxe.inf
 
 !if gIntelFsp2WrapperTokenSpaceGuid.PcdFspModeSelection == 1
@@ -485,3 +504,4 @@
       !endif
   }
 !endif
+  BoardModulePkg/LegacySioDxe/LegacySioDxe.inf

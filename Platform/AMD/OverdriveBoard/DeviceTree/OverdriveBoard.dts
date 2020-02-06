@@ -99,7 +99,7 @@
 				       */
 				      <0 331 4>,
 				      <0 331 4>;
-			#iommu-cells = <2>;
+			#iommu-cells = <1>;
 			dma-coherent;
 		};
 
@@ -109,7 +109,7 @@
 			interrupts = <0x0 0x163 0x4>;
 			clocks = <&sata_clk>;
 			dma-coherent;
-			iommus = <&sata0_smmu 0x00 0x1f>; /* 0-31 */
+			iommus = <&sata0_smmu 0x0 0x1f>;
 		};
 
 		sata@e0d00000 {
@@ -119,7 +119,9 @@
 			interrupts = <0x0 0x162 0x4>;
 			clocks = <&sata_clk>;
 			dma-coherent;
-			iommus = <&sata1_smmu 0x00 0x1f>; /* 0-31 */
+			iommus = <&sata1_smmu 0x0e>,
+				 <&sata1_smmu 0x0f>,
+				 <&sata1_smmu 0x1e>;
 		};
 
 		i2c@e1000000 {
@@ -233,6 +235,10 @@
 			interrupts = <0x0 0x3 0x4>;
 			dma-coherent;
 			amd,zlib-support = <0x1>;
+			iommus = <&sata1_smmu 0x00>,
+				 <&sata1_smmu 0x02>,
+				 <&sata1_smmu 0x40>,
+				 <&sata1_smmu 0x42>;
 		};
 
 		pcie: pcie@f0000000 {
@@ -280,7 +286,7 @@
 			dma-coherent;
 		};
 
-		ccn@0xe8000000 {
+		ccn@e8000000 {
 			compatible = "arm,ccn-504";
 			reg = <0x0 0xe8000000 0x0 0x1000000>;
 			interrupts = <0x0 0x17c 0x4>;
@@ -409,7 +415,7 @@
 			phy-handle = <&xgmac0_phy>;
 			phy-mode = "xgmii";
 			dma-coherent;
-			iommus = <&xgmac0_smmu 0x00 0x1f>; /* 0-31 */
+			iommus = <&xgmac0_smmu 0x00 0x17>; /* 0-7, 16-23 */
 		};
 
 		xgmac@e0900000 {
@@ -428,7 +434,7 @@
 			phy-handle = <&xgmac1_phy>;
 			phy-mode = "xgmii";
 			dma-coherent;
-			iommus = <&xgmac1_smmu 0x00 0x1f>; /* 0-31 */
+			iommus = <&xgmac1_smmu 0x00 0x17>; /* 0-7, 16-23 */
 		};
 	};
 

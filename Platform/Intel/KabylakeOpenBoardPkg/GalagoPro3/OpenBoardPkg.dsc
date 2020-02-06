@@ -14,37 +14,33 @@
   DEFINE      PLATFORM_BOARD_PACKAGE          = KabylakeOpenBoardPkg
   DEFINE      BOARD                           = GalagoPro3
   DEFINE      PROJECT                         = $(PLATFORM_BOARD_PACKAGE)/$(BOARD)
-
-  #
-  # Include PCD configuration for this board.
-  #
-  !include OpenBoardPkgPcd.dsc
-
-################################################################################
-#
-# Defines Section - statements that will be processed to create a Makefile.
-#
-################################################################################
-[Defines]
-  PLATFORM_NAME                       = $(PLATFORM_PACKAGE)
-  PLATFORM_GUID                       = 7324F33D-4E96-4F8B-A550-544DE6162AB7
-  PLATFORM_VERSION                    = 0.1
-  DSC_SPECIFICATION                   = 0x00010005
-  OUTPUT_DIRECTORY                    = Build/$(PROJECT)
-  SUPPORTED_ARCHITECTURES             = IA32|X64
-  BUILD_TARGETS                       = DEBUG|RELEASE
-  SKUID_IDENTIFIER                    = ALL
-
-
-  FLASH_DEFINITION                    = $(PROJECT)/OpenBoardPkg.fdf
-
-  FIX_LOAD_TOP_MEMORY_ADDRESS         = 0x0
-  DEFINE   TOP_MEMORY_ADDRESS         = 0x0
+  DEFINE      PEI_ARCH                        = IA32
+  DEFINE      DXE_ARCH                        = X64
+  DEFINE      TOP_MEMORY_ADDRESS              = 0x0
 
   #
   # Default value for OpenBoardPkg.fdf use
   #
   DEFINE BIOS_SIZE_OPTION = SIZE_60
+
+  PLATFORM_NAME                               = $(PLATFORM_PACKAGE)
+  PLATFORM_GUID                               = 7324F33D-4E96-4F8B-A550-544DE6162AB7
+  PLATFORM_VERSION                            = 0.1
+  DSC_SPECIFICATION                           = 0x00010005
+  OUTPUT_DIRECTORY                            = Build/$(PROJECT)
+  SUPPORTED_ARCHITECTURES                     = IA32|X64
+  BUILD_TARGETS                               = DEBUG|RELEASE
+  SKUID_IDENTIFIER                            = ALL
+
+  FLASH_DEFINITION                            = $(PROJECT)/OpenBoardPkg.fdf
+  FIX_LOAD_TOP_MEMORY_ADDRESS                 = 0x0
+
+  #
+  # Include PCD configuration for this board.
+  #
+  !include AdvancedFeaturePkg/TemporaryBuildWorkaround/TemporaryBuildWorkaround.dsc
+  !include OpenBoardPkgPcd.dsc
+  !include AdvancedFeaturePkg/Include/AdvancedFeatures.dsc
 
 ################################################################################
 #
@@ -74,10 +70,14 @@
 #######################################
 # Component Includes
 #######################################
+# @todo: Change below line to [Components.$(PEI_ARCH)] after https://bugzilla.tianocore.org/show_bug.cgi?id=2308
+#        is completed
 [Components.IA32]
 !include $(PLATFORM_PACKAGE)/Include/Dsc/CorePeiInclude.dsc
 !include $(PLATFORM_SI_PACKAGE)/SiPkgPei.dsc
 
+# @todo: Change below line to [Components.$(DXE_ARCH)] after https://bugzilla.tianocore.org/show_bug.cgi?id=2308
+#        is completed
 [Components.X64]
 !include $(PLATFORM_PACKAGE)/Include/Dsc/CoreDxeInclude.dsc
 !include $(PLATFORM_SI_PACKAGE)/SiPkgDxe.dsc
@@ -104,8 +104,8 @@
   #######################################
   # Silicon Initialization Package
   #######################################
-  ConfigBlockLib|$(PLATFORM_SI_PACKAGE)/Library/BaseConfigBlockLib/BaseConfigBlockLib.inf
-  SiliconInitLib|$(PLATFORM_SI_PACKAGE)/Library/SiliconInitLib/SiliconInitLib.inf
+  ConfigBlockLib|IntelSiliconPkg/Library/BaseConfigBlockLib/BaseConfigBlockLib.inf
+  SiliconInitLib|$(PLATFORM_SI_PACKAGE)/Library/PeiSiliconInitLib/PeiSiliconInitLib.inf
   SiliconPolicyInitLib|$(PLATFORM_SI_PACKAGE)/Library/PeiSiliconPolicyInitLibFsp/PeiSiliconPolicyInitLibFsp.inf
 
   #####################################
@@ -126,7 +126,7 @@
   #######################################
   GpioExpanderLib|$(PLATFORM_BOARD_PACKAGE)/Library/BaseGpioExpanderLib/BaseGpioExpanderLib.inf
   I2cAccessLib|$(PLATFORM_BOARD_PACKAGE)/Library/PeiI2cAccessLib/PeiI2cAccessLib.inf
-  PlatformSecLib|$(PLATFORM_BOARD_PACKAGE)/FspWrapper/Library/SecFspWrapperPlatformSecLib/SecFspWrapperPlatformSecLib.inf
+  PlatformSecLib|$(PLATFORM_PACKAGE)/FspWrapper/Library/SecFspWrapperPlatformSecLib/SecFspWrapperPlatformSecLib.inf
 
   # Thunderbolt
 !if gKabylakeOpenBoardPkgTokenSpaceGuid.PcdTbtEnable == TRUE
@@ -159,6 +159,7 @@
   #######################################
   DebugLib|MdeModulePkg/Library/PeiDxeDebugLibReportStatusCode/PeiDxeDebugLibReportStatusCode.inf
   SerialPortLib|MdePkg/Library/BaseSerialPortLibNull/BaseSerialPortLibNull.inf
+  SetCacheMtrrLib|$(PLATFORM_PACKAGE)/Library/SetCacheMtrrLib/SetCacheMtrrLibNull.inf
 
   #######################################
   # Platform Package
@@ -227,6 +228,11 @@
   TestPointCheckLib|$(PLATFORM_PACKAGE)/Test/Library/TestPointCheckLib/SmmTestPointCheckLib.inf
 !endif
 
+#######################################
+# PEI Components
+#######################################
+# @todo: Change below line to [Components.$(PEI_ARCH)] after https://bugzilla.tianocore.org/show_bug.cgi?id=2308
+#        is completed
 [Components.IA32]
   #######################################
   # Edk2 Packages
@@ -260,7 +266,7 @@
   # Platform Package
   #######################################
   $(PLATFORM_PACKAGE)/PlatformInit/ReportFv/ReportFvPei.inf
-  $(PROJECT)/Override/Platform/Intel/MinPlatformPkg/PlatformInit/PlatformInitPei/PlatformInitPreMem.inf {
+  $(PLATFORM_PACKAGE)/PlatformInit/PlatformInitPei/PlatformInitPreMem.inf {
     <LibraryClasses>
       !if gKabylakeOpenBoardPkgTokenSpaceGuid.PcdMultiBoardSupport == FALSE
         BoardInitLib|$(PROJECT)/Library/BoardInitLib/PeiBoardInitPreMemLib.inf
@@ -300,6 +306,11 @@
 !endif
   $(PLATFORM_BOARD_PACKAGE)/BiosInfo/BiosInfo.inf
 
+#######################################
+# DXE Components
+#######################################
+# @todo: Change below line to [Components.$(DXE_ARCH)] after https://bugzilla.tianocore.org/show_bug.cgi?id=2308
+#        is completed
 [Components.X64]
   #######################################
   # Edk2 Packages
@@ -311,6 +322,11 @@
   MdeModulePkg/Bus/Pci/PciHostBridgeDxe/PciHostBridgeDxe.inf
   MdeModulePkg/Bus/Pci/SataControllerDxe/SataControllerDxe.inf
   MdeModulePkg/Universal/Console/GraphicsOutputDxe/GraphicsOutputDxe.inf
+  MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KeyboardDxe.inf
+  MdeModulePkg/Universal/BdsDxe/BdsDxe.inf{
+    <LibraryClasses>
+      NULL|BoardModulePkg/Library/BdsPs2KbcLib/BdsPs2KbcLib.inf
+  }
   UefiCpuPkg/CpuDxe/CpuDxe.inf
 
   ShellPkg/Application/Shell/Shell.inf {
@@ -408,3 +424,4 @@
       !endif
   }
 !endif
+  BoardModulePkg/LegacySioDxe/LegacySioDxe.inf

@@ -32,6 +32,10 @@
   PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
   DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
   PeimEntryPoint|MdePkg/Library/PeimEntryPoint/PeimEntryPoint.inf
+  UefiLib|MdePkg/Library/UefiLib/UefiLib.inf
+  DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf
+  UefiDriverEntryPoint|MdePkg/Library/UefiDriverEntryPoint/UefiDriverEntryPoint.inf
+  UefiRuntimeServicesTableLib|MdePkg/Library/UefiRuntimeServicesTableLib/UefiRuntimeServicesTableLib.inf
 
 [LibraryClasses.common.PEIM]
   FirmwareBootMediaLib|IntelSiliconPkg/Library/PeiDxeSmmBootMediaLib/PeiFirmwareBootMediaLib.inf
@@ -76,6 +80,7 @@
 
 [Components]
   BoardModulePkg/FirmwareBootMediaInfo/FirmwareBootMediaInfoPei.inf
+  BoardModulePkg/LegacySioDxe/LegacySioDxe.inf
   BoardModulePkg/Library/CmosAccessLib/CmosAccessLib.inf
   BoardModulePkg/Library/PlatformCmosAccessLibNull/PlatformCmosAccessLibNull.inf
 
@@ -83,3 +88,4 @@
   BoardModulePkg/Library/BiosIdLib/PeiBiosIdLib.inf
 
   BoardModulePkg/Library/PeiFirmwareBootMediaInfoLib/PeiFirmwareBootMediaInfoLib.inf
+  BoardModulePkg/Library/BdsPs2KbcLib/BdsPs2KbcLib.inf

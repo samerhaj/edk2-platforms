@@ -13,7 +13,7 @@
 # Build the variable store and the firmware code as one unified flash device
 # image.
 #
-[FD.SIMICSX58IA32X64]
+[FD.BOARDX58ICH10]
 BaseAddress   = $(FW_BASE_ADDRESS)
 Size          = $(FW_SIZE)
 ErasePolarity = 1
@@ -155,7 +155,7 @@ INF  MinPlatformPkg/PlatformInit/ReportFv/ReportFvPei.inf
 INF  MinPlatformPkg/PlatformInit/PlatformInitPei/PlatformInitPreMem.inf
 INF  MinPlatformPkg/PlatformInit/SiliconPolicyPei/SiliconPolicyPeiPreMem.inf
 !include MinPlatformPkg/Include/Fdf/CoreSecurityPreMemoryInclude.fdf
-!include AdvancedFeaturePkg/Include/Fdf/CoreAdvancedPreMemoryInclude.fdf
+!include AdvancedFeaturePkg/Include/PreMemory.fdf
 INF  $(BOARD_PKG)/SimicsPei/SimicsPei.inf
 !include $(SKT_PKG)/SktPostMemoryInclude.fdf
 !include $(PCH_PKG)/IchPostMemoryInclude.fdf
@@ -163,7 +163,6 @@ INF  $(BOARD_PKG)/SimicsPei/SimicsPei.inf
 INF  MinPlatformPkg/PlatformInit/PlatformInitPei/PlatformInitPostMem.inf
 INF  MinPlatformPkg/PlatformInit/SiliconPolicyPei/SiliconPolicyPeiPostMem.inf
 !include MinPlatformPkg/Include/Fdf/CoreSecurityPostMemoryInclude.fdf
-!include AdvancedFeaturePkg/Include/Fdf/CoreAdvancedPostMemoryInclude.fdf
 
 INF  UefiCpuPkg/Universal/Acpi/S3Resume2Pei/S3Resume2Pei.inf
 INF  $(SKT_PKG)/Smm/Access/SmmAccessPei.inf
@@ -199,6 +198,7 @@ INF  MdeModulePkg/Bus/Pci/SataControllerDxe/SataControllerDxe.inf
 INF  UefiCpuPkg/CpuDxe/CpuDxe.inf
 
 !include MinPlatformPkg/Include/Fdf/CoreOsBootInclude.fdf
+!include AdvancedFeaturePkg/Include/PostMemory.fdf
 INF  MdeModulePkg/Universal/Acpi/S3SaveStateDxe/S3SaveStateDxe.inf
 INF  MdeModulePkg/Universal/Acpi/BootScriptExecutorDxe/BootScriptExecutorDxe.inf
 INF  UefiCpuPkg/CpuS3DataDxe/CpuS3DataDxe.inf
@@ -212,8 +212,8 @@ INF  MdeModulePkg/Bus/Ata/AtaAtapiPassThru/AtaAtapiPassThru.inf
 INF  MdeModulePkg/Bus/Ata/AtaBusDxe/AtaBusDxe.inf
 INF  MinPlatformPkg/Flash/SpiFvbService/SpiFvbServiceSmm.inf
 INF  MdeModulePkg/Bus/Pci/NvmExpressDxe/NvmExpressDxe.inf
+INF  BoardModulePkg/LegacySioDxe/LegacySioDxe.inf
 
-INF  $(BOARD_PKG)/LegacySioDxe/LegacySioDxe.inf
 INF  MdeModulePkg/Bus/Isa/Ps2KeyboardDxe/Ps2KeyboardDxe.inf
 
 INF  $(BOARD_PKG)/SmbiosPlatformDxe/SmbiosPlatformDxe.inf
@@ -237,12 +237,6 @@ INF  ShellPkg/Application/Shell/Shell.inf
 # Network modules
 #
 INF  SimicsIch10BinPkg/UndiBinary/UndiDxe.inf
-
-!include AdvancedFeaturePkg/Include/Fdf/CoreAdvancedLateInclude.fdf
-
-!if gAdvancedFeaturePkgTokenSpaceGuid.PcdSmbiosEnable == TRUE
-  INF  AdvancedFeaturePkg/Smbios/SmbiosBasicDxe/SmbiosBasicDxe.inf
-!endif
 
 !include MinPlatformPkg/Include/Fdf/CoreSecurityLateInclude.fdf
 

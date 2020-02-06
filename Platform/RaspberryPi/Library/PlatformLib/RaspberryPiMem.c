@@ -1,7 +1,9 @@
 /** @file
  *
+ *  Copyright (c) 2019, Pete Batard <pete@akeo.ie>
  *  Copyright (c) 2017-2018, Andrey Warkentin <andrey.warkentin@gmail.com>
  *  Copyright (c) 2014, Linaro Limited. All rights reserved.
+ *  Copyright (c) 2013-2018, ARM Limited. All rights reserved.
  *
  *  SPDX-License-Identifier: BSD-2-Clause-Patent
  *
@@ -9,12 +11,24 @@
 
 #include <Library/ArmPlatformLib.h>
 #include <Library/DebugLib.h>
-#include <IndustryStandard/Bcm2836.h>
+#include <Library/MemoryAllocationLib.h>
 #include <Library/PcdLib.h>
+#include <Library/RPiMem.h>
+#include <IndustryStandard/Bcm2711.h>
+#include <IndustryStandard/Bcm2836.h>
 
+UINT64 mSystemMemoryBase;
 extern UINT64 mSystemMemoryEnd;
-extern UINT64 mGPUMemoryBase;
-extern UINT64 mGPUMemoryLength;
+UINT64 mVideoCoreBase;
+UINT64 mVideoCoreSize;
+UINT32 mBoardRevision;
+
+
+// The total number of descriptors, including the final "end-of-table" descriptor.
+#define MAX_VIRTUAL_MEMORY_MAP_DESCRIPTORS 10
+
+STATIC BOOLEAN                  VirtualMemoryInfoInitialized = FALSE;
+STATIC RPI_MEMORY_REGION_INFO   VirtualMemoryInfo[MAX_VIRTUAL_MEMORY_MAP_DESCRIPTORS];
 
 #define VariablesSize (FixedPcdGet32(PcdFlashNvStorageVariableSize) +   \
                        FixedPcdGet32(PcdFlashNvStorageFtwWorkingSize) + \
@@ -26,49 +40,6 @@ extern UINT64 mGPUMemoryLength;
                        VariablesSize)
 
 #define ATFBase (FixedPcdGet64(PcdFdBaseAddress) + FixedPcdGet32(PcdFdSize))
-
-STATIC ARM_MEMORY_REGION_DESCRIPTOR RaspberryPiMemoryRegionDescriptor[] = {
-  {
-    /* Firmware Volume. */
-    FixedPcdGet64 (PcdFdBaseAddress), FixedPcdGet64 (PcdFdBaseAddress),
-    FixedPcdGet32 (PcdFdSize) - VariablesSize,
-    ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK
-  },
-  {
-    /* Variables Volume. */
-    VariablesBase, VariablesBase,
-    VariablesSize,
-    ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK
-  },
-  {
-    /* ATF reserved RAM. */
-    ATFBase, ATFBase,
-    FixedPcdGet64 (PcdSystemMemoryBase) - ATFBase,
-    ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK
-  },
-  {
-    /* System RAM. */
-    FixedPcdGet64 (PcdSystemMemoryBase), FixedPcdGet64 (PcdSystemMemoryBase),
-    0,
-    ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK
-  },
-  {
-    /* Reserved GPU RAM. */
-    0,
-    0,
-    0,
-    ARM_MEMORY_REGION_ATTRIBUTE_DEVICE
-  },
-  {
-    /* SOC registers. */
-    BCM2836_SOC_REGISTERS,
-    BCM2836_SOC_REGISTERS,
-    BCM2836_SOC_REGISTER_LENGTH,
-    ARM_MEMORY_REGION_ATTRIBUTE_DEVICE
-  },
-  {
-  }
-};
 
 /**
   Return the Virtual Memory Map of your platform
@@ -87,68 +58,151 @@ ArmPlatformGetVirtualMemoryMap (
   IN ARM_MEMORY_REGION_DESCRIPTOR** VirtualMemoryMap
   )
 {
-  RaspberryPiMemoryRegionDescriptor[3].Length = mSystemMemoryEnd + 1 -
-    FixedPcdGet64 (PcdSystemMemoryBase);
+  UINTN                         Index = 0;
+  UINTN                         GpuIndex;
+  INT64                         SystemMemorySize;
+  ARM_MEMORY_REGION_DESCRIPTOR  *VirtualMemoryTable;
 
-  RaspberryPiMemoryRegionDescriptor[4].PhysicalBase =
-    RaspberryPiMemoryRegionDescriptor[3].PhysicalBase +
-    RaspberryPiMemoryRegionDescriptor[3].Length;
+  // Early output of the info we got from VideoCore can prove valuable.
+  DEBUG ((DEBUG_INFO, "Board Rev: 0x%lX\n", mBoardRevision));
+  DEBUG ((DEBUG_INFO, "Base RAM : 0x%ll08X (Size 0x%ll08X)\n", mSystemMemoryBase, mSystemMemoryEnd + 1));
+  DEBUG ((DEBUG_INFO, "VideoCore: 0x%ll08X (Size 0x%ll08X)\n", mVideoCoreBase, mVideoCoreSize));
 
-  RaspberryPiMemoryRegionDescriptor[4].VirtualBase =
-    RaspberryPiMemoryRegionDescriptor[4].PhysicalBase;
+  ASSERT (mSystemMemoryBase == 0);
+  ASSERT (VirtualMemoryMap != NULL);
 
-  RaspberryPiMemoryRegionDescriptor[4].Length =
-    RaspberryPiMemoryRegionDescriptor[5].PhysicalBase -
-    RaspberryPiMemoryRegionDescriptor[4].PhysicalBase;
+  VirtualMemoryTable = (ARM_MEMORY_REGION_DESCRIPTOR*)AllocatePages
+                       (EFI_SIZE_TO_PAGES (sizeof (ARM_MEMORY_REGION_DESCRIPTOR) *
+                       MAX_VIRTUAL_MEMORY_MAP_DESCRIPTORS));
+  if (VirtualMemoryTable == NULL) {
+    return;
+  }
 
-  DEBUG ((DEBUG_INFO, "FD:\n"
-    "\tPhysicalBase: 0x%lX\n"
-    "\tVirtualBase: 0x%lX\n"
-    "\tLength: 0x%lX\n",
-    RaspberryPiMemoryRegionDescriptor[0].PhysicalBase,
-    RaspberryPiMemoryRegionDescriptor[0].VirtualBase,
-    RaspberryPiMemoryRegionDescriptor[0].Length +
-    RaspberryPiMemoryRegionDescriptor[1].Length));
 
-  DEBUG ((DEBUG_INFO, "Variables (part of FD):\n"
-    "\tPhysicalBase: 0x%lX\n"
-    "\tVirtualBase: 0x%lX\n"
-    "\tLength: 0x%lX\n",
-    RaspberryPiMemoryRegionDescriptor[1].PhysicalBase,
-    RaspberryPiMemoryRegionDescriptor[1].VirtualBase,
-    RaspberryPiMemoryRegionDescriptor[1].Length));
+  // Firmware Volume
+  VirtualMemoryTable[Index].PhysicalBase    = FixedPcdGet64 (PcdFdBaseAddress);
+  VirtualMemoryTable[Index].VirtualBase     = VirtualMemoryTable[Index].PhysicalBase;
+  VirtualMemoryTable[Index].Length          = FixedPcdGet32 (PcdFdSize) - VariablesSize;
+  VirtualMemoryTable[Index].Attributes      = ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK;
+  VirtualMemoryInfo[Index].Type             = RPI_MEM_RESERVED_REGION;
+  VirtualMemoryInfo[Index++].Name           = L"FD";
 
-  DEBUG ((DEBUG_INFO, "ATF RAM:\n"
-    "\tPhysicalBase: 0x%lX\n"
-    "\tVirtualBase: 0x%lX\n"
-    "\tLength: 0x%lX\n",
-    RaspberryPiMemoryRegionDescriptor[2].PhysicalBase,
-    RaspberryPiMemoryRegionDescriptor[2].VirtualBase,
-    RaspberryPiMemoryRegionDescriptor[2].Length));
+  // Variable Volume
+  VirtualMemoryTable[Index].PhysicalBase    = VariablesBase;
+  VirtualMemoryTable[Index].VirtualBase     = VirtualMemoryTable[Index].PhysicalBase;
+  VirtualMemoryTable[Index].Length          = VariablesSize;
+  VirtualMemoryTable[Index].Attributes      = ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK;
+  VirtualMemoryInfo[Index].Type             = RPI_MEM_RUNTIME_REGION;
+  VirtualMemoryInfo[Index++].Name           = L"FD Variables";
 
-  DEBUG ((DEBUG_INFO, "System RAM:\n"
-    "\tPhysicalBase: 0x%lX\n"
-    "\tVirtualBase: 0x%lX\n"
-    "\tLength: 0x%lX\n",
-    RaspberryPiMemoryRegionDescriptor[3].PhysicalBase,
-    RaspberryPiMemoryRegionDescriptor[3].VirtualBase,
-    RaspberryPiMemoryRegionDescriptor[3].Length));
+  // TF-A reserved RAM
+  VirtualMemoryTable[Index].PhysicalBase    = ATFBase;
+  VirtualMemoryTable[Index].VirtualBase     = VirtualMemoryTable[Index].PhysicalBase;
+  VirtualMemoryTable[Index].Length          = FixedPcdGet64 (PcdSystemMemoryBase) - ATFBase;
+  VirtualMemoryTable[Index].Attributes      = ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK;
+  VirtualMemoryInfo[Index].Type             = RPI_MEM_RESERVED_REGION;
+  VirtualMemoryInfo[Index++].Name           = L"TF-A RAM";
 
-  DEBUG ((DEBUG_INFO, "GPU Reserved:\n"
-    "\tPhysicalBase: 0x%lX\n"
-    "\tVirtualBase: 0x%lX\n"
-    "\tLength: 0x%lX\n",
-    RaspberryPiMemoryRegionDescriptor[4].PhysicalBase,
-    RaspberryPiMemoryRegionDescriptor[4].VirtualBase,
-    RaspberryPiMemoryRegionDescriptor[4].Length));
+  // Base System RAM
+  VirtualMemoryTable[Index].PhysicalBase    = FixedPcdGet64 (PcdSystemMemoryBase);
+  VirtualMemoryTable[Index].VirtualBase     = VirtualMemoryTable[Index].PhysicalBase;
+  VirtualMemoryTable[Index].Length          = mSystemMemoryEnd + 1 - FixedPcdGet64 (PcdSystemMemoryBase);
+  VirtualMemoryTable[Index].Attributes      = ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK;
+  VirtualMemoryInfo[Index].Type             = RPI_MEM_BASIC_REGION;
+  VirtualMemoryInfo[Index++].Name           = L"Base System RAM";
 
-  DEBUG ((DEBUG_INFO, "SoC reserved:\n"
-    "\tPhysicalBase: 0x%lX\n"
-    "\tVirtualBase: 0x%lX\n"
-    "\tLength: 0x%lX\n",
-    RaspberryPiMemoryRegionDescriptor[5].PhysicalBase,
-    RaspberryPiMemoryRegionDescriptor[5].VirtualBase,
-    RaspberryPiMemoryRegionDescriptor[5].Length));
+  // GPU Reserved
+  GpuIndex = Index;
+  VirtualMemoryTable[Index].PhysicalBase    = mVideoCoreBase;
+  VirtualMemoryTable[Index].VirtualBase     = VirtualMemoryTable[Index].PhysicalBase;
+  VirtualMemoryTable[Index].Length          = mVideoCoreSize;
+  VirtualMemoryTable[Index].Attributes      = ARM_MEMORY_REGION_ATTRIBUTE_DEVICE;
+  VirtualMemoryInfo[Index].Type             = RPI_MEM_UNMAPPED_REGION;
+  VirtualMemoryInfo[Index++].Name           = L"GPU Reserved";
 
-  *VirtualMemoryMap = RaspberryPiMemoryRegionDescriptor;
+  // Compute the total RAM size available on this platform
+  SystemMemorySize = SIZE_256MB;
+  SystemMemorySize <<= (mBoardRevision >> 20) & 0x07;
+
+  //
+  // Ensure that what we declare as System Memory doesn't overlap with the
+  // Bcm2836 SoC registers. This can be achieved through a MIN () with the
+  // base address since SystemMemoryBase is 0 (we assert if it isn't).
+  //
+  SystemMemorySize = MIN(SystemMemorySize, BCM2836_SOC_REGISTERS);
+
+  // Extended SoC registers (PCIe, genet, ...)
+  if (BCM2711_SOC_REGISTERS > 0) {
+    // Same overlap protection as above for the Bcm2711 SoC registers
+    SystemMemorySize                        = MIN(SystemMemorySize, BCM2711_SOC_REGISTERS);
+    VirtualMemoryTable[Index].PhysicalBase  = BCM2711_SOC_REGISTERS;
+    VirtualMemoryTable[Index].VirtualBase   = VirtualMemoryTable[Index].PhysicalBase;
+    VirtualMemoryTable[Index].Length        = BCM2711_SOC_REGISTER_LENGTH;
+    VirtualMemoryTable[Index].Attributes    = ARM_MEMORY_REGION_ATTRIBUTE_DEVICE;
+    VirtualMemoryInfo[Index].Type           = RPI_MEM_UNMAPPED_REGION;
+    VirtualMemoryInfo[Index++].Name         = L"SoC Reserved (27xx)";
+  }
+
+  // Base SoC registers
+  VirtualMemoryTable[Index].PhysicalBase    = BCM2836_SOC_REGISTERS;
+  // On the Pi 3 the SoC registers may overlap VideoCore => fix this
+  if (VirtualMemoryTable[GpuIndex].PhysicalBase + VirtualMemoryTable[GpuIndex].Length > VirtualMemoryTable[Index].PhysicalBase) {
+    VirtualMemoryTable[GpuIndex].Length = VirtualMemoryTable[Index].PhysicalBase - VirtualMemoryTable[GpuIndex].PhysicalBase;
+  }
+  VirtualMemoryTable[Index].VirtualBase     = VirtualMemoryTable[Index].PhysicalBase;
+  VirtualMemoryTable[Index].Length          = BCM2836_SOC_REGISTER_LENGTH;
+  VirtualMemoryTable[Index].Attributes      = ARM_MEMORY_REGION_ATTRIBUTE_DEVICE;
+  VirtualMemoryInfo[Index].Type             = RPI_MEM_UNMAPPED_REGION;
+  VirtualMemoryInfo[Index++].Name           = L"SoC Reserved (283x)";
+
+  if (FeaturePcdGet (PcdAcpiBasicMode)) {
+    //
+    // Limit the memory to 3 GB to work around the DMA bugs in the SoC without
+    // having to rely on IORT or _DMA descriptions.
+    //
+    SystemMemorySize = MIN(SystemMemorySize, 3U * SIZE_1GB);
+  }
+
+  // If we have RAM above the 1 GB mark, declare it
+  if (SystemMemorySize - SIZE_1GB > 0) {
+    VirtualMemoryTable[Index].PhysicalBase  = FixedPcdGet64 (PcdExtendedMemoryBase);
+    VirtualMemoryTable[Index].VirtualBase   = VirtualMemoryTable[Index].PhysicalBase;
+    VirtualMemoryTable[Index].Length        = SystemMemorySize - SIZE_1GB;
+    VirtualMemoryTable[Index].Attributes    = ARM_MEMORY_REGION_ATTRIBUTE_WRITE_BACK;
+    VirtualMemoryInfo[Index].Type           = RPI_MEM_BASIC_REGION;
+    VirtualMemoryInfo[Index++].Name         = L"Extended System RAM";
+  }
+
+  // End of Table
+  VirtualMemoryTable[Index].PhysicalBase    = 0;
+  VirtualMemoryTable[Index].VirtualBase     = 0;
+  VirtualMemoryTable[Index].Length          = 0;
+  VirtualMemoryTable[Index++].Attributes    = (ARM_MEMORY_REGION_ATTRIBUTES)0;
+
+  ASSERT(Index <= MAX_VIRTUAL_MEMORY_MAP_DESCRIPTORS);
+
+  *VirtualMemoryMap = VirtualMemoryTable;
+  VirtualMemoryInfoInitialized = TRUE;
+}
+
+/**
+  Return additional memory info not populated by the above call.
+
+  This call should follow the one to ArmPlatformGetVirtualMemoryMap ().
+
+**/
+VOID
+RpiPlatformGetVirtualMemoryInfo (
+  IN RPI_MEMORY_REGION_INFO** MemoryInfo
+  )
+{
+  ASSERT (VirtualMemoryInfo != NULL);
+
+  if (!VirtualMemoryInfoInitialized) {
+    DEBUG ((DEBUG_ERROR,
+      "ArmPlatformGetVirtualMemoryMap must be called before RpiPlatformGetVirtualMemoryInfo.\n"));
+    return;
+  }
+
+  *MemoryInfo = VirtualMemoryInfo;
 }

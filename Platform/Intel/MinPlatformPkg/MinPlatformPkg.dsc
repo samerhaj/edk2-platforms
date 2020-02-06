@@ -94,6 +94,7 @@
   ReportFvLib|MinPlatformPkg/PlatformInit/Library/PeiReportFvLib/PeiReportFvLib.inf
   TestPointCheckLib|MinPlatformPkg/Test/Library/TestPointCheckLib/PeiTestPointCheckLib.inf
   TestPointLib|MinPlatformPkg/Test/Library/TestPointLib/PeiTestPointLib.inf
+  SetCacheMtrrLib|MinPlatformPkg/Library/SetCacheMtrrLib/SetCacheMtrrLibNull.inf
 
 [LibraryClasses.common.DXE_DRIVER]
   #
@@ -102,6 +103,7 @@
   FspWrapperPlatformLib|MinPlatformPkg/FspWrapper/Library/DxeFspWrapperPlatformLib/DxeFspWrapperPlatformLib.inf
   TestPointCheckLib|MinPlatformPkg/Test/Library/TestPointCheckLib/DxeTestPointCheckLib.inf
   TestPointLib|MinPlatformPkg/Test/Library/TestPointLib/DxeTestPointLib.inf
+  TpmPlatformHierarchyLib|MinPlatformPkg/Tcg/Library/TpmPlatformHierarchyLib/TpmPlatformHierarchyLib.inf
 
 [LibraryClasses.common.DXE_SMM_DRIVER]
   SpiFlashCommonLib|MinPlatformPkg/Flash/Library/SpiFlashCommonLibNull/SpiFlashCommonLibNull.inf
@@ -189,4 +191,4 @@
 !endif
 
 [BuildOptions]
-  *_*_*_CC_FLAGS = -D DISABLE_NEW_DEPRECATED_INTERFACES
+  *_*_*_CC_FLAGS = -D DISABLE_NEW_DEPRECATED_INTERFACES

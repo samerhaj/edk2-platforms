@@ -31,7 +31,7 @@
   MdePkg/MdePkg.dec
   MdeModulePkg/MdeModulePkg.dec
   SimicsOpenBoardPkg/OpenBoardPkg.dec
-  AdvancedFeaturePkg/AdvancedFeaturePkg.dec
+  BoardModulePkg/BoardModulePkg.dec
 
 [LibraryClasses]
   UefiBootServicesTableLib
@@ -42,6 +42,7 @@
   HobLib
   MemoryAllocationLib
   IoLib
+  CmosAccessLib
 
 [Protocols]
   gEfiSmbiosProtocolGuid                      # PROTOCOL ALWAYS_CONSUMED

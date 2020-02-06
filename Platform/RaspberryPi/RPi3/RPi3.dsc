@@ -1,6 +1,6 @@
 # @file
 #
-#  Copyright (c) 2011-2015, ARM Limited. All rights reserved.
+#  Copyright (c) 2011 - 2019, ARM Limited. All rights reserved.
 #  Copyright (c) 2014, Linaro Limited. All rights reserved.
 #  Copyright (c) 2015 - 2016, Intel Corporation. All rights reserved.
 #  Copyright (c) 2017 - 2018, Andrei Warkentin <andrey.warkentin@gmail.com>
@@ -200,6 +200,8 @@
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
 
 [LibraryClasses.common.DXE_RUNTIME_DRIVER]
+  # Runtime debug messages may crash an OS unless serial output to MMIO mapped UARTs is inhibited
+  DebugLib|MdePkg/Library/DxeRuntimeDebugLibSerialPort/DxeRuntimeDebugLibSerialPort.inf
   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
   CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf
   EfiResetSystemLib|Platform/RaspberryPi/Library/ResetLib/ResetLib.inf
@@ -371,6 +373,11 @@
   #
   gArmTokenSpaceGuid.PcdSystemMemoryBase|0x00400000
   gArmTokenSpaceGuid.PcdSystemMemorySize|0x3FC00000
+
+  #
+  # Device specific addresses
+  #
+  gBcm283xTokenSpaceGuid.PcdBcm283xRegistersAddress|0x3f000000
 
   ## NS16550 compatible UART
   gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase|0x3f215040
@@ -596,7 +603,7 @@
   #
   # RNG
   #
-  Silicon/Broadcom/Bcm283x/Drivers/RngDxe/RngDxe.inf
+  Silicon/Broadcom/Bcm283x/Drivers/Bcm2835RngDxe/Bcm2835RngDxe.inf
 
   #
   # UEFI application (Shell Embedded Boot Loader)
@@ -611,6 +618,7 @@
       NULL|ShellPkg/Library/UefiShellDebug1CommandsLib/UefiShellDebug1CommandsLib.inf
       NULL|ShellPkg/Library/UefiShellInstall1CommandsLib/UefiShellInstall1CommandsLib.inf
       NULL|ShellPkg/Library/UefiShellNetwork1CommandsLib/UefiShellNetwork1CommandsLib.inf
+      NULL|ShellPkg/Library/UefiShellAcpiViewCommandLib/UefiShellAcpiViewCommandLib.inf
       HandleParsingLib|ShellPkg/Library/UefiHandleParsingLib/UefiHandleParsingLib.inf
       PrintLib|MdePkg/Library/BasePrintLib/BasePrintLib.inf
       BcfgCommandLib|ShellPkg/Library/UefiShellBcfgCommandLib/UefiShellBcfgCommandLib.inf

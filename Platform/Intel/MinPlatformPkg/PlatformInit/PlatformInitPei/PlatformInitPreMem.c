@@ -1,7 +1,7 @@
 /** @file
   Source code file for Platform Init Pre-Memory PEI module
 
-Copyright (c) 2017 - 2018, Intel Corporation. All rights reserved.<BR>
+Copyright (c) 2017 - 2019, Intel Corporation. All rights reserved.<BR>
 SPDX-License-Identifier: BSD-2-Clause-Patent
 
 **/
@@ -15,7 +15,6 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Library/TimerLib.h>
 #include <Library/BaseMemoryLib.h>
 #include <Library/PeiServicesLib.h>
-#include <Library/MtrrLib.h>
 #include <Library/ReportFvLib.h>
 #include <Ppi/ReadOnlyVariable2.h>
 #include <Ppi/MemoryDiscovered.h>
@@ -26,9 +25,11 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Library/PeiServicesTablePointerLib.h>
 #include <Library/BoardInitLib.h>
 #include <Library/TestPointCheckLib.h>
+#include <Library/SetCacheMtrrLib.h>
 #include <Guid/MemoryTypeInformation.h>
 #include <Ppi/PlatformMemorySize.h>
 #include <Ppi/BaseMemoryTest.h>
+#include <Ppi/PlatformInitTempRamExitPpi.h>
 
 EFI_STATUS
 EFIAPI
@@ -72,7 +73,31 @@ BaseMemoryTest (
   OUT EFI_PHYSICAL_ADDRESS               *ErrorAddress
   );
 
-static EFI_PEI_NOTIFY_DESCRIPTOR mMemDiscoveredNotifyList = {
+/**
+  A hook for platform-specific initialization prior to disabling temporary RAM.
+
+  @retval EFI_SUCCESS   The platform initialization was successful.
+  @retval EFI_NOT_READY The platform has not been detected yet.
+**/
+EFI_STATUS
+EFIAPI
+PlatformInitBeforeTempRamExit (
+  VOID
+  );
+
+/**
+  A hook for platform-specific initialization after disabling temporary RAM.
+
+  @retval EFI_SUCCESS   The platform initialization was successful.
+  @retval EFI_NOT_READY The platform has not been detected yet.
+**/
+EFI_STATUS
+EFIAPI
+PlatformInitAfterTempRamExit (
+  VOID
+  );
+
+GLOBAL_REMOVE_IF_UNREFERENCED EFI_PEI_NOTIFY_DESCRIPTOR mMemDiscoveredNotifyList = {
   (EFI_PEI_PPI_DESCRIPTOR_NOTIFY_CALLBACK | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST),
   &gEfiPeiMemoryDiscoveredPpiGuid,
   (EFI_PEIM_NOTIFY_ENTRY_POINT) MemoryDiscoveredPpiNotifyCallback
@@ -90,11 +115,11 @@ GLOBAL_REMOVE_IF_UNREFERENCED EFI_PEI_PPI_DESCRIPTOR mPpiBootMode = {
   NULL
 };
 
-static PEI_BASE_MEMORY_TEST_PPI     mPeiBaseMemoryTestPpi = { BaseMemoryTest };
+GLOBAL_REMOVE_IF_UNREFERENCED PEI_BASE_MEMORY_TEST_PPI     mPeiBaseMemoryTestPpi = { BaseMemoryTest };
 
-static PEI_PLATFORM_MEMORY_SIZE_PPI mMemoryMemorySizePpi  = { GetPlatformMemorySize };
+GLOBAL_REMOVE_IF_UNREFERENCED PEI_PLATFORM_MEMORY_SIZE_PPI mMemoryMemorySizePpi  = { GetPlatformMemorySize };
 
-static EFI_PEI_PPI_DESCRIPTOR       mMemPpiList[] = {
+GLOBAL_REMOVE_IF_UNREFERENCED EFI_PEI_PPI_DESCRIPTOR       mMemPpiList[] = {
   {
     EFI_PEI_PPI_DESCRIPTOR_PPI,
     &gPeiBaseMemoryTestPpiGuid,
@@ -105,6 +130,17 @@ static EFI_PEI_PPI_DESCRIPTOR       mMemPpiList[] = {
     &gPeiPlatformMemorySizePpiGuid,
     &mMemoryMemorySizePpi
   },
+};
+
+GLOBAL_REMOVE_IF_UNREFERENCED PLATFORM_INIT_TEMP_RAM_EXIT_PPI mPlatformInitTempRamExitPpi = {
+  PlatformInitBeforeTempRamExit,
+  PlatformInitAfterTempRamExit
+};
+
+GLOBAL_REMOVE_IF_UNREFERENCED EFI_PEI_PPI_DESCRIPTOR mPlatformInitTempRamExitPpiDesc = {
+  (EFI_PEI_PPI_DESCRIPTOR_PPI | EFI_PEI_PPI_DESCRIPTOR_TERMINATE_LIST),
+  &gPlatformInitTempRamExitPpiGuid,
+  &mPlatformInitTempRamExitPpi
 };
 
 ///
@@ -319,166 +355,6 @@ Done:
   return EFI_SUCCESS;
 }
 
-/**
-  Set Cache Mtrr.
-**/
-VOID
-SetCacheMtrr (
-  VOID
-  )
-{
-  EFI_STATUS                  Status;
-  EFI_PEI_HOB_POINTERS        Hob;
-  MTRR_SETTINGS               MtrrSetting;
-  UINT64                      MemoryBase;
-  UINT64                      MemoryLength;
-  UINT64                      LowMemoryLength;
-  UINT64                      HighMemoryLength;
-  EFI_BOOT_MODE               BootMode;
-  EFI_RESOURCE_ATTRIBUTE_TYPE ResourceAttribute;
-  UINT64                      CacheMemoryLength;
-
-  ///
-  /// Reset all MTRR setting.
-  ///
-  ZeroMem(&MtrrSetting, sizeof(MTRR_SETTINGS));
-
-  ///
-  /// Cache the Flash area as WP to boost performance
-  ///
-  Status = MtrrSetMemoryAttributeInMtrrSettings (
-                &MtrrSetting,
-                (UINTN) PcdGet32 (PcdFlashAreaBaseAddress),
-                (UINTN) PcdGet32 (PcdFlashAreaSize),
-                CacheWriteProtected
-                );
-  ASSERT_EFI_ERROR (Status);
-
-  ///
-  /// Update MTRR setting from MTRR buffer for Flash Region to be WP to boost performance
-  ///
-  MtrrSetAllMtrrs (&MtrrSetting);
-
-  ///
-  /// Set low to 1 MB. Since 1MB cacheability will always be set
-  /// until override by CSM.
-  /// Initialize high memory to 0.
-  ///
-  LowMemoryLength   = 0x100000;
-  HighMemoryLength  = 0;
-  ResourceAttribute = (
-                       EFI_RESOURCE_ATTRIBUTE_PRESENT |
-                       EFI_RESOURCE_ATTRIBUTE_INITIALIZED |
-                       EFI_RESOURCE_ATTRIBUTE_UNCACHEABLE |
-                       EFI_RESOURCE_ATTRIBUTE_WRITE_COMBINEABLE |
-                       EFI_RESOURCE_ATTRIBUTE_WRITE_THROUGH_CACHEABLE |
-                       EFI_RESOURCE_ATTRIBUTE_WRITE_BACK_CACHEABLE
-                       );
-
-  Status = PeiServicesGetBootMode (&BootMode);
-  ASSERT_EFI_ERROR (Status);
-
-  if (BootMode != BOOT_ON_S3_RESUME) {
-    ResourceAttribute |= EFI_RESOURCE_ATTRIBUTE_TESTED;
-  }
-
-  Status = PeiServicesGetHobList ((VOID **) &Hob.Raw);
-  while (!END_OF_HOB_LIST (Hob)) {
-    if (Hob.Header->HobType == EFI_HOB_TYPE_RESOURCE_DESCRIPTOR) {
-      if ((Hob.ResourceDescriptor->ResourceType == EFI_RESOURCE_SYSTEM_MEMORY) ||
-          ((Hob.ResourceDescriptor->ResourceType == EFI_RESOURCE_MEMORY_RESERVED) &&
-           (Hob.ResourceDescriptor->ResourceAttribute == ResourceAttribute))
-         ) {
-        if (Hob.ResourceDescriptor->PhysicalStart >= 0x100000000ULL) {
-          HighMemoryLength += Hob.ResourceDescriptor->ResourceLength;
-        } else if (Hob.ResourceDescriptor->PhysicalStart >= 0x100000) {
-          LowMemoryLength += Hob.ResourceDescriptor->ResourceLength;
-        }
-      }
-    }
-
-    Hob.Raw = GET_NEXT_HOB (Hob);
-  }
-
-  DEBUG ((DEBUG_INFO, "Memory Length (Below 4GB) = %lx.\n", LowMemoryLength));
-  DEBUG ((DEBUG_INFO, "Memory Length (Above 4GB) = %lx.\n", HighMemoryLength));
-
-  ///
-  /// Assume size of main memory is multiple of 256MB
-  ///
-  MemoryLength = (LowMemoryLength + 0xFFFFFFF) & 0xF0000000;
-  MemoryBase = 0;
-
-  CacheMemoryLength = MemoryLength;
-  ///
-  /// Programming MTRRs to avoid override SPI region with UC when MAX TOLUD Length >= 3.5GB
-  ///
-  if (MemoryLength > 0xDC000000) {
-     CacheMemoryLength = 0xC0000000;
-     Status = MtrrSetMemoryAttributeInMtrrSettings (
-                &MtrrSetting,
-                MemoryBase,
-                CacheMemoryLength,
-                CacheWriteBack
-                );
-     ASSERT_EFI_ERROR (Status);
-
-     MemoryBase = 0xC0000000;
-     CacheMemoryLength = MemoryLength - 0xC0000000;
-     if (MemoryLength > 0xE0000000) {
-        CacheMemoryLength = 0x20000000;
-        Status = MtrrSetMemoryAttributeInMtrrSettings (
-                 &MtrrSetting,
-                 MemoryBase,
-                 CacheMemoryLength,
-                 CacheWriteBack
-                 );
-        ASSERT_EFI_ERROR (Status);
-
-        MemoryBase = 0xE0000000;
-        CacheMemoryLength = MemoryLength - 0xE0000000;
-     }
-  }
-
-  Status = MtrrSetMemoryAttributeInMtrrSettings (
-                &MtrrSetting,
-                MemoryBase,
-                CacheMemoryLength,
-                CacheWriteBack
-                );
-  ASSERT_EFI_ERROR (Status);
-
-  if (LowMemoryLength != MemoryLength) {
-     MemoryBase = LowMemoryLength;
-     MemoryLength -= LowMemoryLength;
-     Status = MtrrSetMemoryAttributeInMtrrSettings (
-                   &MtrrSetting,
-                   MemoryBase,
-                   MemoryLength,
-                   CacheUncacheable
-                   );
-      ASSERT_EFI_ERROR (Status);
-  }
-
-  ///
-  /// VGA-MMIO - 0xA0000 to 0xC0000 to be UC
-  ///
-  Status = MtrrSetMemoryAttributeInMtrrSettings (
-                &MtrrSetting,
-                0xA0000,
-                0x20000,
-                CacheUncacheable
-                );
-  ASSERT_EFI_ERROR (Status);
-
-  ///
-  /// Update MTRR setting from MTRR buffer
-  ///
-  MtrrSetAllMtrrs (&MtrrSetting);
-
-  return ;
-}
-
 VOID
 ReportCpuHob (
   VOID
@@ -551,6 +427,35 @@ MemoryDiscoveredPpiNotifyCallback (
   return Status;
 }
 
+/**
+  A hook for platform-specific initialization prior to disabling temporary RAM.
+
+  @retval EFI_SUCCESS   The platform initialization was successful.
+  @retval EFI_NOT_READY The platform has not been detected yet.
+**/
+EFI_STATUS
+EFIAPI
+PlatformInitBeforeTempRamExit (
+  VOID
+  )
+{
+  return BoardInitBeforeTempRamExit ();
+}
+
+/**
+  A hook for platform-specific initialization after disabling temporary RAM.
+
+  @retval EFI_SUCCESS   The platform initialization was successful.
+  @retval EFI_NOT_READY The platform has not been detected yet.
+**/
+EFI_STATUS
+EFIAPI
+PlatformInitAfterTempRamExit (
+  VOID
+  )
+{
+  return BoardInitAfterTempRamExit ();
+}
 
 /**
   This function handles PlatformInit task after PeiReadOnlyVariable2 PPI produced
@@ -604,6 +509,9 @@ PlatformInitPreMem (
   }
 
   Status = BoardInitBeforeMemoryInit ();
+  ASSERT_EFI_ERROR (Status);
+
+  Status = PeiServicesInstallPpi (&mPlatformInitTempRamExitPpiDesc);
   ASSERT_EFI_ERROR (Status);
 
   return Status;

@@ -42,6 +42,7 @@
   gRaspberryPiTokenSpaceGuid.PcdNvStorageVariableBase|0x0|UINT32|0x00000005
   gRaspberryPiTokenSpaceGuid.PcdNvStorageFtwSpareBase|0x0|UINT32|0x00000006
   gRaspberryPiTokenSpaceGuid.PcdNvStorageFtwWorkingBase|0x0|UINT32|0x00000007
+  gRaspberryPiTokenSpaceGuid.PcdExtendedMemoryBase|0x0|UINT32|0x00000008
 
 [PcdsFixedAtBuild, PcdsPatchableInModule, PcdsDynamic, PcdsDynamicEx]
   gRaspberryPiTokenSpaceGuid.PcdCpuClock|0|UINT32|0x0000000d
@@ -56,3 +57,6 @@
   gRaspberryPiTokenSpaceGuid.PcdCustomCpuClock|0|UINT32|0x00000016
   gRaspberryPiTokenSpaceGuid.PcdDisplayEnableScaledVModes|0|UINT8|0x00000017
   gRaspberryPiTokenSpaceGuid.PcdDisplayEnableSShot|0|UINT32|0x00000018
+
+[PcdsFeatureFlag.common]
+  gRaspberryPiTokenSpaceGuid.PcdAcpiBasicMode|FALSE|BOOLEAN|0x00000019
