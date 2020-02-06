@@ -20,7 +20,8 @@ Scope(_SB)
 {
   Device(USB0){
     Name(_HID, "808622B7")
-    Name(_UID, 1)
+    Name(_CID, "PNP0D10")
+    Name(_UID, 0)
     Name(_CCA, 0)
 
     Name(_CRS, ResourceTemplate(){
@@ -32,7 +33,6 @@ Scope(_SB)
       ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
       Package () {
         Package () {"dr_mode", "host"}, // Mode of controller
-        Package () {"snps,quirk-frame-length-adjustment", 0x20},
         Package () {"snps,dis_rxdet_inp3_quirk",1},
       }
     })
@@ -74,6 +74,7 @@ Scope(_SB)
 
   Device(USB1){
     Name(_HID, "808622B7")
+    Name(_CID, "PNP0D10")
     Name(_UID, 1)
     Name(_CCA, 0)
 
@@ -86,7 +87,6 @@ Scope(_SB)
       ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
       Package () {
         Package () {"dr_mode", "host"}, // Mode of controller
-        Package () {"snps,quirk-frame-length-adjustment", 0x20},
         Package () {"snps,dis_rxdet_inp3_quirk",1},
       }
     })
@@ -103,7 +103,7 @@ Scope(_SB)
         Name(_ADR, 0x00000001)
         Name(_UPC, Package(){
           0xFF,        // Port is connectable
-          0x06,        // Port connector is Micro USB3.0 Type AB
+          0x03,        // Port connector is Micro USB3.0 Type AB
           0x00000000,
           0x00000000
         })
