@@ -22,7 +22,7 @@
 /**
   Compute the CRC 
 
-  @param [in] pMacAddress      Address of a six byte buffer to containing the MAC address.     
+  @param [in] pMacAddress      Address of a six byte buffer to containing the MAC address.
 
   @returns The CRC-32 value associated with this MAC address
 
@@ -45,8 +45,8 @@ Ax88772Crc (
   pEnd = &pMacAddress[ PXE_HWADDR_LEN_ETHER ];
   while ( pEnd > pMacAddress ) {
     Data = *pMacAddress++;
-    
-    
+
+
     //
     //  CRC32: x32 + x26 + x23 + x22 + x16 + x12 + x11 + x10 + x8 + x7 + x5 + x4 + x2 + x + 1
     //
@@ -532,7 +532,7 @@ Ax88772Reset (
   if (EFI_ERROR(Status)) goto err;  
                                      
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
-                       | USB_TARGET_DEVICE;                                
+                       | USB_TARGET_DEVICE;
   SetupMsg.Request = CMD_RESET;
   SetupMsg.Value = SRR_IPRL ;
   SetupMsg.Index = 0;
@@ -544,7 +544,7 @@ Ax88772Reset (
   if (EFI_ERROR(Status)) goto err;  
                                    
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
-                       | USB_TARGET_DEVICE;                                
+                       | USB_TARGET_DEVICE;
   SetupMsg.Request = CMD_RESET;
   SetupMsg.Value = SRR_IPPD | SRR_IPRL ;
   SetupMsg.Index = 0;
@@ -581,7 +581,7 @@ Ax88772Reset (
                                &SetupMsg,
                                NULL );
                                     
-  if (EFI_ERROR(Status)) goto err;                                
+  if (EFI_ERROR(Status)) goto err;
                                     
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
@@ -593,7 +593,7 @@ Ax88772Reset (
                                &SetupMsg,
                                NULL ); 
                                     
-  if (EFI_ERROR(Status)) goto err;                                
+  if (EFI_ERROR(Status)) goto err;
                                  
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
@@ -605,7 +605,7 @@ Ax88772Reset (
                                &SetupMsg,
                                NULL );
                                     
-  if (EFI_ERROR(Status)) goto err;                                
+  if (EFI_ERROR(Status)) goto err;
                                 
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
@@ -711,7 +711,7 @@ Ax88772RxControl (
         Status = Ax88772UsbCommand ( pNicDevice,
                                      &SetupMsg,
                                      NULL );
-                                     
+
         if (EFI_ERROR(Status))
               goto EXIT;
       }
@@ -740,7 +740,7 @@ Ax88772RxControl (
       Status = Ax88772UsbCommand ( pNicDevice,
                                    &SetupMsg,
                                    &pNicDevice->MulticastHash );
-                                   
+
       if (EFI_ERROR(Status))
               goto EXIT;
   }
@@ -842,7 +842,7 @@ Ax88772ReloadSrom  (
   @retval other                The read failed
 
 **/
-EFI_STATUS                             
+EFI_STATUS
 Ax88772SromRead (
   IN NIC_DEVICE * pNicDevice,
   IN UINT32 Address,
@@ -958,7 +958,7 @@ Ax88772SromWrite (
   EFI_STATUS Status;    
   
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
-                       | USB_TARGET_DEVICE;          
+                       | USB_TARGET_DEVICE;
                        
   SetupMsg.Request = CMD_SROM_WRITE;
   SetupMsg.Value = (UINT16) Address;
@@ -1222,7 +1222,7 @@ Ax88772BulkIn(
     VOID* tmpAddr = 0;
 
     tmpPktCnt = 0;     
-    tmpAddr = (VOID*) &pNicDevice->pBulkInbuf[LengthInBytes];            
+    tmpAddr = (VOID*) &pNicDevice->pBulkInbuf[LengthInBytes];
     ORI_TMP_LENG = TMP_LENG;
     Status = pUsbIo->UsbBulkTransfer ( pUsbIo,
                           USB_ENDPOINT_DIR_IN | BULK_IN_ENDPOINT,

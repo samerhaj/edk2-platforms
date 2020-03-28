@@ -226,7 +226,7 @@ DriverStart (
                           &pNicDevice->Controller,
                           &gEfiCallerIdGuid,
                           pNicDevice,
-                          &gEfiSimpleNetworkProtocolGuid,            
+                          &gEfiSimpleNetworkProtocolGuid,
                           &pNicDevice->SimpleNetwork,
                           &gEfiDevicePathProtocolGuid,
                           pNicDevice->MyDevPath,
@@ -251,7 +251,7 @@ DriverStart (
   //
   // Open For Child Device
   //
-  Status = gBS->OpenProtocol (                                                                         
+  Status = gBS->OpenProtocol (
                   Controller,
                   &gEfiUsbIoProtocolGuid,
                   (VOID **) &pNicDevice->pUsbIo,
@@ -265,7 +265,7 @@ DriverStart (
                           &pNicDevice->Controller,
                           &gEfiCallerIdGuid,
                           pNicDevice,
-                          &gEfiSimpleNetworkProtocolGuid,            
+                          &gEfiSimpleNetworkProtocolGuid,
                           &pNicDevice->SimpleNetwork,
                           &gEfiDevicePathProtocolGuid,
                           pNicDevice->MyDevPath,
@@ -364,10 +364,10 @@ DriverStop (
     pNicDevice = DEV_FROM_SIMPLE_NETWORK ( SimpleNetwork );
       
     Status = gBS->UninstallMultipleProtocolInterfaces (
-				                  Controller,				                  
+				                  Controller,
 				                  &gEfiCallerIdGuid,
 				                  pNicDevice,
-				                  &gEfiSimpleNetworkProtocolGuid,            
+				                  &gEfiSimpleNetworkProtocolGuid,
 				                  &pNicDevice->SimpleNetwork,
 				                  &gEfiDevicePathProtocolGuid,
 				                  pNicDevice->MyDevPath,
@@ -428,10 +428,10 @@ DriverStop (
               ); 
 				                    
     Status = gBS->UninstallMultipleProtocolInterfaces (
-				                  ChildHandleBuffer[Index],				                  
+				                  ChildHandleBuffer[Index],
 				                  &gEfiCallerIdGuid,
 				                  pNicDevice,
-				                  &gEfiSimpleNetworkProtocolGuid,            
+				                  &gEfiSimpleNetworkProtocolGuid,
 				                  &pNicDevice->SimpleNetwork,
 				                  &gEfiDevicePathProtocolGuid,
 				                  pNicDevice->MyDevPath,
@@ -439,7 +439,7 @@ DriverStop (
 				                  );
                           
     if (EFI_ERROR (Status)) {
-      Status = gBS->OpenProtocol (                                                                         
+      Status = gBS->OpenProtocol (
                   Controller,
                   &gEfiUsbIoProtocolGuid,
                   (VOID **) &pNicDevice->pUsbIo,

@@ -31,7 +31,7 @@
 
 #include <Protocol/DevicePath.h>
 #include <Protocol/LoadedImage.h>
-#include <Protocol/NetworkInterfaceIdentifier.h>     
+#include <Protocol/NetworkInterfaceIdentifier.h>
 #include <Protocol/SimpleNetwork.h>
 #include <Protocol/UsbIo.h>
 

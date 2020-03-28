@@ -22,7 +22,7 @@
   hash by calling ::Ax88772MulticastClear and ::Ax88772MulticastSet.
   Finally this routine enables the receiver by calling
   ::Ax88772RxControl.
-                                                                                  
+
   @param [in] pSimpleNetwork    Simple network mode pointer  
 
   @retval EFI_SUCCESS           This operation was successful.
@@ -33,7 +33,7 @@
   @retval EFI_UNSUPPORTED       The increased buffer size feature is not supported.
 
 **/
-EFI_STATUS                                                                                          
+EFI_STATUS
 ReceiveFilterUpdate (
   IN EFI_SIMPLE_NETWORK_PROTOCOL * pSimpleNetwork
   )
@@ -129,7 +129,7 @@ SN_GetStatus (
   EFI_TPL TplPrevious;
 
   TplPrevious = gBS->RaiseTPL(TPL_CALLBACK);
-  
+
   //
   // Verify the parameters
   //
@@ -167,7 +167,7 @@ SN_GetStatus (
 #if REPORTLINK
         if (pNicDevice->bLinkUp && pNicDevice->bComplete) {
           pMode->MediaPresent = TRUE;
-          Status = ReceiveFilterUpdate ( pSimpleNetwork );                       
+          Status = ReceiveFilterUpdate ( pSimpleNetwork );
         } else {
           pMode->MediaPresent = FALSE;
         }
@@ -259,7 +259,7 @@ SN_NvData (
       goto  EXIT;
     }  
   } 
-  //Offset must be a multiple of NvRamAccessSize and less than NvRamSize.   
+  //Offset must be a multiple of NvRamAccessSize and less than NvRamSize.
   if (0 != (BufferSize % pMode->NvRamAccessSize)) {
     Status = EFI_INVALID_PARAMETER;
     goto  EXIT;
@@ -547,9 +547,9 @@ SN_Receive (
               return EFI_BUFFER_TOO_SMALL;
             }
 
-            *pBufferSize = CurrentPktLen;                        
-            CopyMem ( pBuffer, pNicDevice->pCurPktOff, CurrentPktLen );                       
-            pHeader = (ETHERNET_HEADER *) pNicDevice->pCurPktOff;            
+            *pBufferSize = CurrentPktLen;
+            CopyMem ( pBuffer, pNicDevice->pCurPktOff, CurrentPktLen );
+            pHeader = (ETHERNET_HEADER *) pNicDevice->pCurPktOff;
 
             if ( NULL != pHeaderSize  && (7720 != *pHeaderSize)) {
               *pHeaderSize = sizeof ( *pHeader );
@@ -572,7 +572,7 @@ SN_Receive (
         } else {
           pNicDevice->PktCnt = 0;
           Status = EFI_DEVICE_ERROR; 
-        }           
+        }
       } else {
         //
         //  Link no up
@@ -738,7 +738,7 @@ SN_ReceiveFilters (
           Disable == 2) {   
       gBS->RestoreTPL(TplPrevious);
       return EFI_SUCCESS;
-    }                                                   
+    }
     pMode->MCastFilterCount = 0;
     SetMem ( &pMode->MCastFilter[0], 
              sizeof(EFI_MAC_ADDRESS) * MAX_MCAST_FILTER_CNT,
@@ -1088,7 +1088,7 @@ SN_Start (
       Status = EFI_ALREADY_STARTED;
     }
   }
-  
+
   //
   // Return the operation status
   //
@@ -1134,7 +1134,7 @@ SN_StationAddress (
   NIC_DEVICE * pNicDevice;
   EFI_SIMPLE_NETWORK_MODE * pMode;
   EFI_STATUS Status;
-  
+
   EFI_TPL TplPrevious;
 
 
@@ -1267,7 +1267,7 @@ SN_Statistics (
       Status = EFI_BUFFER_TOO_SMALL;
       goto EXIT;
     }
-    if(bReset) {      
+    if(bReset) {
       Status = EFI_SUCCESS;
     } else {
       Status = EFI_SUCCESS;
@@ -1341,7 +1341,7 @@ SN_Stop (
   gBS->RestoreTPL(TplPrevious);
   return Status;
 }
-                
+
 
 /**
   This function releases the memory buffers assigned in the Initialize() call.
@@ -1367,7 +1367,7 @@ SN_Shutdown (
   EFI_SIMPLE_NETWORK_MODE * pMode;
   UINT32 RxFilter;
   EFI_STATUS Status;
-  
+
   EFI_TPL TplPrevious;
 
   TplPrevious = gBS->RaiseTPL(TPL_CALLBACK);
@@ -1403,7 +1403,7 @@ SN_Shutdown (
   } else {
     Status = EFI_INVALID_PARAMETER;
   }
-  
+
   //
   // Return the operation status
   //
@@ -1557,7 +1557,7 @@ SN_Transmit (
         TransferLength = sizeof ( pNicDevice->pTxTest->Length )
                        + sizeof ( pNicDevice->pTxTest->LengthBar )
                        + pNicDevice->pTxTest->Length;
-                       
+
         if (TransferLength % 512 == 0 || TransferLength % 1024 == 0)
           TransferLength +=4;
 #if RXTHOU
