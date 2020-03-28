@@ -20,7 +20,7 @@
 
 
 /**
-  Compute the CRC 
+  Compute the CRC
 
   @param [in] pMacAddress      Address of a six byte buffer to containing the MAC address.
 
@@ -148,14 +148,14 @@ Ax88772MacAddressSet (
   SetupMsg.Value = 0;
   SetupMsg.Index = 0;
   SetupMsg.Length = PXE_HWADDR_LEN_ETHER;
-  
+
   //
   //  Read the PHY register
   //
   Status = Ax88772UsbCommand ( pNicDevice,
                                &SetupMsg,
                                pMacAddress );
-  
+
   //
   // Return the operation status
   //
@@ -292,11 +292,11 @@ Ax88772NegotiateLinkComplete (
   UINT16 Mask;
   UINT16 PhyData;
   EFI_STATUS  Status;
- 
+
   //
   //  Determine if the link is up.
   //
-  *pbComplete = FALSE;  
+  *pbComplete = FALSE;
 
   //
   //  Get the link status
@@ -309,7 +309,7 @@ Ax88772NegotiateLinkComplete (
     *pbLinkUp = (BOOLEAN)( 0 != ( PhyData & BMSR_LINKST ));
     if ( 0 == *pbLinkUp ) {
     } else {
-      *pbComplete = (BOOLEAN)( 0 != ( PhyData & 0x20 ));  
+      *pbComplete = (BOOLEAN)( 0 != ( PhyData & 0x20 ));
       if ( 0 == *pbComplete ) {
       } else {
         Status = Ax88772PhyRead ( pNicDevice,
@@ -328,7 +328,7 @@ Ax88772NegotiateLinkComplete (
           Mask = ( *pbHiSpeed ) ? AN_TX_FDX : AN_10_FDX;
           *pbFullDuplex = (BOOLEAN)( 0 != ( PhyData & Mask ));
         }
-      } 
+      }
     }
   } else {
   }
@@ -364,7 +364,7 @@ Ax88772PhyRead (
   //
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
-  SetupMsg.Request = CMD_PHY_ACCESS_SOFTWARE;   
+  SetupMsg.Request = CMD_PHY_ACCESS_SOFTWARE;
   SetupMsg.Value = 0;
   SetupMsg.Index = 0;
   SetupMsg.Length = 0;
@@ -504,7 +504,7 @@ Ax88772Reset (
   USB_DEVICE_REQUEST SetupMsg;
   EFI_STATUS Status;
   EFI_USB_IO_PROTOCOL *pUsbIo;
-  
+
   pUsbIo = pNicDevice->pUsbIo;
 
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
@@ -516,9 +516,9 @@ Ax88772Reset (
   Status = Ax88772UsbCommand ( pNicDevice,
                                &SetupMsg,
                                NULL );
-                                   
-  if (EFI_ERROR(Status)) goto err;                                 
-                                   
+
+  if (EFI_ERROR(Status)) goto err;
+
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                           | USB_TARGET_DEVICE;
   SetupMsg.Request = CMD_PHY_SELECT;
@@ -528,9 +528,9 @@ Ax88772Reset (
   Status = Ax88772UsbCommand ( pNicDevice,
                                &SetupMsg,
                                NULL );
-                                    
-  if (EFI_ERROR(Status)) goto err;  
-                                     
+
+  if (EFI_ERROR(Status)) goto err;
+
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
   SetupMsg.Request = CMD_RESET;
@@ -539,10 +539,10 @@ Ax88772Reset (
   SetupMsg.Length = 0;
   Status = Ax88772UsbCommand ( pNicDevice,
                                &SetupMsg,
-                               NULL );  
-                                   
-  if (EFI_ERROR(Status)) goto err;  
-                                   
+                               NULL );
+
+  if (EFI_ERROR(Status)) goto err;
+
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
   SetupMsg.Request = CMD_RESET;
@@ -552,11 +552,11 @@ Ax88772Reset (
   Status = Ax88772UsbCommand ( pNicDevice,
                                &SetupMsg,
                                NULL );
-                                   
+
   gBS->Stall ( 200000 );
-    
-  if (EFI_ERROR(Status)) goto err;  
-    
+
+  if (EFI_ERROR(Status)) goto err;
+
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
   SetupMsg.Request = CMD_RESET;
@@ -565,12 +565,12 @@ Ax88772Reset (
   SetupMsg.Length = 0;
   Status = Ax88772UsbCommand ( pNicDevice,
                                &SetupMsg,
-                               NULL );   
-                                    
-  gBS->Stall ( 200000 ); 
-     
-  if (EFI_ERROR(Status)) goto err;  
-     
+                               NULL );
+
+  gBS->Stall ( 200000 );
+
+  if (EFI_ERROR(Status)) goto err;
+
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
   SetupMsg.Request = CMD_RESET;
@@ -580,9 +580,9 @@ Ax88772Reset (
   Status = Ax88772UsbCommand ( pNicDevice,
                                &SetupMsg,
                                NULL );
-                                    
+
   if (EFI_ERROR(Status)) goto err;
-                                    
+
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
   SetupMsg.Request = CMD_PHY_SELECT;
@@ -591,10 +591,10 @@ Ax88772Reset (
   SetupMsg.Length = 0;
   Status = Ax88772UsbCommand ( pNicDevice,
                                &SetupMsg,
-                               NULL ); 
-                                    
+                               NULL );
+
   if (EFI_ERROR(Status)) goto err;
-                                 
+
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
   SetupMsg.Request = CMD_RESET;
@@ -604,9 +604,9 @@ Ax88772Reset (
   Status = Ax88772UsbCommand ( pNicDevice,
                                &SetupMsg,
                                NULL );
-                                    
+
   if (EFI_ERROR(Status)) goto err;
-                                
+
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
   SetupMsg.Request = CMD_RX_CONTROL_WRITE;
@@ -615,13 +615,13 @@ Ax88772Reset (
   SetupMsg.Length = 0;
   Status = Ax88772UsbCommand ( pNicDevice,
                                &SetupMsg,
-                               NULL );  
-                                  
-  if (EFI_ERROR(Status)) goto err;  
-    
+                               NULL );
+
+  if (EFI_ERROR(Status)) goto err;
+
   if (!pNicDevice->Flag772A) {
     SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
-                         | USB_TARGET_DEVICE; 
+                         | USB_TARGET_DEVICE;
     SetupMsg.Request = CMD_RXQTC;
 #if RXTHOU
     /*size cannot exceed 3K*/
@@ -640,7 +640,7 @@ Ax88772Reset (
 #endif
     Status = Ax88772UsbCommand ( pNicDevice,
                                  &SetupMsg,
-                                 NULL ); 
+                                 NULL );
   }
 err:
   return Status;
@@ -681,7 +681,7 @@ Ax88772RxControl (
     SetupMsg.RequestType = USB_ENDPOINT_DIR_IN
                          | USB_REQ_TYPE_VENDOR
                          | USB_TARGET_DEVICE;
-    SetupMsg.Request = CMD_MEDIUM_STATUS_READ;    
+    SetupMsg.Request = CMD_MEDIUM_STATUS_READ;
     SetupMsg.Value = 0;
     SetupMsg.Index = 0;
     SetupMsg.Length = sizeof ( MediumStatus );
@@ -691,17 +691,17 @@ Ax88772RxControl (
     if ( !EFI_ERROR ( Status )) {
       if ( 0 == ( MediumStatus & MS_RE )) {
         MediumStatus |= MS_RE | MS_ONE;
-        
+
         if ( pNicDevice->bFullDuplex )
           MediumStatus |= MS_TFC | MS_RFC | MS_FD;
         else
           MediumStatus &= ~(MS_TFC | MS_RFC | MS_FD);
-        
+
         if ( pNicDevice->b100Mbps )
           MediumStatus |= MS_PS;
         else
           MediumStatus &= ~MS_PS;
-        
+
         SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                              | USB_TARGET_DEVICE;
         SetupMsg.Request = CMD_MEDIUM_STATUS_WRITE;
@@ -722,7 +722,7 @@ Ax88772RxControl (
   RxControl = RXC_SO;
   if (!pNicDevice->Flag772A)
     RxControl |= RXC_RH1M;
-   
+
   //
   //  Enable multicast if requested
   //
@@ -765,7 +765,7 @@ Ax88772RxControl (
   if ( 0 != ( RxFilter & EFI_SIMPLE_NETWORK_RECEIVE_PROMISCUOUS )) {
       RxControl |= RXC_PRO;
   }
-    
+
   //
   //  Update the receiver control
   //
@@ -811,7 +811,7 @@ Ax88772ReloadSrom  (
   //
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
-                       
+
   SetupMsg.Request = CMD_WRITE_GPIOS;
   SetupMsg.Value = 0x80;
   SetupMsg.Index = 0;
@@ -819,10 +819,10 @@ Ax88772ReloadSrom  (
   Status = Ax88772UsbCommand ( pNicDevice,
                                &SetupMsg,
                                NULL );
-                               
+
   if (EFI_SUCCESS == Status)
-          gBS->Stall(500000);  
-   
+          gBS->Stall(500000);
+
   return Status;
 
 }
@@ -886,18 +886,18 @@ Ax88772EnableSromWrite  (
   //
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
-                       
+
   SetupMsg.Request = CMD_SROM_WRITE_EN;
   SetupMsg.Value = 0;
   SetupMsg.Index = 0;
   SetupMsg.Length = 0 ;
   Status = Ax88772UsbCommand ( pNicDevice,
                                &SetupMsg,
-                               NULL );  
-                               
+                               NULL );
+
   if (EFI_SUCCESS == Status)
           gBS->Stall(500000);
-   
+
   return Status;
 
 }
@@ -916,18 +916,18 @@ Ax88772DisableSromWrite  (
   //
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
-                       
+
   SetupMsg.Request = CMD_SROM_WRITE_DIS;
   SetupMsg.Value = 0;
   SetupMsg.Index = 0;
   SetupMsg.Length = 0;
   Status = Ax88772UsbCommand ( pNicDevice,
                       &SetupMsg,
-                      NULL );  
-                               
+                      NULL );
+
   if (EFI_SUCCESS == Status)
           gBS->Stall(500000);
-   
+
   return Status;
 
 }
@@ -951,20 +951,20 @@ Ax88772SromWrite (
   IN NIC_DEVICE * pNicDevice,
   IN UINT32 Address,
   IN UINT16 * pData
-  )  
+  )
 {
 
   USB_DEVICE_REQUEST SetupMsg;
-  EFI_STATUS Status;    
-  
+  EFI_STATUS Status;
+
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
-                       
+
   SetupMsg.Request = CMD_SROM_WRITE;
   SetupMsg.Value = (UINT16) Address;
   SetupMsg.Index = (UINT16) (*pData);
   SetupMsg.Length = 0;
-  
+
   Status = Ax88772UsbCommand ( pNicDevice,
                                &SetupMsg,
                                NULL );
@@ -1018,7 +1018,7 @@ Ax88772UsbCommand (
                                         pBuffer,
                                         pRequest->Length,
                                         &CmdStatus );
- 
+
   //
   // Determine the operation status
   //
@@ -1070,10 +1070,10 @@ Ax88772GetLinkStatus (
 }
 
 #if RXTHOU
-EFI_STATUS  
+EFI_STATUS
 Ax88772BulkIn(
   IN NIC_DEVICE * pNicDevice
-) 
+)
 {
   int i;
   UINTN LengthInBytes = 0;
@@ -1082,11 +1082,11 @@ Ax88772BulkIn(
   EFI_STATUS Status = EFI_DEVICE_ERROR;
   EFI_USB_IO_PROTOCOL *pUsbIo;
   UINT32 TransferStatus = 0;
-  UINT16 tmpPktCnt = 0; 
+  UINT16 tmpPktCnt = 0;
   UINT16 * tmpHdr = (UINT16 *)pNicDevice->pBulkInbuf;
   USB_DEVICE_REQUEST SetupMsg;
 
-  pUsbIo = pNicDevice->pUsbIo; 
+  pUsbIo = pNicDevice->pUsbIo;
   for ( i = 0 ; i < (AX88772_MAX_BULKIN_SIZE / 512) && pUsbIo != NULL; i++) {
     VOID* tmpAddr = 0;
 
@@ -1107,9 +1107,9 @@ Ax88772BulkIn(
 
     if (( !EFI_ERROR ( Status )) &&
         ( !EFI_ERROR ( TransferStatus )) &&
-        TMP_LENG != 0) {              
+        TMP_LENG != 0) {
       LengthInBytes += TMP_LENG;
-      if ((TMP_LENG % 512) != 0) {	  
+      if ((TMP_LENG % 512) != 0) {
         goto done;
       }
     } else if (( !EFI_ERROR ( Status )) &&
@@ -1117,7 +1117,7 @@ Ax88772BulkIn(
                (TMP_LENG == 0)) {
       Status = EFI_NOT_READY;
       goto done;
-    } else if (EFI_TIMEOUT == Status && EFI_USB_ERR_TIMEOUT == TransferStatus) { 
+    } else if (EFI_TIMEOUT == Status && EFI_USB_ERR_TIMEOUT == TransferStatus) {
       SetupMsg.RequestType = USB_REQ_TYPE_STANDARD | 0x02;
       SetupMsg.Request = 0x01;
       SetupMsg.Value =  0;
@@ -1142,9 +1142,9 @@ done:
 
     do {
       tmpLen = (*tmpHdr) & 0x7FF;
-      tmpLenBar = *(tmpHdr + 1);    
+      tmpLenBar = *(tmpHdr + 1);
       tmpTotalLen = ((tmpLen + 4 + 1) & 0xfffe);
-			
+
       if ((tmpLen & 0x7FF) + (tmpLenBar & 0x7FF) == 0x7FF) {
         tmpPktCnt++;
       } else {
@@ -1170,7 +1170,7 @@ done:
                           &SetupMsg,
                           NULL );
     }
-			
+
     if (pNicDevice->rxburst < 2)
     pNicDevice->rxburst++;
 
@@ -1185,26 +1185,26 @@ done:
       Ax88772UsbCommand ( pNicDevice,
                           &SetupMsg,
                           NULL );
-			}						
+      }
       pNicDevice->rxburst = 0;
     }
   }
-	
+
   if (tmpPktCnt != 0) {
     pNicDevice->PktCnt = tmpPktCnt;
     pNicDevice->pCurPktHdrOff = pNicDevice->pBulkInbuf;
     pNicDevice->pCurPktOff = pNicDevice->pBulkInbuf + 4;
     Status = EFI_SUCCESS;
-  }			 
-   
+  }
+
 no_pkt:
   return Status;
 }
 #else
-EFI_STATUS  
+EFI_STATUS
 Ax88772BulkIn(
   IN NIC_DEVICE * pNicDevice
-) 
+)
 {
   int i;
   UINTN LengthInBytes = 0;
@@ -1214,14 +1214,14 @@ Ax88772BulkIn(
   EFI_STATUS Status = EFI_DEVICE_ERROR;
   EFI_USB_IO_PROTOCOL *pUsbIo;
   UINT32 TransferStatus = 0;
-  UINT16 tmpPktCnt = 0; 
+  UINT16 tmpPktCnt = 0;
   UINT16 * tmpHdr = (UINT16 *)pNicDevice->pBulkInbuf;
-  
-  pUsbIo = pNicDevice->pUsbIo; 
+
+  pUsbIo = pNicDevice->pUsbIo;
   for ( i = 0 ; i < (AX88772_MAX_BULKIN_SIZE / 512) && pUsbIo != NULL; i++) {
     VOID* tmpAddr = 0;
 
-    tmpPktCnt = 0;     
+    tmpPktCnt = 0;
     tmpAddr = (VOID*) &pNicDevice->pBulkInbuf[LengthInBytes];
     ORI_TMP_LENG = TMP_LENG;
     Status = pUsbIo->UsbBulkTransfer ( pUsbIo,
@@ -1248,9 +1248,9 @@ Ax88772BulkIn(
       TMP_LENG = CURBufSize;
       do {
         tmpLen = *tmpHdr;
-        tmpLenBar = *(tmpHdr + 1);    
-        tmpTotalLen += ((tmpLen + 4 + 1) & 0xfffe); 
-                
+        tmpLenBar = *(tmpHdr + 1);
+        tmpTotalLen += ((tmpLen + 4 + 1) & 0xfffe);
+
         if (((tmpLen ^ tmpLenBar) == 0xffff))  {
           if (tmpTotalLen == LengthInBytes) {
             tmpPktCnt++;
@@ -1258,7 +1258,7 @@ Ax88772BulkIn(
             goto done;
           } else if (tmpTotalLen > LengthInBytes) {
             break;
-          }  
+          }
         } else if (((tmpLen ^ tmpLenBar) != 0xffff)) {
           if ( tmpPktCnt != 0) {
             Status = EFI_SUCCESS;
@@ -1279,7 +1279,7 @@ Ax88772BulkIn(
       }
       Status = EFI_NOT_READY;
       goto no_pkt;
-    } else if (EFI_TIMEOUT == Status && EFI_USB_ERR_TIMEOUT == TransferStatus) { 
+    } else if (EFI_TIMEOUT == Status && EFI_USB_ERR_TIMEOUT == TransferStatus) {
       if ( tmpPktCnt != 0) {
         Status = EFI_SUCCESS;
         goto done;
@@ -1298,7 +1298,7 @@ Ax88772BulkIn(
 done:
   pNicDevice->PktCnt = tmpPktCnt;
   pNicDevice->pCurPktHdrOff = pNicDevice->pBulkInbuf;
-  pNicDevice->pCurPktOff = pNicDevice->pBulkInbuf + 4; 
+  pNicDevice->pCurPktOff = pNicDevice->pBulkInbuf + 4;
 no_pkt:
   return Status;
 }

@@ -187,7 +187,7 @@ GetControllerName (
   //
   if (ChildHandle != NULL) {
     return EFI_UNSUPPORTED;
-  }       
+  }
   //
   // Check Controller's handle
   //
@@ -220,7 +220,7 @@ GetControllerName (
            ppControllerName,
            (BOOLEAN)(pThis == &gComponentName)
            );
-           
+
   return  Status;
 }
 #else
@@ -234,7 +234,7 @@ GetControllerName (
   OUT CHAR16 ** ppControllerName
   )
 {
-  EFI_STATUS Status;  
+  EFI_STATUS Status;
 
   //
   // Set the controller name

@@ -38,7 +38,7 @@
 #define MAX_QUEUE_SIZE 50
 #define MAX_BULKIN_SIZE 16384
 #define HW_HDR_LENGTH 8
-#define PASS_SCT      0  
+#define PASS_SCT      0
 #define REPORTLINK    1
 
 #define ARM  0
@@ -49,7 +49,7 @@
 #define MAX_LINKIDLE_THRESHOLD  30
 #endif
 
-#define AMI		1
+#define AMI    1
 #define ASIX_MCAST_FILTER_CNT 8
 #define RXTHOU 0
 
@@ -411,18 +411,18 @@ typedef struct {
   UINT16    PktCnt;
 
   RX_TX_PACKET * pTxTest;
-  
+
   UINT8 MulticastHash[8];
   EFI_MAC_ADDRESS MAC;
- 
+
   EFI_DEVICE_PATH_PROTOCOL                  *MyDevPath;
   BOOLEAN   Grub_f;
   BOOLEAN   bFirstRst;
   BOOLEAN   Flag772A;
 #if RXTHOU
-  UINT8	rxburst;
+  UINT8 rxburst;
 #endif
- 
+
 } NIC_DEVICE;
 
 
@@ -509,7 +509,7 @@ SN_Start (
 
 /**
   Set the MAC address.
-  
+
   This function modifies or resets the current station address of a
   network interface.  If Reset is TRUE, then the current station address
   is set ot the network interface's permanent address.  If Reset if FALSE
@@ -888,7 +888,7 @@ Ax88772RxControl (
   IN NIC_DEVICE * pNicDevice,
   IN UINT32 RxFilter
   );
-  
+
 EFI_STATUS
 Ax88772ReloadSrom  (
   IN NIC_DEVICE * pNicDevice
@@ -914,19 +914,19 @@ Ax88772SromRead (
   IN UINT32 Address,
   OUT UINT16 * pData
   );
-  
-  
+
+
 EFI_STATUS
 Ax88772EnableSromWrite  (
   IN NIC_DEVICE * pNicDevice
   );
-  
-  
+
+
 EFI_STATUS
 Ax88772DisableSromWrite  (
   IN NIC_DEVICE * pNicDevice
-  );  
-  
+  );
+
 EFI_STATUS
 Ax88772SromWrite (
   IN NIC_DEVICE * pNicDevice,
@@ -968,7 +968,7 @@ Ax88772UsbCommand (
   IN USB_DEVICE_REQUEST * pRequest,
   IN OUT VOID * pBuffer
   );
-  
+
 BOOLEAN
 Ax88772GetLinkStatus (
   IN NIC_DEVICE * pNicDevice
@@ -1092,8 +1092,8 @@ GetControllerName (
   OUT CHAR16 ** ppControllerName
   );
 
-  
-EFI_STATUS  
+
+EFI_STATUS
 Ax88772BulkIn(
   IN NIC_DEVICE * pNicDevice
 );
