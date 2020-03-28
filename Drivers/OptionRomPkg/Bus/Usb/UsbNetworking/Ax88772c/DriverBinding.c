@@ -163,18 +163,18 @@ DriverStart (
   if ((PRODUCT_AX88772A_ID == Device.IdProduct) ||
       (PRODUCT_ID == Device.IdProduct))
     pNicDevice->Flag772A = TRUE;
-    //
-    //  Initialize the simple network protocol
-    //
-    Status = SN_Setup ( pNicDevice );
+  //
+  //  Initialize the simple network protocol
+  //
+  Status = SN_Setup ( pNicDevice );
 
-    if (EFI_ERROR(Status)){
-      gBS->CloseProtocol (
-                Controller,
-                &gEfiUsbIoProtocolGuid,
-                pThis->DriverBindingHandle,
-                Controller
-                );
+  if (EFI_ERROR(Status)){
+    gBS->CloseProtocol (
+             Controller,
+             &gEfiUsbIoProtocolGuid,
+             pThis->DriverBindingHandle,
+             Controller
+             );
     goto ERR;
   }
 
@@ -450,12 +450,12 @@ DriverStop (
     } else {
       if ( NULL != pNicDevice->pBulkInbuf)
         gBS->FreePool (pNicDevice->pBulkInbuf);
-        if ( NULL != pNicDevice->pTxTest)
-          gBS->FreePool (pNicDevice->pTxTest);
-        if ( NULL != pNicDevice->MyDevPath)
-          gBS->FreePool (pNicDevice->MyDevPath);
-        if ( NULL != pNicDevice)
-          gBS->FreePool (pNicDevice);
+      if ( NULL != pNicDevice->pTxTest)
+        gBS->FreePool (pNicDevice->pTxTest);
+      if ( NULL != pNicDevice->MyDevPath)
+        gBS->FreePool (pNicDevice->MyDevPath);
+      if ( NULL != pNicDevice)
+        gBS->FreePool (pNicDevice);
     }
   }
         
