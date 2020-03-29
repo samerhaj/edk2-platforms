@@ -37,7 +37,7 @@
 #include <Protocol/UsbIo.h>
 
 
-#define PASS_SCT      0  
+#define PASS_SCT      0
 #define FORCE_100Mbps 0
 #define REPORTLINK    1
 
@@ -271,7 +271,7 @@ typedef struct {
 #pragma pack(1)
 typedef struct _TX_PACKET {
 //  struct _TX_PACKET * pNext;       ///<  Next receive packet
-  UINT32  TxHdr1;                      
+  UINT32  TxHdr1;
   UINT32  TxHdr2;
   UINT8 Data[ AX88179_MAX_PKT_SIZE ]; ///<  Received packet data
 } TX_PACKET;
@@ -287,7 +287,7 @@ typedef struct _RX_PACKET {
 #pragma pack()
 
 
-                                         
+
 
 /**
   AX88179 control structure
@@ -333,23 +333,23 @@ typedef struct {
   UINT16    PktCnt;
   UINT8    * pCurPktHdrOff;
   UINT8     *pCurPktOff;
-  
+
   TX_PACKET * pTxTest;
 
   INT8 MulticastHash[8];
-  EFI_MAC_ADDRESS MAC; 
+  EFI_MAC_ADDRESS MAC;
 
   UINT16 CurMediumStatus;
   UINT16 CurRxControl;
   VOID * pTxBuffer;
-  
+
   EFI_DEVICE_PATH_PROTOCOL                  *MyDevPath;
   BOOLEAN   Grub_f;
   BOOLEAN   bFirstRst;
   BOOLEAN   bSetZeroLen;
-  UINT8	rxburst;
+  UINT8 rxburst;
   UINTN usbMaxPktSize;
-  
+
 } NIC_DEVICE;
 
 #define DEV_FROM_SIMPLE_NETWORK(a)  CR (a, NIC_DEVICE, SimpleNetwork, DEV_SIGNATURE)  ///< Locate NIC_DEVICE from Simple Network Protocol
@@ -428,7 +428,7 @@ SN_Start (
 
 /**
   Set the MAC address.
-  
+
   This function modifies or resets the current station address of a
   network interface.  If Reset is TRUE, then the current station address
   is set ot the network interface's permanent address.  If Reset if FALSE
@@ -759,7 +759,7 @@ Ax88179RxControl (
   IN NIC_DEVICE * pNicDevice,
   IN UINT32 RxFilter
   );
-  
+
   EFI_STATUS
 Ax88179ReloadSrom  (
   IN NIC_DEVICE * pNicDevice
@@ -791,13 +791,13 @@ EFI_STATUS
 Ax88179EnableSromWrite  (
   IN NIC_DEVICE * pNicDevice
   );
-  
-  
+
+
 EFI_STATUS
 Ax88179DisableSromWrite  (
   IN NIC_DEVICE * pNicDevice
-  );  
-  
+  );
+
 EFI_STATUS
 Ax88179SromWrite (
   IN NIC_DEVICE * pNicDevice,
@@ -816,7 +816,7 @@ Ax88179SromWrite (
   @retval other                The USB transfer failed
 
 **/
-  
+
 EFI_STATUS
 Ax88179UsbCommand (
   IN NIC_DEVICE * pNicDevice,
@@ -955,10 +955,10 @@ Ax88179SetMedium (
 #define ACCESS_MAC  0x01
 #define ACCESS_PHY  0x02
 
-#define PLSR               	0x02
-  #define PLSR_USB_FS		0x01
-  #define PLSR_USB_HS		0x02
-  #define PLSR_USB_SS		0x04
+#define PLSR                0x02
+  #define PLSR_USB_FS  0x01
+  #define PLSR_USB_HS  0x02
+  #define PLSR_USB_SS  0x04
 
 #define NODE_ID               0x10
 
@@ -975,9 +975,9 @@ Ax88179SetMedium (
   #define RXCTL_IPE         0x0200  ///<  RX header 2 formate selection
   #define RXCTL_TXPADCRC    0x0400  ///<  RX header 3 formate selection
   #define RXCTL_LPBK        0x1000  ///<  MAC loop back for diagnostic
-  
+
 #define MULCATFLTARRY       0x16  ///<  Write the multicast hash table, Data: New 8 byte value
-  
+
 #define MEDIUMSTSMOD          0x22
   #define MEDIUMSTSMOD_GM   0x0001  ///<  Gigabit Mode
   #define MEDIUMSTSMOD_FD   0x0002  ///<  Full duplex
@@ -986,31 +986,31 @@ Ax88179SetMedium (
   #define MEDIUMSTSMOD_RFC  0x0010  ///<  RX flow control enable
   #define MEDIUMSTSMOD_TFC  0x0020  ///<  TX flow control enable
   #define MEDIUMSTSMOD_JFE  0x0040  ///<  Pause frame enable
-  #define MEDIUMSTSMOD_PF   0x0080  ///<  Pause frame enable 
+  #define MEDIUMSTSMOD_PF   0x0080  ///<  Pause frame enable
   #define MEDIUMSTSMOD_RE   0x0100  ///<  Receive enable
   #define MEDIUMSTSMOD_PS   0x0200  ///<  Port speed 1=100, 0=10 Mbps
   #define MEDIUMSTSMOD_SBP  0x0800  ///<  Stop back pressure
   #define MEDIUMSTSMOD_SM   0x1000  ///<  Super MAC support
-  
+
 #define MONITORSTAUS          0x24
   #define  MONITORSTAUS_PMETYPE   0x40
   #define  MONITORSTAUS_PMEPOL    0x20
-  
+
 #define PHYPWRRSTCTL          0x26
   #define PHYPWRRSTCTL_IPRL     0x20
   #define PHYPWRRSTCTL_OSCDSSEL 0x80
   #define PHYPWRRSTCTL_BZTYPE       0x4
   #define PHYPWRRSTCTL_BZ      0x10
-  
+
 #define SISSR                 0x28
   #define SISSR_PSEL        0x01
-  #define SISSR_ASEL        0x02 
-  
+  #define SISSR_ASEL        0x02
+
 #define RXBINQCTRL            0x2e
   #define RXBINQCTRL_TIMEN  0x01
   #define RXBINQCTRL_IFGEN  0x02
-  #define RXBINQCTRL_SIZEN  0x04  
-                
+  #define RXBINQCTRL_SIZEN  0x04
+
 #define RXBINQTIMERL          0x2f
 #define RXBINQTIMERH          0x30
 #define RXBINQSIZE            0x31
@@ -1019,12 +1019,12 @@ Ax88179SetMedium (
 #define CLKSELECT             0x33
   #define CLKSELECT_ACS       0x02
   #define CLKSELECT_BCS       0x01
-  
+
 #define PAUSE_WATERLVL_HIGH   0x54
 #define PAUSE_WATERLVL_LOW    0x55
 
 #define RXFREEBUF             0x57
-  #define MAX_RXBUF_PAGE	  0x067F
+  #define MAX_RXBUF_PAGE    0x067F
 
 #define PHY_BMCR                        0       ///<  Control register
   #define BMCR_RESET                      0x8000  ///<  1 = Reset the PHY, bit clears after reset
@@ -1037,7 +1037,7 @@ Ax88179SetMedium (
   #define BMCR_COLLISION_TEST             0x0080  ///<  1 = Collision test enabled
   #define BMCR_1000MBPS                   0x40  ///<  Forced mode in 1000Mbps
   #define BMCR_100MBPS                    0x2000    ///<  Forced mode in 10Mbps
-  
+
 #define PHY_BMSR                        1       ///<  Status register
   #define BMSR_100BASET4                  0x8000  ///<  1 = 100BASE-T4 mode
   #define BMSR_100BASETX_FDX              0x4000  ///<  1 = 100BASE-TX full duplex
@@ -1062,15 +1062,15 @@ Ax88179SetMedium (
   #define AN_10_FDX                       0x0040  ///<  1 = 10BASE-T Full duplex
   #define AN_10_HDX                       0x0020  ///<  1 = 10BASE-T support
   #define AN_CSMA_CD                      0x0001  ///<  1 = IEEE 802.3 CSMA/CD support
-  
+
 #define PHY_ANLPAR                      5       ///<  Autonegotiation link parter ability register
 
 #define PHY_PHYSR                       0x11
   #define PHYSR_SPEED_MASK                0xC000
   #define PHYSR_1000                      0x8000
-  #define PHYSR_100                       0x4000 
+  #define PHYSR_100                       0x4000
   #define PHYSR_FULLDUP                   0x2000
-  #define PHYSR_LINK                      0x400                    
+  #define PHYSR_LINK                      0x400
 
 EFI_STATUS
 Ax88179PhyRead (
@@ -1099,7 +1099,7 @@ Ax88179SetIInInterval (
   IN  NIC_DEVICE * pNicDevice,
   IN  UINT8 Offset
   );
-  
+
 EFI_STATUS
 Ax88179MacWrite (
   IN  UINT8 Offset,
@@ -1113,19 +1113,19 @@ Ax88179MacAddressGet (
   IN NIC_DEVICE * pNicDevice,
   OUT UINT8 * pMacAddress
   );
-  
+
 EFI_STATUS
 Ax88179MacAddressSet (
   IN NIC_DEVICE * pNicDevice,
   OUT UINT8 * pMacAddress
   );
-  
+
 BOOLEAN
 Ax88179GetLinkStatus (
   IN NIC_DEVICE * pNicDevice
 );
 
-EFI_STATUS  
+EFI_STATUS
 Ax88179BulkIn(
   IN NIC_DEVICE * pNicDevice
 );

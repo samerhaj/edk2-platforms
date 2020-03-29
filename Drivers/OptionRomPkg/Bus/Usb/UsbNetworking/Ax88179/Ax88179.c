@@ -45,8 +45,8 @@ Ax88179Crc (
   pEnd = &pMacAddress[ PXE_HWADDR_LEN_ETHER ];
   while ( pEnd > pMacAddress ) {
     Data = *pMacAddress++;
-    
-    
+
+
     //
     //  CRC32: x32 + x26 + x23 + x22 + x16 + x12 + x11 + x10 + x8 + x7 + x5 + x4 + x2 + x + 1
     //
@@ -88,8 +88,8 @@ Ax88179MacAddressGet (
   )
 {
   EFI_STATUS Status;
-  
-  Status  = Ax88179MacRead (NODE_ID, 
+
+  Status  = Ax88179MacRead (NODE_ID,
                             PXE_HWADDR_LEN_ETHER,
                             pNicDevice,
                             pMacAddress);
@@ -117,8 +117,8 @@ Ax88179MacAddressSet (
   )
 {
   EFI_STATUS Status;
-  
-  Status  = Ax88179MacWrite (NODE_ID, 
+
+  Status  = Ax88179MacWrite (NODE_ID,
                              PXE_HWADDR_LEN_ETHER,
                              pNicDevice,
                              pMacAddress);
@@ -191,7 +191,7 @@ Ax88179NegotiateLinkStart (
 {
   UINT16 Control = 0;
   EFI_STATUS Status;
-  
+
 #if FORCE_100Mbps
   Ax88179PhyRead ( pNicDevice,
                    0x09,
@@ -210,7 +210,7 @@ Ax88179NegotiateLinkStart (
   } else if ( pNicDevice->b100Mbps ) {
     Control |= BMCR_100MBPS;
   }
-  
+
   if ( pNicDevice->bFullDuplex ) {
     Control |= BMCR_FULL_DUPLEX;
   }
@@ -261,7 +261,7 @@ Ax88179NegotiateLinkComplete (
 
   //
   //  Get the link status
-  // 
+  //
   Status = Ax88179PhyRead ( pNicDevice,
                             PHY_PHYSR,
                             &PhyData );
@@ -277,7 +277,7 @@ Ax88179NegotiateLinkComplete (
                             &PhyData );
       if ( !EFI_ERROR (Status)) {
           *pbComplete =  (BOOLEAN)( 0 != ( PhyData & BMSR_AUTONEG_CMPLT ));
-          
+
           if ( 0 != *pbComplete ) {
             //
             //  Get the partners capabilities.
@@ -299,11 +299,11 @@ Ax88179NegotiateLinkComplete (
               *pbFullDuplex = (BOOLEAN)( (PhyData & PHYSR_FULLDUP) == PHYSR_FULLDUP);
           }
         }
-      }          
-    }    
-  }    
-        
-     
+      }
+    }
+  }
+
+
   //
   // Return the operation status
   //
@@ -420,108 +420,108 @@ Ax88179Reset (
   UINT8 val8;
 
   Status = Ax88179SetIInInterval(pNicDevice, 0xff);
-  
+
   if (EFI_ERROR(Status)) goto err;
-  
+
   val8 = 0;
-  Status  = Ax88179MacRead (PLSR, 
+  Status  = Ax88179MacRead (PLSR,
                             sizeof(val8),
                             pNicDevice,
                             &val8);
-							
+
   if (EFI_ERROR(Status)) goto err;
-  
+
   if (val8 & PLSR_USB_SS)
     pNicDevice->usbMaxPktSize = 1024;
   else
     pNicDevice->usbMaxPktSize = 512;
- 
-  val = 0;                                
+
+  val = 0;
   Status = Ax88179MacWrite ( PHYPWRRSTCTL,
                              sizeof (val),
                              pNicDevice,
                              &val);
-                              
-  if (EFI_ERROR(Status)) goto err; 
-                              
+
+  if (EFI_ERROR(Status)) goto err;
+
   gBS->Stall ( 10000 );
-  
-  val =  PHYPWRRSTCTL_IPRL;                
+
+  val =  PHYPWRRSTCTL_IPRL;
   Status = Ax88179MacWrite ( PHYPWRRSTCTL,
                              sizeof (val),
                              pNicDevice,
                              &val);
-  
-  if (EFI_ERROR(Status)) goto err;  
-                                
+
+  if (EFI_ERROR(Status)) goto err;
+
   gBS->Stall ( 200000 );
-                                  
+
   val = CLKSELECT_BCS | CLKSELECT_ACS;
   Status = Ax88179MacWrite ( CLKSELECT,
                              1,
                              pNicDevice,
                              &val);
-  
-  if (EFI_ERROR(Status)) goto err; 
-     
+
+  if (EFI_ERROR(Status)) goto err;
+
   gBS->Stall ( 100000 );
-  
+
   val = 0x52;
   Status = Ax88179MacWrite ( PAUSE_WATERLVL_HIGH,
                              1,
                              pNicDevice,
                              &val);
-  
+
   if (EFI_ERROR(Status)) goto err;
-  
+
   val = 0x34;
   Status = Ax88179MacWrite ( PAUSE_WATERLVL_LOW,
                              1,
                              pNicDevice,
                              &val);
-  
+
   if (EFI_ERROR(Status)) goto err;
-                        
-  val = RXBINQCTRL_TIMEN | RXBINQCTRL_IFGEN | RXBINQCTRL_SIZEN;            
-  
+
+  val = RXBINQCTRL_TIMEN | RXBINQCTRL_IFGEN | RXBINQCTRL_SIZEN;
+
   Status =  Ax88179MacWrite ( RXBINQCTRL,
                               0x01,
                               pNicDevice,
                               &val);
-  
+
   if (EFI_ERROR(Status)) goto err;
-  
+
   val = 0;
   Status =  Ax88179MacWrite ( RXBINQTIMERL,
                               0x01,
                               pNicDevice,
                               &val);
-                       
-  if (EFI_ERROR(Status)) goto err;  
-  
+
+  if (EFI_ERROR(Status)) goto err;
+
   val = 0;
   Status =  Ax88179MacWrite ( RXBINQTIMERH,
                               0x01,
                               pNicDevice,
                               &val);
-                                    
-  if (EFI_ERROR(Status)) goto err;  
-  
-  val = 12; //AX88179_BULKIN_SIZE_INK - 1;           
+
+  if (EFI_ERROR(Status)) goto err;
+
+  val = 12; //AX88179_BULKIN_SIZE_INK - 1;
   Status =  Ax88179MacWrite ( RXBINQSIZE,
                               0x01,
                               pNicDevice,
                               &val);
-                                    
-  if (EFI_ERROR(Status)) goto err;  
-  
-  val = 0x0F;           
+
+  if (EFI_ERROR(Status)) goto err;
+
+  val = 0x0F;
   Status =  Ax88179MacWrite ( RXBINQIFG,
                               0x01,
                               pNicDevice,
                               &val);
 
-err:                     
+err:
   return Status;
 }
 
@@ -541,11 +541,11 @@ Ax88179RxControl (
     //
     //  Enable the receiver
     //
-    Status  = Ax88179MacRead (MEDIUMSTSMOD, 
+    Status  = Ax88179MacRead (MEDIUMSTSMOD,
                               sizeof ( MediumStatus ),
                               pNicDevice,
                               &MediumStatus);
-    
+
     if ( !EFI_ERROR ( Status ) && pNicDevice->CurMediumStatus != MediumStatus) {
         MediumStatus = MEDIUMSTSMOD_RE | MEDIUMSTSMOD_ONE;
         if ( pNicDevice->bFullDuplex ) {
@@ -561,12 +561,12 @@ Ax88179RxControl (
           MediumStatus &= ~MEDIUMSTSMOD_GM;
           MediumStatus &= ~MEDIUMSTSMOD_ENCK;
           if ( pNicDevice->b100Mbps ) {
-            MediumStatus |= MEDIUMSTSMOD_PS;         
+            MediumStatus |= MEDIUMSTSMOD_PS;
           }  else {
             MediumStatus &= ~MEDIUMSTSMOD_PS;
           }
-        }                
-        Status  = Ax88179MacWrite (MEDIUMSTSMOD, 
+        }
+        Status  = Ax88179MacWrite (MEDIUMSTSMOD,
                                    sizeof ( MediumStatus ),
                                    pNicDevice,
                                    &MediumStatus);
@@ -574,9 +574,9 @@ Ax88179RxControl (
           pNicDevice->CurMediumStatus = MediumStatus;
     }
   }
-  
+
   RxControl = RXCTL_SO | RXCTL_IPE;
-    
+
   //
   //  Enable multicast if requested
   //
@@ -585,7 +585,7 @@ Ax88179RxControl (
     //
     //  Update the multicast hash table
     //
-    Status  = Ax88179MacWrite (MULCATFLTARRY, 
+    Status  = Ax88179MacWrite (MULCATFLTARRY,
                                8,
                                pNicDevice,
                                &pNicDevice->MulticastHash );
@@ -615,7 +615,7 @@ Ax88179RxControl (
   //  Update the receiver control
   //
   if (pNicDevice->CurRxControl != RxControl) {
-    Status  = Ax88179MacWrite (RXCTL, 
+    Status  = Ax88179MacWrite (RXCTL,
                                0x02,
                                pNicDevice,
                                &RxControl);
@@ -687,7 +687,7 @@ Ax88179DisableSromWrite  (
 {
   EFI_STATUS Status;
 
-  Status = EFI_UNSUPPORTED;  
+  Status = EFI_UNSUPPORTED;
   return Status;
 }
 
@@ -710,11 +710,11 @@ Ax88179SromWrite (
   IN NIC_DEVICE * pNicDevice,
   IN UINT32 Address,
   IN UINT16 * pData
-  )  
+  )
 {
   EFI_STATUS Status;
-  
-  Status = EFI_UNSUPPORTED;   
+
+  Status = EFI_UNSUPPORTED;
   return Status;
 }
 
@@ -739,7 +739,7 @@ Ax88179UsbCommand (
   IN OUT VOID * pBuffer
   )
 {
-  
+
   EFI_USB_DATA_DIRECTION Direction;
   EFI_USB_IO_PROTOCOL * pUsbIo;
   EFI_STATUS Status = EFI_TIMEOUT;
@@ -758,7 +758,7 @@ Ax88179UsbCommand (
   // Issue the command
   //
   pUsbIo = pNicDevice->pUsbIo;
-  
+
   for ( i = 0 ; i < 3 && EFI_TIMEOUT == Status; i++) {
     Status = pUsbIo->UsbControlTransfer ( pUsbIo,
                                         pRequest,
@@ -793,18 +793,18 @@ Ax88179MacRead (
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE
                        | USB_ENDPOINT_DIR_IN;
-                       
+
   SetupMsg.Request = ACCESS_MAC;
   SetupMsg.Value  = Offset;
   SetupMsg.Index  = Length;
   SetupMsg.Length = SetupMsg.Index;
-  
+
   Status = Ax88179UsbCommand ( pNicDevice,
                                &SetupMsg,
                                pData );
-                               
+
   return Status;
-  
+
 }
 
 EFI_STATUS
@@ -820,18 +820,18 @@ Ax88179MacWrite (
   USB_DEVICE_REQUEST SetupMsg;
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
-                       
+
   SetupMsg.Request = ACCESS_MAC;
   SetupMsg.Value  = Offset;
   SetupMsg.Index  = Length;
   SetupMsg.Length = SetupMsg.Index;
-  
+
   Status = Ax88179UsbCommand ( pNicDevice,
                                &SetupMsg,
                                pData );
-                               
+
   return Status;
-  
+
 }
 
 EFI_STATUS
@@ -845,18 +845,18 @@ Ax88179SetIInInterval (
   USB_DEVICE_REQUEST SetupMsg;
   SetupMsg.RequestType = USB_REQ_TYPE_VENDOR
                        | USB_TARGET_DEVICE;
-                       
+
   SetupMsg.Request = 0x91;
   SetupMsg.Value  = Interval;
   SetupMsg.Index  = 0;
   SetupMsg.Length = 0;
-  
+
   Status = Ax88179UsbCommand ( pNicDevice,
                                &SetupMsg,
                                NULL );
-                               
+
   return Status;
-  
+
 }
 
 EFI_STATUS
@@ -866,7 +866,7 @@ Ax88179SetMedium (
 {
   UINT16 MediumStatus;
   EFI_STATUS Status;
-  
+
   MediumStatus = MEDIUMSTSMOD_RE | MEDIUMSTSMOD_ONE;
   if ( pNicDevice->bFullDuplex ) {
     MediumStatus |= MEDIUMSTSMOD_TFC | MEDIUMSTSMOD_RFC | MEDIUMSTSMOD_FD;
@@ -879,12 +879,12 @@ Ax88179SetMedium (
   } else {
     MediumStatus &= ~MEDIUMSTSMOD_GM;
     if ( pNicDevice->b100Mbps ) {
-      MediumStatus |= MEDIUMSTSMOD_PS;         
+      MediumStatus |= MEDIUMSTSMOD_PS;
     } else {
       MediumStatus &= ~MEDIUMSTSMOD_PS;
     }
-  }                
-  Status  = Ax88179MacWrite (MEDIUMSTSMOD, 
+  }
+  Status  = Ax88179MacWrite (MEDIUMSTSMOD,
                              sizeof ( MediumStatus ),
                              pNicDevice,
                              &MediumStatus);
@@ -924,10 +924,10 @@ Ax88179GetLinkStatus (
 
 }
 
-EFI_STATUS  
+EFI_STATUS
 Ax88179BulkIn(
   IN NIC_DEVICE * pNicDevice
-) 
+)
 {
   int i;
   UINT16  val;
@@ -940,13 +940,13 @@ Ax88179BulkIn(
   UINT32 TransferStatus;
 
   pNicDevice->SkipRXCnt = 0;
-    
-  pUsbIo = pNicDevice->pUsbIo; 
+
+  pUsbIo = pNicDevice->pUsbIo;
   for ( i = 0 ; i < (AX88179_MAX_BULKIN_SIZE / 512) && pUsbIo != NULL; i++) {
     VOID* tmpAddr = 0;
 
     if (pNicDevice->bSetZeroLen) {
-      val =  PHYPWRRSTCTL_IPRL | PHYPWRRSTCTL_BZ;                
+      val =  PHYPWRRSTCTL_IPRL | PHYPWRRSTCTL_BZ;
       Status = Ax88179MacWrite ( PHYPWRRSTCTL,
                                  sizeof (val),
                                  pNicDevice,
@@ -959,20 +959,20 @@ Ax88179BulkIn(
       pNicDevice->bSetZeroLen = FALSE;
     }
     tmpAddr = (VOID*) &pNicDevice->pBulkInbuf[LengthInBytes];
-        
+
     Status =  EFI_NOT_READY;
     Status = pUsbIo->UsbBulkTransfer ( pUsbIo,
                           USB_ENDPOINT_DIR_IN | BULK_IN_ENDPOINT,
                           tmpAddr,
                           &TMP_LENG,
-                          BULKIN_TIMEOUT,        
-                          &TransferStatus ); 
+                          BULKIN_TIMEOUT,
+                          &TransferStatus );
 
     if (( !EFI_ERROR ( Status )) && ( !EFI_ERROR ( TransferStatus )) && TMP_LENG != 0) {
       LengthInBytes += TMP_LENG;
-      if ((TMP_LENG % pNicDevice->usbMaxPktSize) != 0) {	  
+      if ((TMP_LENG % pNicDevice->usbMaxPktSize) != 0) {
         goto done;
-      } 
+      }
       CURBufSize = CURBufSize - TMP_LENG;
       TMP_LENG = CURBufSize;
       pNicDevice->bSetZeroLen = TRUE;
@@ -993,7 +993,7 @@ Ax88179BulkIn(
       LengthInBytes = 0;
       Status = EFI_NOT_READY;
       goto done;
-    } else if (EFI_TIMEOUT == Status && EFI_USB_ERR_TIMEOUT == TransferStatus) { 
+    } else if (EFI_TIMEOUT == Status && EFI_USB_ERR_TIMEOUT == TransferStatus) {
       pNicDevice->bSetZeroLen = TRUE;
       LengthInBytes = 0;
       Status = EFI_NOT_READY;
@@ -1017,7 +1017,7 @@ done:
     if (((UINTN)(((tmpPktCnt * 4 + 4 + 7) & 0xfff8) + tmplen)) == LengthInBytes) {
       pNicDevice->PktCnt = tmpPktCnt;
       pNicDevice->pCurPktHdrOff = pNicDevice->pBulkInbuf + tmplen;
-      pNicDevice->pCurPktOff = pNicDevice->pBulkInbuf; 
+      pNicDevice->pCurPktOff = pNicDevice->pBulkInbuf;
       *((UINT16 *) (pNicDevice->pBulkInbuf + LengthInBytes - 4)) = 0;
       *((UINT16*) (pNicDevice->pBulkInbuf + LengthInBytes - 2)) = 0;
       Status = EFI_SUCCESS;

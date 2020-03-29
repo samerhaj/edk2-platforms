@@ -222,7 +222,7 @@ GetControllerName (
            ppControllerName,
            (BOOLEAN)(pThis == &gComponentName)
            );
-         
+
   return  Status;
 }
 #else
@@ -240,7 +240,7 @@ GetControllerName (
   EFI_STATUS Status;
   EFI_USB_IO_PROTOCOL         *UsbIoProtocol;
   EFI_USB_DEVICE_DESCRIPTOR Device;
-  
+
   //
   //  Connect to the USB stack
   //
@@ -248,16 +248,16 @@ GetControllerName (
                   ControllerHandle,
                   &gEfiUsbIoProtocolGuid,
                   (VOID **) &UsbIoProtocol,
-                  gDriverBinding.DriverBindingHandle,         
+                  gDriverBinding.DriverBindingHandle,
                   ControllerHandle,
                   EFI_OPEN_PROTOCOL_BY_DRIVER
                   );
-                  
-  
+
+
   if (!EFI_ERROR ( Status )) {
       Status = UsbIoProtocol->UsbGetDeviceDescriptor ( UsbIoProtocol, &Device );
       if (EFI_ERROR(Status)) {
-      	Status = EFI_UNSUPPORTED;
+        Status = EFI_UNSUPPORTED;
       } else {
           //
           //  Validate the adapter
@@ -272,10 +272,10 @@ GetControllerName (
             Status = EFI_SUCCESS;
           } else {
             Status = EFI_UNSUPPORTED;
-          } 
-            
+          }
+
       }
-      
+
       gBS->CloseProtocol (
                ControllerHandle,
                &gEfiUsbIoProtocolGuid,
@@ -286,8 +286,8 @@ GetControllerName (
   //
   // Return the operation status
   //
-  if (Status != EFI_SUCCESS) {	  
-		*ppControllerName = L"AX88179_178A Gigabit Ethernet Controller";
+  if (Status != EFI_SUCCESS) {
+    *ppControllerName = L"AX88179_178A Gigabit Ethernet Controller";
         Status = EFI_SUCCESS;
   }
   return Status;
