@@ -286,6 +286,8 @@ READ_LOCK_STATUS   = TRUE
   INF MdeModulePkg/Bus/Usb/UsbKbDxe/UsbKbDxe.inf
   INF MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
   INF Drivers/OptionRomPkg/Bus/Usb/UsbNetworking/Ax88772b/Ax88772b.inf
+  INF Drivers/OptionRomPkg/Bus/Usb/UsbNetworking/Ax88772c/Ax88772c.inf
+  INF Drivers/OptionRomPkg/Bus/Usb/UsbNetworking/Ax88179/Ax88179.inf
 
   #
   # SD/MMC support
