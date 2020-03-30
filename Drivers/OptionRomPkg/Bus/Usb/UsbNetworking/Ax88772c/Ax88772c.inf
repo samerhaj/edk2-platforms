@@ -9,7 +9,7 @@
 ##
 
 [Defines]
-  INF_VERSION                    = 0x00010005
+  INF_VERSION                    = 0x00010018
   BASE_NAME                      = Ax88772c
   FILE_GUID                      = B15239D6-6A01-4808-A0F7-B7F20F073555
   MODULE_TYPE                    = DXE_DRIVER
