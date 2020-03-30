@@ -85,7 +85,6 @@ DriverSupported (
   //
   //  Return the device supported status
   //
-
   return Status;
 }
 
@@ -350,7 +349,7 @@ DriverStop (
                 Controller,
                 &gEfiUsbIoProtocolGuid,
                 pThis->DriverBindingHandle,
-                            Controller
+                Controller
                 );
       return EFI_SUCCESS;
     }

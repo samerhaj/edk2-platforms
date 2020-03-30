@@ -41,8 +41,8 @@
   UefiDriverEntryPoint
 
 [Protocols]
-  gEfiDevicePathProtocolGuid
-  gEfiSimpleNetworkProtocolGuid
+  gEfiDevicePathProtocolGuid           ## BY_START
+  gEfiSimpleNetworkProtocolGuid        ## BY_START
   gEfiUsbIoProtocolGuid                ## TO_START
 
 #[Guids]

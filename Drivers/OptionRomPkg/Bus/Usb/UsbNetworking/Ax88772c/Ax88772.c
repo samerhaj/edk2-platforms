@@ -399,7 +399,6 @@ Ax88772PhyRead (
   //
   //  Return the operation status.
   //
-
   return Status;
 }
 
@@ -472,7 +471,6 @@ Ax88772PhyWrite (
   //
   //  Return the operation status.
   //
-
   return Status;
 }
 
@@ -1030,7 +1028,6 @@ Ax88772UsbCommand (
   //
   // Return the operation status
   //
-
   return Status;
 }
 

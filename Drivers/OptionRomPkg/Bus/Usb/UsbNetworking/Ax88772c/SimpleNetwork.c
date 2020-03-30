@@ -253,7 +253,9 @@ SN_NvData (
       goto  EXIT;
     }
   }
-  //Offset must be a multiple of NvRamAccessSize and less than NvRamSize.
+  //
+  // Offset must be a multiple of NvRamAccessSize and less than NvRamSize.
+  //
   if (0 != (BufferSize % pMode->NvRamAccessSize)) {
     Status = EFI_INVALID_PARAMETER;
     goto  EXIT;
@@ -269,7 +271,9 @@ SN_NvData (
     goto  EXIT;
   }
 
-  //ReadWrite: TRUE FOR READ FALSE FOR WRITE
+  //
+  // ReadWrite: TRUE FOR READ FALSE FOR WRITE
+  //
   if (ReadWrite){
     UINTN i;
 
@@ -319,7 +323,7 @@ EXIT:
 
   @retval EFI_SUCCESS           This operation was successful.
   @retval EFI_NOT_STARTED       The network interface was not started.
-  @retval EFI_OUT_OF_RESORUCES  There was not enough memory for the transmit and receive buffers
+  @retval EFI_OUT_OF_RESOURCES  There was not enough memory for the transmit and receive buffers
   @retval EFI_INVALID_PARAMETER pSimpleNetwork parameter was NULL or did not point to a valid
                                 EFI_SIMPLE_NETWORK_PROTOCOL structure.
   @retval EFI_DEVICE_ERROR      The command could not be sent to the network interface.
@@ -896,6 +900,9 @@ SN_Setup (
   EFI_SIMPLE_NETWORK_PROTOCOL * pSimpleNetwork;
   EFI_STATUS Status;
 
+  //
+  // Initialize the simple network protocol
+  //
   pSimpleNetwork = &pNicDevice->SimpleNetwork;
   pSimpleNetwork->Revision = EFI_SIMPLE_NETWORK_PROTOCOL_REVISION;
   pSimpleNetwork->Start = (EFI_SIMPLE_NETWORK_START)SN_Start;
@@ -1041,7 +1048,7 @@ SN_Start (
     pMode = pSimpleNetwork->Mode;
     if ( EfiSimpleNetworkStopped == pMode->State ) {
       //
-      // Initialize the mode structuref
+      // Initialize the mode structure
       // NVRAM access is not supported
       //
       ZeroMem ( pMode, sizeof ( *pMode ));
@@ -1183,7 +1190,6 @@ SN_StationAddress (
   //
   // Return the operation status
   //
-
   gBS->RestoreTPL(TplPrevious);
 
   return Status;

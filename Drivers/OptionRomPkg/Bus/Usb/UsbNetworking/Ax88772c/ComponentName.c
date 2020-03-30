@@ -38,7 +38,7 @@ mDriverNameTable[] = {
 
 
 /**
-  Driver name table declaration
+  Controller name table declaration
 **/
 GLOBAL_REMOVE_IF_UNREFERENCED EFI_UNICODE_STRING_TABLE
 mControllerNameTable[] = {
