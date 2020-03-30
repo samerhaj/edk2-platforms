@@ -12,7 +12,6 @@
 #include <Uefi.h>
 
 #include <Guid/EventGroup.h>
-//#include <Guid/NicIp4ConfigNvData.h>
 
 #include <IndustryStandard/Pci.h>
 
