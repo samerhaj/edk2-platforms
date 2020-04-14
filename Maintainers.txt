@@ -256,6 +256,7 @@ F: Silicon/Broadcom/
 M: Ard Biesheuvel <ard.biesheuvel@arm.com>
 M: Leif Lindholm <leif@nuviainc.com>
 R: Pete Batard <pete@akeo.ie>
+R: Andrei Warkentin <awarkentin@vmware.com>
 
 Socionext platforms and silicon
 F: Platform/Socionext/
