@@ -675,8 +675,6 @@
   #
 !include NetworkPkg/Network.dsc.inc
   Silicon/Broadcom/Drivers/Net/BcmGenetDxe/BcmGenetDxe.inf {
-    <LibraryClasses>
-      NULL|Platform/RaspberryPi/Library/PlatformPcdLib/PlatformPcdLib.inf
     <PcdsFixedAtBuild>
       gEmbeddedTokenSpaceGuid.PcdDmaDeviceOffset|0x00000000
       gEmbeddedTokenSpaceGuid.PcdDmaDeviceLimit|0xffffffff
