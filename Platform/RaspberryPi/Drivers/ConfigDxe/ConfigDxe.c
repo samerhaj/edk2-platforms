@@ -1,6 +1,6 @@
 /** @file
  *
- *  Copyright (c) 2019, ARM Limited. All rights reserved.
+ *  Copyright (c) 2019 - 2020, ARM Limited. All rights reserved.
  *  Copyright (c) 2018 - 2019, Andrei Warkentin <andrey.warkentin@gmail.com>
  *
  *  SPDX-License-Identifier: BSD-2-Clause-Patent
@@ -8,19 +8,21 @@
  **/
 
 #include <Uefi.h>
-#include <Library/AcpiLib.h>
-#include <Library/HiiLib.h>
-#include <Library/DebugLib.h>
-#include <Library/DxeServicesTableLib.h>
-#include <Library/IoLib.h>
-#include <Library/UefiBootServicesTableLib.h>
-#include <Library/UefiRuntimeServicesTableLib.h>
-#include <Library/DevicePathLib.h>
-#include <IndustryStandard/RpiMbox.h>
 #include <IndustryStandard/Bcm2711.h>
 #include <IndustryStandard/Bcm2836.h>
 #include <IndustryStandard/Bcm2836Gpio.h>
+#include <IndustryStandard/RpiMbox.h>
+#include <Library/AcpiLib.h>
+#include <Library/DebugLib.h>
+#include <Library/DevicePathLib.h>
+#include <Library/DxeServicesTableLib.h>
 #include <Library/GpioLib.h>
+#include <Library/HiiLib.h>
+#include <Library/IoLib.h>
+#include <Library/NetLib.h>
+#include <Library/UefiBootServicesTableLib.h>
+#include <Library/UefiRuntimeServicesTableLib.h>
+#include <Protocol/BcmGenetPlatformDevice.h>
 #include <Protocol/RpiFirmware.h>
 #include "ConfigDxeFormSetGuid.h"
 
@@ -46,6 +48,18 @@ typedef struct {
   EFI_DEVICE_PATH_PROTOCOL End;
 } HII_VENDOR_DEVICE_PATH;
 
+#pragma pack (1)
+typedef struct {
+  MAC_ADDR_DEVICE_PATH            MacAddrDP;
+  EFI_DEVICE_PATH_PROTOCOL        End;
+} GENET_DEVICE_PATH;
+
+typedef struct {
+  GENET_DEVICE_PATH                   DevicePath;
+  BCM_GENET_PLATFORM_DEVICE_PROTOCOL  PlatformDevice;
+} GENET_DEVICE;
+#pragma pack ()
+
 STATIC HII_VENDOR_DEVICE_PATH mVendorDevicePath = {
   {
     {
@@ -68,6 +82,73 @@ STATIC HII_VENDOR_DEVICE_PATH mVendorDevicePath = {
   }
 };
 
+STATIC GENET_DEVICE mGenetDevice = {
+  {
+    {
+      {
+        MESSAGING_DEVICE_PATH,
+        MSG_MAC_ADDR_DP,
+        {
+          (UINT8)(sizeof (MAC_ADDR_DEVICE_PATH)),
+          (UINT8)((sizeof (MAC_ADDR_DEVICE_PATH)) >> 8)
+        }
+      },
+      {{ 0 }},
+      NET_IFTYPE_ETHERNET
+    },
+    {
+      END_DEVICE_PATH_TYPE,
+      END_ENTIRE_DEVICE_PATH_SUBTYPE,
+      {
+        sizeof (EFI_DEVICE_PATH_PROTOCOL),
+        0
+      }
+    }
+  },
+  {
+    GENET_BASE_ADDRESS,
+    {{ 0 }}
+  }
+};
+
+
+STATIC
+VOID
+EFIAPI
+RegisterDevices (
+  EFI_EVENT           Event,
+  VOID                *Context
+  )
+{
+  if (mModelFamily == 4) {
+    EFI_HANDLE Handle;
+    EFI_STATUS Status;
+
+    UINT64 MacAddr;
+    UINT8 *Bytes;
+
+    MacAddr = PcdGet64 (PcdBcmGenetMacAddress);
+    if (MacAddr == 0) {
+      DEBUG ((DEBUG_ERROR, "GENET: Hardware not present\n"));
+      return;
+    }
+
+    Bytes = (UINT8 *)&MacAddr;
+    DEBUG ((DEBUG_INFO, "GENET: MAC address %02X:%02X:%02X:%02X:%02X:%02X\n",
+            Bytes[0], Bytes[1], Bytes[2], Bytes[3], Bytes[4], Bytes[5]));
+
+    CopyMem (&mGenetDevice.DevicePath.MacAddrDP.MacAddress, &MacAddr, NET_ETHER_ADDR_LEN);
+    CopyMem (&mGenetDevice.PlatformDevice.MacAddress, &MacAddr, NET_ETHER_ADDR_LEN);
+
+    Handle = NULL;
+    Status = gBS->InstallMultipleProtocolInterfaces (&Handle,
+      &gEfiDevicePathProtocolGuid, &mGenetDevice.DevicePath,
+      &gBcmGenetPlatformDeviceProtocolGuid, &mGenetDevice.PlatformDevice,
+      NULL);
+
+    ASSERT_EFI_ERROR (Status);
+  }
+}
 
 STATIC EFI_STATUS
 InstallHiiPages (
@@ -239,6 +320,19 @@ SetupVariables (
                   NULL, &Size, &Var32);
   if (EFI_ERROR (Status)) {
     PcdSet32 (PcdDisplayEnableSShot, PcdGet32 (PcdDisplayEnableSShot));
+  }
+
+  if (mModelFamily == 4) {
+    UINT64 MacAddr;
+    //
+    // Get the MAC address from the firmware.
+    //
+    Status = mFwProtocol->GetMacAddress ((UINT8*) &MacAddr);
+    if (!EFI_ERROR (Status)) {
+      PcdSet64S (PcdBcmGenetMacAddress, MacAddr);
+    } else {
+      DEBUG ((DEBUG_WARN, "%a: failed to retrieve MAC address\n", __FUNCTION__));
+    }
   }
 
   return EFI_SUCCESS;
@@ -447,7 +541,8 @@ ConfigInitialize (
   IN EFI_SYSTEM_TABLE *SystemTable
   )
 {
-  EFI_STATUS Status;
+  EFI_STATUS                      Status;
+  EFI_EVENT                       EndOfDxeEvent;
 
   Status = gBS->LocateProtocol (&gRaspberryPiFirmwareProtocolGuid,
                   NULL, (VOID**)&mFwProtocol);
@@ -488,6 +583,10 @@ ConfigInitialize (
   }
 
   Status = LocateAndInstallAcpiFromFv (&mAcpiTableFile);
+  ASSERT_EFI_ERROR (Status);
+
+  Status = gBS->CreateEventEx (EVT_NOTIFY_SIGNAL, TPL_NOTIFY, RegisterDevices,
+                  NULL, &gEfiEndOfDxeEventGroupGuid, &EndOfDxeEvent);
   ASSERT_EFI_ERROR (Status);
 
   return EFI_SUCCESS;
