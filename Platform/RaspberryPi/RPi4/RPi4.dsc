@@ -661,7 +661,7 @@
   MdeModulePkg/Bus/Usb/UsbBusDxe/UsbBusDxe.inf
   MdeModulePkg/Bus/Usb/UsbKbDxe/UsbKbDxe.inf
   MdeModulePkg/Bus/Usb/UsbMassStorageDxe/UsbMassStorageDxe.inf
-  Drivers/OptionRomPkg/Bus/Usb/UsbNetworking/Ax88772b/Ax88772b.inf
+  Silicon/ASIX/Drivers/Bus/Usb/UsbNetworking/Ax88772b/Ax88772b.inf
 
   #
   # SD/MMC support
