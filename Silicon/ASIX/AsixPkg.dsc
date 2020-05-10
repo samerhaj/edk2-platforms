@@ -64,5 +64,6 @@
 #
 ################################################################################
 [Components]
+Silicon/ASIX/Drivers/Bus/Usb/UsbNetworking/Ax88179/Ax88179.inf
 Silicon/ASIX/Drivers/Bus/Usb/UsbNetworking/Ax88772/Ax88772.inf
 Silicon/ASIX/Drivers/Bus/Usb/UsbNetworking/Ax88772b/Ax88772b.inf
